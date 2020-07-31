@@ -15,10 +15,12 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { Grid, Row, Col, Alert } from "react-bootstrap";
+import React, { Component } from 'react';
+import {
+  Grid, Row, Col, Alert,
+} from 'react-bootstrap';
 
-import Button from "components/CustomButton/CustomButton.jsx";
+import Button from 'components/Buttons/CustomButton.jsx';
 
 class Notifications extends Component {
   render() {
@@ -29,7 +31,8 @@ class Notifications extends Component {
             <div className="header">
               <h4 className="title">Notifications</h4>
               <p className="category">
-                Handcrafted by{" "}
+                Handcrafted by
+                {' '}
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
@@ -37,7 +40,8 @@ class Notifications extends Component {
                 >
                   Igor Prado
                 </a>
-                . Please checkout the{" "}
+                . Please checkout the
+                {' '}
                 <a
                   href="http://igorprado.com/react-notification-system/"
                   rel="noopener noreferrer"
@@ -89,7 +93,9 @@ class Notifications extends Component {
                       &#x2715;
                     </button>
                     <span>
-                      <b> Info - </b> This is a regular notification made with
+                      <b> Info - </b>
+                      {' '}
+                      This is a regular notification made with
                       bsStyle="info"
                     </span>
                   </Alert>
@@ -98,7 +104,9 @@ class Notifications extends Component {
                       &#x2715;
                     </button>
                     <span>
-                      <b> Success - </b> This is a regular notification made
+                      <b> Success - </b>
+                      {' '}
+                      This is a regular notification made
                       with bsStyle="success"
                     </span>
                   </Alert>
@@ -107,7 +115,9 @@ class Notifications extends Component {
                       &#x2715;
                     </button>
                     <span>
-                      <b> Warning - </b> This is a regular notification made
+                      <b> Warning - </b>
+                      {' '}
+                      This is a regular notification made
                       with bsStyle="warning"
                     </span>
                   </Alert>
@@ -116,7 +126,9 @@ class Notifications extends Component {
                       &#x2715;
                     </button>
                     <span>
-                      <b> Danger - </b> This is a regular notification made with
+                      <b> Danger - </b>
+                      {' '}
+                      This is a regular notification made with
                       bsStyle="danger"
                     </span>
                   </Alert>
@@ -138,7 +150,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("tl")}
+                      onClick={() => this.props.handleClick('tl')}
                     >
                       Top Left
                     </Button>
@@ -147,7 +159,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("tc")}
+                      onClick={() => this.props.handleClick('tc')}
                     >
                       Top Center
                     </Button>
@@ -156,7 +168,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("tr")}
+                      onClick={() => this.props.handleClick('tr')}
                     >
                       Top Right
                     </Button>
@@ -167,7 +179,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("bl")}
+                      onClick={() => this.props.handleClick('bl')}
                     >
                       Bottom Left
                     </Button>
@@ -176,7 +188,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("bc")}
+                      onClick={() => this.props.handleClick('bc')}
                     >
                       Bottom Center
                     </Button>
@@ -185,7 +197,7 @@ class Notifications extends Component {
                     <Button
                       bsStyle="default"
                       block
-                      onClick={() => this.props.handleClick("br")}
+                      onClick={() => this.props.handleClick('br')}
                     >
                       Bottom Right
                     </Button>

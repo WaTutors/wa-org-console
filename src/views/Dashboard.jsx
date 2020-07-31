@@ -15,13 +15,15 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import ChartistGraph from "react-chartist";
-import { Grid, Row, Col } from "react-bootstrap";
+import React, { Component } from 'react';
+import ChartistGraph from 'react-chartist';
+import { Grid, Row, Col } from 'react-bootstrap';
 
-import { Card } from "components/Card/Card.jsx";
-import { StatsCard } from "components/StatsCard/StatsCard.jsx";
-import { Tasks } from "components/Tasks/Tasks.jsx";
+import { Card } from 'components/Card/Card.jsx';
+import { StatsCard } from 'components/StatsCard/StatsCard.jsx';
+import { Labels } from 'components/Labels/Labels.jsx';
+import SearchForm from 'components/FormInputs/SearchForm.jsx';
+
 import {
   dataPie,
   legendPie,
@@ -32,59 +34,115 @@ import {
   dataBar,
   optionsBar,
   responsiveBar,
-  legendBar
-} from "variables/Variables.jsx";
+  legendBar,
+} from 'variables/Variables.jsx';
 
 class Dashboard extends Component {
   createLegend(json) {
-    var legend = [];
-    for (var i = 0; i < json["names"].length; i++) {
-      var type = "fa fa-circle text-" + json["types"][i];
+    const legend = [];
+    for (let i = 0; i < json.names.length; i++) {
+      const type = `fa fa-circle text-${json.types[i]}`;
       legend.push(<i className={type} key={i} />);
-      legend.push(" ");
-      legend.push(json["names"][i]);
+      legend.push(' ');
+      legend.push(json.names[i]);
     }
     return legend;
   }
+
+  onSearchGroup(formData) {
+    alert(`Search Group: ${JSON.stringify(formData)}`);
+  }
+
+  onSearchStudent(formData) {
+    alert(`Search Student: ${JSON.stringify(formData)}`);
+  }
+
   render() {
     return (
       <div className="content">
         <Grid fluid>
           <Row>
+            <Col lg={6} sm={12}>
+              <SearchForm
+                searchType="Student"
+                onSearch={this.onSearchStudent}
+                cols={['col-xs-6', 'col-xs-6']}
+                searchProperties={[
+                  {
+                    label: 'Name',
+                    name: 'name',
+                    type: 'text',
+                    bsClass: 'form-control',
+                    placeholder: 'Dave Franco',
+                  }, {
+                    label: 'Phone Number',
+                    name: 'phone',
+                    type: 'text',
+                    bsClass: 'form-control',
+                    placeholder: '5033102400',
+                  },
+                ]}
+              />
+            </Col>
+            <Col lg={6} sm={12}>
+              <SearchForm
+                searchType="Group"
+                cols={['col-xs-6', 'col-xs-6']}
+                onSearch={this.onSearchGroup}
+                searchProperties={[
+                  {
+                    label: 'Label',
+                    type: 'text',
+                    name: 'label',
+                    bsClass: 'form-control',
+                    placeholder: 'Username',
+                  },
+                  {
+                    label: 'Phone Number',
+                    type: 'phone',
+                    name: 'phone',
+                    bsClass: 'form-control',
+                    placeholder: 'Email',
+                  },
+                ]}
+              />
+            </Col>
+          </Row>
+          <Row>
             <Col lg={3} sm={6}>
               <StatsCard
                 bigIcon={<i className="pe-7s-server text-warning" />}
-                statsText="Capacity"
-                statsValue="105GB"
+                statsText="Tutors"
+                statsValue="3"
                 statsIcon={<i className="fa fa-refresh" />}
-                statsIconText="Updated now"
+                statsIconText="Yesterday"
               />
             </Col>
             <Col lg={3} sm={6}>
               <StatsCard
                 bigIcon={<i className="pe-7s-wallet text-success" />}
-                statsText="Revenue"
-                statsValue="$1,345"
+                statsText="Students"
+                statsValue="10"
                 statsIcon={<i className="fa fa-calendar-o" />}
-                statsIconText="Last day"
+                statsIconText="Yesterday"
               />
             </Col>
             <Col lg={3} sm={6}>
               <StatsCard
                 bigIcon={<i className="pe-7s-graph1 text-danger" />}
-                statsText="Errors"
-                statsValue="23"
+                statsText="All Sessions Last Week"
+                statsValue="223"
                 statsIcon={<i className="fa fa-clock-o" />}
-                statsIconText="In the last hour"
+                statsIconText="Yesterday"
               />
             </Col>
             <Col lg={3} sm={6}>
               <StatsCard
                 bigIcon={<i className="fa fa-twitter text-info" />}
-                statsText="Followers"
+                statsText="Paid Sessions Last Week"
                 statsValue="+45"
                 statsIcon={<i className="fa fa-refresh" />}
-                statsIconText="Updated now"
+                statsIconText="Yesterday"
               />
             </Col>
           </Row>
@@ -96,7 +154,7 @@ class Dashboard extends Component {
                 title="Users Behavior"
                 category="24 Hours performance"
                 stats="Updated 3 minutes ago"
-                content={
+                content={(
                   <div className="ct-chart">
                     <ChartistGraph
                       data={dataSales}
@@ -105,28 +163,9 @@ class Dashboard extends Component {
                       responsiveOptions={responsiveSales}
                     />
                   </div>
-                }
+                )}
                 legend={
                   <div className="legend">{this.createLegend(legendSales)}</div>
-                }
-              />
-            </Col>
-            <Col md={4}>
-              <Card
-                statsIcon="fa fa-clock-o"
-                title="Email Statistics"
-                category="Last Campaign Performance"
-                stats="Campaign sent 2 days ago"
-                content={
-                  <div
-                    id="chartPreferences"
-                    className="ct-chart ct-perfect-fourth"
-                  >
-                    <ChartistGraph data={dataPie} type="Pie" />
-                  </div>
-                }
-                legend={
-                  <div className="legend">{this.createLegend(legendPie)}</div>
                 }
               />
             </Col>
@@ -136,11 +175,11 @@ class Dashboard extends Component {
             <Col md={6}>
               <Card
                 id="chartActivity"
-                title="2014 Sales"
+                title="2014 Sessions"
                 category="All products including Taxes"
                 stats="Data information certified"
                 statsIcon="fa fa-check"
-                content={
+                content={(
                   <div className="ct-chart">
                     <ChartistGraph
                       data={dataBar}
@@ -149,7 +188,7 @@ class Dashboard extends Component {
                       responsiveOptions={responsiveBar}
                     />
                   </div>
-                }
+                )}
                 legend={
                   <div className="legend">{this.createLegend(legendBar)}</div>
                 }
@@ -158,17 +197,17 @@ class Dashboard extends Component {
 
             <Col md={6}>
               <Card
-                title="Tasks"
-                category="Backend development"
+                title="Labels"
+                category="Active labels for your organization"
                 stats="Updated 3 minutes ago"
                 statsIcon="fa fa-history"
-                content={
+                content={(
                   <div className="table-full-width">
                     <table className="table">
-                      <Tasks />
+                      <Labels />
                     </table>
                   </div>
-                }
+                )}
               />
             </Col>
           </Row>

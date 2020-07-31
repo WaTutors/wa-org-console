@@ -15,25 +15,29 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import {
+  BrowserRouter, Route, Switch, Redirect,
+} from 'react-router-dom';
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./assets/css/animate.min.css";
-import "./assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
-import "./assets/css/demo.css";
-import "./assets/css/pe-icon-7-stroke.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/css/animate.min.css';
+import './assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0';
+import './assets/css/demo.css';
+import './assets/css/pe-icon-7-stroke.css';
 
-import AdminLayout from "layouts/Admin.jsx";
+import AdminLayout from 'layouts/Admin.jsx';
+import External from 'layouts/External.jsx';
 
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
-      <Route path="/admin" render={props => <AdminLayout {...props} />} />
-      <Redirect from="/" to="/admin/dashboard" />
+      <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
+      <Route path="/ext" render={(props) => <External {...props} />} />
+      <Redirect from="/" to="/ext/login" />
     </Switch>
   </BrowserRouter>,
-  document.getElementById("root")
+  document.getElementById('root'),
 );

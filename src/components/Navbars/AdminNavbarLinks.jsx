@@ -15,21 +15,26 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { NavItem, Nav, NavDropdown, MenuItem } from "react-bootstrap";
+import React, { Component } from 'react';
+import {
+  NavItem, Nav, NavDropdown, MenuItem,
+} from 'react-bootstrap';
 
-class AdminNavbarLinks extends Component {
-  render() {
-    const notification = (
-      <div>
-        <i className="fa fa-globe" />
-        <b className="caret" />
-        <span className="notification">5</span>
-        <p className="hidden-lg hidden-md">Notification</p>
-      </div>
-    );
-    return (
-      <div>
+import FirebaseAuthService from 'services/firebaseAuthService';
+
+function AdminNavbarLinks() {
+  function onLogOut() {
+    FirebaseAuthService.signOut();
+  }
+
+  return (
+    <div>
+      <Nav pullRight>
+        <NavItem eventKey={3} href="#" onClick={onLogOut}>
+          Log out
+        </NavItem>
+      </Nav>
+      {/*
         <Nav>
           <NavItem eventKey={1} href="#">
             <i className="fa fa-dashboard" />
@@ -69,13 +74,9 @@ class AdminNavbarLinks extends Component {
             <MenuItem divider />
             <MenuItem eventKey={2.5}>Separated link</MenuItem>
           </NavDropdown>
-          <NavItem eventKey={3} href="#">
-            Log out
-          </NavItem>
-        </Nav>
-      </div>
-    );
-  }
+          */}
+    </div>
+  );
 }
 
 export default AdminNavbarLinks;

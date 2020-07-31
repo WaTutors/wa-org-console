@@ -23,28 +23,12 @@ class Footer extends Component {
     return (
       <footer className="footer">
         <Grid fluid>
-          <nav className="pull-left">
-            <ul>
-              <li>
-                <a href="#pablo">Home</a>
-              </li>
-              <li>
-                <a href="#pablo">Company</a>
-              </li>
-              <li>
-                <a href="#pablo">Portfolio</a>
-              </li>
-              <li>
-                <a href="#pablo">Blog</a>
-              </li>
-            </ul>
-          </nav>
           <p className="copyright pull-right">
             &copy; {new Date().getFullYear()}{" "}
-            <a href="http://www.creative-tim.com?ref=lbr-footer">
-              Creative Tim
+            <a href="http://www.watutor.com">
+              WaTutor
             </a>
-            , made with love for a better web
+            , Organization Management Console
           </p>
         </Grid>
       </footer>

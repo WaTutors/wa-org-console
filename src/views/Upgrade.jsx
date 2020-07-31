@@ -20,7 +20,7 @@ import { Table, Grid, Row, Col } from "react-bootstrap";
 
 import Card from "components/Card/Card";
 
-import Button from "components/CustomButton/CustomButton";
+import Button from "components/Buttons/CustomButton";
 
 class Icons extends Component {
   render() {

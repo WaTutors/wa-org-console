@@ -15,22 +15,22 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   Grid,
   Row,
   Col,
   FormGroup,
   ControlLabel,
-  FormControl
-} from "react-bootstrap";
+  FormControl,
+} from 'react-bootstrap';
 
-import { Card } from "components/Card/Card.jsx";
-import { FormInputs } from "components/FormInputs/FormInputs.jsx";
-import { UserCard } from "components/UserCard/UserCard.jsx";
-import Button from "components/CustomButton/CustomButton.jsx";
+import { Card } from 'components/Card/Card.jsx';
+import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
+import { UserCard } from 'components/UserCard/UserCard.jsx';
+import Button from 'components/Buttons/CustomButton.jsx';
 
-import avatar from "assets/img/faces/face-3.jpg";
+import avatar from 'assets/img/faces/face-3.jpg';
 
 class UserProfile extends Component {
   render() {
@@ -41,89 +41,89 @@ class UserProfile extends Component {
             <Col md={8}>
               <Card
                 title="Edit Profile"
-                content={
+                content={(
                   <form>
                     <FormInputs
-                      ncols={["col-md-5", "col-md-3", "col-md-4"]}
+                      ncols={['col-md-5', 'col-md-3', 'col-md-4']}
                       properties={[
                         {
-                          label: "Company (disabled)",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "Company",
-                          defaultValue: "Creative Code Inc.",
-                          disabled: true
+                          label: 'Company (disabled)',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'Company',
+                          defaultValue: 'Creative Code Inc.',
+                          disabled: true,
                         },
                         {
-                          label: "Username",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "Username",
-                          defaultValue: "michael23"
+                          label: 'Username',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'Username',
+                          defaultValue: 'michael23',
                         },
                         {
-                          label: "Email address",
-                          type: "email",
-                          bsClass: "form-control",
-                          placeholder: "Email"
-                        }
+                          label: 'Email address',
+                          type: 'email',
+                          bsClass: 'form-control',
+                          placeholder: 'Email',
+                        },
                       ]}
                     />
                     <FormInputs
-                      ncols={["col-md-6", "col-md-6"]}
+                      ncols={['col-md-6', 'col-md-6']}
                       properties={[
                         {
-                          label: "First name",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "First name",
-                          defaultValue: "Mike"
+                          label: 'First name',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'First name',
+                          defaultValue: 'Mike',
                         },
                         {
-                          label: "Last name",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "Last name",
-                          defaultValue: "Andrew"
-                        }
+                          label: 'Last name',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'Last name',
+                          defaultValue: 'Andrew',
+                        },
                       ]}
                     />
                     <FormInputs
-                      ncols={["col-md-12"]}
+                      ncols={['col-md-12']}
                       properties={[
                         {
-                          label: "Adress",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "Home Adress",
+                          label: 'Adress',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'Home Adress',
                           defaultValue:
-                            "Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                        }
+                            'Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09',
+                        },
                       ]}
                     />
                     <FormInputs
-                      ncols={["col-md-4", "col-md-4", "col-md-4"]}
+                      ncols={['col-md-4', 'col-md-4', 'col-md-4']}
                       properties={[
                         {
-                          label: "City",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "City",
-                          defaultValue: "Mike"
+                          label: 'City',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'City',
+                          defaultValue: 'Mike',
                         },
                         {
-                          label: "Country",
-                          type: "text",
-                          bsClass: "form-control",
-                          placeholder: "Country",
-                          defaultValue: "Andrew"
+                          label: 'Country',
+                          type: 'text',
+                          bsClass: 'form-control',
+                          placeholder: 'Country',
+                          defaultValue: 'Andrew',
                         },
                         {
-                          label: "Postal Code",
-                          type: "number",
-                          bsClass: "form-control",
-                          placeholder: "ZIP Code"
-                        }
+                          label: 'Postal Code',
+                          type: 'number',
+                          bsClass: 'form-control',
+                          placeholder: 'ZIP Code',
+                        },
                       ]}
                     />
 
@@ -146,7 +146,7 @@ class UserProfile extends Component {
                     </Button>
                     <div className="clearfix" />
                   </form>
-                }
+                )}
               />
             </Col>
             <Col md={4}>
@@ -155,7 +155,7 @@ class UserProfile extends Component {
                 avatar={avatar}
                 name="Mike Andrew"
                 userName="michael24"
-                description={
+                description={(
                   <span>
                     "Lamborghini Mercy
                     <br />
@@ -163,8 +163,8 @@ class UserProfile extends Component {
                     <br />
                     I'm in that two seat Lambo"
                   </span>
-                }
-                socials={
+                )}
+                socials={(
                   <div>
                     <Button simple>
                       <i className="fa fa-facebook-square" />
@@ -176,7 +176,7 @@ class UserProfile extends Component {
                       <i className="fa fa-google-plus-square" />
                     </Button>
                   </div>
-                }
+                )}
               />
             </Col>
           </Row>

@@ -14,6 +14,8 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
+Edited Brett Stoddard 7/29 WaTutor
+
 */
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
@@ -22,7 +24,8 @@ import NotificationSystem from "react-notification-system";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Footer from "components/Footer/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
-import FixedPlugin from "components/FixedPlugin/FixedPlugin.jsx";
+// import FixedPlugin from "components/FixedPlugin/FixedPlugin.jsx";
+import PrivateRoute from 'components/Security/PrivateRoute'
 
 import { style } from "variables/Variables.jsx";
 
@@ -60,6 +63,7 @@ class Admin extends Component {
       default:
         break;
     }
+    /*
     this.state._notificationSystem.addNotification({
       title: <span data-notify="icon" className="pe-7s-gift" />,
       message: (
@@ -72,20 +76,20 @@ class Admin extends Component {
       position: position,
       autoDismiss: 15
     });
+    */
   };
   getRoutes = routes => {
     return routes.map((prop, key) => {
       if (prop.layout === "/admin") {
         return (
-          <Route
-            path={prop.layout + prop.path}
-            render={props => (
-              <prop.component
-                {...props}
-                handleClick={this.handleNotificationClick}
-              />
-            )}
+          <PrivateRoute
             key={key}
+            path={prop.layout + prop.path}
+            name={prop.name}
+            // isOnDemandAvailable={isOnDemandAvailable} FIXME - enable when on-demand fully supported
+            component={prop.component}
+            customProps={ prop || {}}
+            handleClick={this.handleNotificationClick}
           />
         );
       } else {
@@ -142,6 +146,7 @@ class Admin extends Component {
       default:
         break;
     }
+    /* hide annoying notification
     _notificationSystem.addNotification({
       title: <span data-notify="icon" className="pe-7s-gift" />,
       message: (
@@ -154,6 +159,7 @@ class Admin extends Component {
       position: "tr",
       autoDismiss: 15
     });
+    */
   }
   componentDidUpdate(e) {
     if (
@@ -183,7 +189,7 @@ class Admin extends Component {
           />
           <Switch>{this.getRoutes(routes)}</Switch>
           <Footer />
-          <FixedPlugin
+          {/*<FixedPlugin
             handleImageClick={this.handleImageClick}
             handleColorClick={this.handleColorClick}
             handleHasImage={this.handleHasImage}
@@ -192,7 +198,7 @@ class Admin extends Component {
             mini={this.state["mini"]}
             handleFixedClick={this.handleFixedClick}
             fixedClasses={this.state.fixedClasses}
-          />
+          />*/}
         </div>
       </div>
     );
