@@ -46,7 +46,7 @@ function ConfirmModal({
           {header}
         </Modal.Header>
         <Modal.Body>
-          <div>
+          <div style={{ justifyContent: 'center', width: '100%' }}>
             <h1>Loading...</h1>
           </div>
           <Button color="primary" onClick={handleConfirm} disabled>Continue</Button>

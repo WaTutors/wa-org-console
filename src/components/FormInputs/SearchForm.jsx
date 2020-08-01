@@ -69,7 +69,7 @@ function SearchForm({
       <Card
         title={`Search ${searchType}`}
         content={(
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ paddingBottom: '1rem' }}>
             <FormInputs
               ncols={cols}
               handleChange={handleChange}
@@ -81,7 +81,6 @@ function SearchForm({
               {' '}
               {searchType}
             </Button>
-            <div className="clearfix" />
           </form>
         )}
       />

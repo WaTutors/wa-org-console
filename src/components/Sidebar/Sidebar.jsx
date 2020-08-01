@@ -17,8 +17,16 @@
 */
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
+import {
+  Grid,
+  Row,
+  Col,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+} from 'react-bootstrap';
 
-import logo from 'assets/img/reactlogo.png';
+import logo from 'assets/img/watutor-logo.png';
 import AdminNavbarLinks from '../Navbars/AdminNavbarLinks.jsx';
 
 class Sidebar extends Component {
@@ -59,33 +67,58 @@ class Sidebar extends Component {
           null
         )}
         <div className="logo">
-          <a
-            href="https://www.creative-tim.com?ref=lbd-sidebar"
-            className="simple-text logo-mini"
-          >
-            <div className="logo-img">
-              <img src={logo} alt="logo_image" />
-            </div>
-          </a>
-          <a
-            href="https://www.creative-tim.com?ref=lbd-sidebar"
-            className="simple-text logo-normal"
-          >
-            Creative Tim
-          </a>
+          <Row>
+            <Col xs={12}>
+              <a
+                href="https://watutors.com"
+                className="simple-text logo-mini"
+              >
+                <div className="logo-img">
+                  <img src={logo} alt="logo_image" />
+                </div>
+              </a>
+            </Col>
+            <Col xs={12}>
+              <a
+                href="https://www.watutors.com"
+                className="simple-text logo-normal"
+              >
+                Organization Name
+              </a>
+            </Col>
+          </Row>
         </div>
         <div className="sidebar-wrapper">
           <ul className="nav">
             {this.state.width <= 991 && false ? <AdminNavbarLinks /> : null}
             {this.props.routes.map((prop, key) => {
-              if (!prop.redirect)
+              if (prop.external)
                 return (
                   <li
-                    className={
-                      prop.upgrade
-                        ? 'active active-pro'
-                        : this.activeRoute(prop.layout + prop.path)
-                    }
+                    className={prop.upgrade
+                      ? 'active active-pro'
+                      : this.activeRoute(prop.layout + prop.path)}
+                    key={key}
+                  >
+                    <a
+                      href={prop.link}
+                      className="nav-link"
+                      activeClassName="active"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={prop.icon} />
+                      <p>{prop.name}</p>
+                    </a>
+                  </li>
+                );
+
+              if (!prop.redirect && prop.live)
+                return (
+                  <li
+                    className={prop.upgrade
+                      ? 'active active-pro'
+                      : this.activeRoute(prop.layout + prop.path)}
                     key={key}
                   >
                     <NavLink

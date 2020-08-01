@@ -30,7 +30,11 @@ function PrivateRoute({
   }, [name]);
 
   if (initializing)
-    return <div>Loading</div>;
+    return (
+      <div style={{ textAlign: 'center', width: '100%' }}>
+        <p>Loading...</p>
+      </div>
+    );
 
   const render = (props) => (
     <Component

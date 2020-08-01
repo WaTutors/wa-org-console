@@ -16,10 +16,14 @@
 
 */
 import Dashboard from 'views/Dashboard.jsx';
-import DashboardDefault from 'views/DashboardDefault.jsx';
+import LegacyDashboard from 'views/_LegacyDashboard.jsx';
 import UserProfile from 'views/UserProfile.jsx';
 import TableList from 'views/TableList.jsx';
 import StudentList from 'views/StudentList.jsx';
+import ProviderList from 'views/ProviderList.jsx';
+import GroupList from 'views/GroupList';
+import SessionList from 'views/SessionList';
+
 import Typography from 'views/Typography.jsx';
 import Icons from 'views/Icons.jsx';
 import Maps from 'views/Maps.jsx';
@@ -30,31 +34,64 @@ import Login from 'views/Login.jsx';
 
 const dashboardRoutes = [
   {
-    path: '/dashboard',
-    name: 'Dashboard',
+    live: true,
+    path: '/console',
+    name: 'Console',
     icon: 'pe-7s-graph',
     component: Dashboard,
     layout: '/admin',
   },
   {
+    live: true,
     path: '/students',
     name: 'Student List',
-    icon: 'pe-7s-note2',
+    icon: 'pe-7s-users',
     component: StudentList,
     layout: '/admin',
+  },
+  {
+    live: true,
+    path: '/providers',
+    name: 'Tutor List',
+    icon: 'pe-7s-note2',
+    component: ProviderList,
+    layout: '/admin',
+  },
+  {
+    live: true,
+    path: '/groups',
+    name: 'Group List',
+    icon: 'pe-7s-vector',
+    component: GroupList,
+    layout: '/admin',
+  },
+  {
+    live: true,
+    path: '/sessions',
+    name: 'Session List',
+    icon: 'pe-7s-video',
+    component: SessionList,
+    layout: '/admin',
+  },
+  {
+    live: true,
+    external: true,
+    icon: 'pe-7s-piggy',
+    name: 'Invoices',
+    link: 'https://www.watutors.com',
   },
   {
     path: '/dashboard',
     name: 'PREBUILT PAGES BELOW vvv',
     icon: 'pe-7s-angle-down',
-    component: Upgrade,
+    component: Dashboard,
     layout: '/admin',
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     icon: 'pe-7s-graph',
-    component: DashboardDefault,
+    component: LegacyDashboard,
     layout: '/admin',
   },
   {
@@ -100,12 +137,13 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
+    live: true,
     upgrade: true,
     path: '/login',
     name: 'Sign Out',
     icon: 'pe-7s-back-2',
     component: Login,
-    layout: '/ext',
+    layout: '/ext', // FIXME doesn't actually log out
   },
 ];
 

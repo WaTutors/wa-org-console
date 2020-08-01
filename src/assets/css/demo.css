@@ -520,7 +520,7 @@
 .sidebar .nav > li.active-pro{
     position: absolute;
     width: 100%;
-    bottom: 10px;
+    bottom: 100px;
 }
 .sidebar .nav > li.active-pro a{
     background: rgba(255, 255, 255, 0.14);

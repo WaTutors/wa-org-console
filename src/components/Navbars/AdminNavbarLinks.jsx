@@ -29,11 +29,13 @@ function AdminNavbarLinks() {
 
   return (
     <div>
+      {/*
       <Nav pullRight>
         <NavItem eventKey={3} href="#" onClick={onLogOut}>
           Log out
         </NavItem>
       </Nav>
+      */}
       {/*
         <Nav>
           <NavItem eventKey={1} href="#">

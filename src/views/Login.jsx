@@ -31,7 +31,7 @@ function Login({
   function onLogin(username, password) {
     FirebaseAuthService.signInUser({ username, password })
       .then(() => {
-        history.push('/admin/dashboard');
+        history.push('/admin/console');
       }).catch((err) => {
         window.alert('Login Failed');
         console.error('fb login error', err, { username, password });
@@ -65,7 +65,7 @@ function Login({
       }}
       >
         <Card
-          title="Sign Into Organization Console"
+          title="Sign Into the Watutor Organization Management Console"
           content={(
             <div>
               <FormInputs

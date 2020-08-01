@@ -17,7 +17,7 @@
 */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { Provider } from 'react-redux';
 import {
   BrowserRouter, Route, Switch, Redirect,
 } from 'react-router-dom';
@@ -30,14 +30,17 @@ import './assets/css/pe-icon-7-stroke.css';
 
 import AdminLayout from 'layouts/Admin.jsx';
 import External from 'layouts/External.jsx';
+import store from './redux';
 
 ReactDOM.render(
-  <BrowserRouter>
-    <Switch>
-      <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-      <Route path="/ext" render={(props) => <External {...props} />} />
-      <Redirect from="/" to="/ext/login" />
-    </Switch>
-  </BrowserRouter>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
+        <Route path="/ext" render={(props) => <External {...props} />} />
+        <Redirect from="/" to="/ext/login" />
+      </Switch>
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root'),
 );

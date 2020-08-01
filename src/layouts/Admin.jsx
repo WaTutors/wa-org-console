@@ -80,7 +80,7 @@ class Admin extends Component {
   };
   getRoutes = routes => {
     return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
+      if (prop.layout === "/admin") { // FIXME && prop.live
         return (
           <PrivateRoute
             key={key}
