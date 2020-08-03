@@ -16,14 +16,16 @@
 
 */
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 
 import FirebaseAuthService from 'services/firebaseAuthService';
+import { setOrganization } from 'redux/ducks/user.duck';
 import { Card } from 'components/Card/Card.jsx';
 import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
 import Button from 'components/Buttons/CustomButton.jsx';
 
 function Login({
-  history,
+  history, setOrganizationStore,
 }) {
   const [formData, setFormData] = useState({});
   const [errorText, setErrorText] = useState('');
@@ -54,6 +56,8 @@ function Login({
       ...formData,
       [name]: e.target.value,
     });
+    if (name === 'org')
+      setOrganizationStore(e.target.value);
   }
 
   return (
@@ -98,6 +102,8 @@ function Login({
 
               <Button bsStyle="primary" pullRight fill onClick={handleSubmit}>
                 Login
+                {' '}
+                <i className="pe-7s-lock" />
               </Button>
               <div style={{ padding: '10px' }}>
                 <span className="text-danger">
@@ -113,4 +119,8 @@ function Login({
   );
 }
 
-export default Login;
+const mapDispatchToProps = {
+  setOrganizationStore: setOrganization,
+};
+
+export default connect(null, mapDispatchToProps)(Login);

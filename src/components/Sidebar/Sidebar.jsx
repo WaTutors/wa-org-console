@@ -16,14 +16,11 @@
 
 */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import {
-  Grid,
   Row,
   Col,
-  FormGroup,
-  ControlLabel,
-  FormControl,
 } from 'react-bootstrap';
 
 import logo from 'assets/img/watutor-logo.png';
@@ -83,7 +80,7 @@ class Sidebar extends Component {
                 href="https://www.watutors.com"
                 className="simple-text logo-normal"
               >
-                Organization Name
+                {this.props.orgState}
               </a>
             </Col>
           </Row>
@@ -140,4 +137,8 @@ class Sidebar extends Component {
   }
 }
 
-export default Sidebar;
+const mapStateToProps = ({ userReducer }) => ({
+  orgState: userReducer.org,
+});
+
+export default connect(mapStateToProps, null)(Sidebar);

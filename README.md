@@ -2,6 +2,24 @@
 
 [Link to design spec](https://docs.google.com/presentation/d/160dmZ-sWT1kYFhOqsjb_kTbPIx-doqaM_bUo8B8iXB0/edit#slide=id.g869a2c438a_0_13)
 
+TODO
+
+DONE - fix signout button sidebar location
+
+DONE- change default pinter to /console
+
+- add button for labels
+
+- add clear filter button
+
+- add to group row
+
+DONE - add number of reviews
+
+DONE - display properties,labels -> "subjects"
+
+- Login background
+
 
 
 

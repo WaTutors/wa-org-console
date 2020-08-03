@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux';
 
-import labelsReducer from './labels.duck';
+import propertiesReducer from './properties.duck';
+import userReducer from './user.duck';
 
 export default combineReducers({
-  labelsReducer,
+  propertiesReducer,
+  userReducer,
 });
