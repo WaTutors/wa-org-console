@@ -5,7 +5,8 @@ import FirebaseAuthService from 'services/firebaseAuthService';
 
 // eslint-disable-next-line no-use-before-define
 PrivateRoute.propTypes = {
-  component: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  component: PropTypes.any.isRequired,
   name: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
 };

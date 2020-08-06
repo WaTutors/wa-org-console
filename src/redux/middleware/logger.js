@@ -1,4 +1,5 @@
 const logger = (store) => (next) => (action) => {
+  console.groupEnd();
   console.group(action.type);
   console.info('dispatching', action);
   const result = next(action);

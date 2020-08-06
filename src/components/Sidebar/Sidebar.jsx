@@ -100,7 +100,6 @@ class Sidebar extends Component {
                     <a
                       href={prop.link}
                       className="nav-link"
-                      activeClassName="active"
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -121,7 +120,6 @@ class Sidebar extends Component {
                     <NavLink
                       to={prop.layout + prop.path}
                       className="nav-link"
-                      activeClassName="active"
                     >
                       <i className={prop.icon} />
                       <p>{prop.name}</p>

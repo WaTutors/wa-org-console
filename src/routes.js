@@ -19,10 +19,8 @@ import Dashboard from 'views/Dashboard.jsx';
 import LegacyDashboard from 'views/_LegacyDashboard.jsx';
 import UserProfile from 'views/UserProfile.jsx';
 import TableList from 'views/TableList.jsx';
-import StudentList from 'views/StudentList.jsx';
-import ProviderList from 'views/ProviderList.jsx';
-import GroupList from 'views/GroupList';
 import SessionList from 'views/SessionList';
+import { GroupList, ProviderList, StudentList } from 'views/Tables';
 
 import Typography from 'views/Typography.jsx';
 import Icons from 'views/Icons.jsx';

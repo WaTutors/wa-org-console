@@ -1,3 +1,5 @@
+import fetch from 'isomorphic-fetch';
+
 import firebaseAuthService from 'services/firebaseAuthService';
 
 const successCodes = [200, 201, 202, 204, 303];
@@ -33,7 +35,10 @@ export default async function apiFetch({ method, endpoint, body = {} }) {
   if (method !== 'GET')
     config.body = JSON.stringify(body);
 
-  return fetch(`https://20200729t210115-dot-watutors-1.uc.r.appspot.com/v2/${endpoint}`, config)
+  const baseUrl = false // FIXME before deploying set to true
+    ? 'https://20200803t231736-dot-watutors-1.uc.r.appspot.com'
+    : 'http://localhost:3001';
+  return fetch(`${baseUrl}/v2/${endpoint}`, config)
     .then((response) => parseResponse(response))
     .catch((error) => {
       console.error(`API ${method} Error: ${error}`);

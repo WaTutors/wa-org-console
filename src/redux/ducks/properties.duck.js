@@ -4,10 +4,14 @@ import apiFetch from 'redux/helpers/apiFetch';
 
 import { generateThunkActions } from './_duckGenerators';
 
+const ADD_PROPERTIES_BEGIN = 'ADD_PROPERTIES_BEGIN';
+const ADD_PROPERTIES_SUCCESS = 'ADD_PROPERTIES_SUCCESS';
+const ADD_PROPERTIES_FAILURE = 'ADD_PROPERTIES_FAILURE';
+
 // REDUCER
 
 export default function propertiesReducer(
-  state = initialState.lists, action = {},
+  state = initialState.properties, action = {},
 ) {
   switch (action.type) {
     case ADD_PROPERTIES_BEGIN:
@@ -38,10 +42,14 @@ export default function propertiesReducer(
  * function to generate api call thunks
  *
  * @param {string} p.endpoint       the targeted api endpoint
- * @param {object} p.getActions     redux action functions { begin, success, failure } for GET requests
- * @param {object} p.postActions    redux action functions { begin, success, failure } for POST requests
- * @param {object} p.patchActions   redux action functions { begin, success, failure } for PATCH requests
- * @param {object} p.deleteActions  redux action functions { begin, success, failure } for DELETE requests
+ * @param {object} p.getActions     redux action functions { begin, success, failure }
+ *                                  for GET requests
+ * @param {object} p.postActions    redux action functions { begin, success, failure }
+ *                                  for POST requests
+ * @param {object} p.patchActions   redux action functions { begin, success, failure }
+ *                                  for PATCH requests
+ * @param {object} p.deleteActions  redux action functions { begin, success, failure }
+ *                                  for DELETE requests
  *
  * @returns {Object}    thunks   the constructed thunk functions
  * @returns {function}  thunks.getThunk     thunk for a GET http request
@@ -126,6 +134,14 @@ function buildApiThunks({
   };
 }
 
+const STUDENT_PREFIX = 'Subjects';
+export const {
+  getSubjectsBegin, getSubjectsSuccess, getSubjectsFailure,
+  postSubjectsBegin, postSubjectsSuccess, postSubjectsFailure,
+  patchSubjectsBegin, patchSubjectsSuccess, patchSubjectsFailure,
+  deleteSubjectsBegin, deleteSubjectsSuccess, deleteSubjectsFailure,
+} = generateApiThunkActions(STUDENT_PREFIX);
+
 export const {
   getThunk: getSubjectsThunk,
   postThunk: postSubjectsThunk,
@@ -173,11 +189,3 @@ function generateApiThunkActions(prefix) {
 
   return obj;
 }
-
-const STUDENT_PREFIX = 'Subjects';
-export const {
-  getSubjectsBegin, getSubjectsSuccess, getSubjectsFailure,
-  postSubjectsBegin, postSubjectsSuccess, postSubjectsFailure,
-  patchSubjectsBegin, patchSubjectsSuccess, patchSubjectsFailure,
-  deleteSubjectsBegin, deleteSubjectsSuccess, deleteSubjectsFailure,
-} = generateApiThunkActions(STUDENT_PREFIX);

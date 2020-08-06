@@ -21,7 +21,7 @@ import {
 } from 'react-bootstrap';
 
 function FieldGroup({
-  label, name, handleChange, ...props
+  label, name, options, handleChange, ...props
 }) {
   return (
     <FormGroup>
@@ -29,7 +29,11 @@ function FieldGroup({
       <FormControl
         onChange={(e) => handleChange(e, name)}
         {...props}
-      />
+      >
+        {options && options.map((option, i) => (
+          <option value={option}>{option}</option>
+        ))}
+      </FormControl>
     </FormGroup>
   );
 }

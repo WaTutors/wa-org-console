@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/analytics';
@@ -136,13 +137,20 @@ class FirebaseAuthService {
       return this.auth.currentUser.getIdToken()
         .then((_token) => _token) // console.log('id token~~', _token, typeof token)
         .catch((err) => console.error('FirebaseAuthService getToken Error', err));
+    return false;
   }
 
   getTokenPromise() {
     if (this.auth.currentUser)
       return this.auth.currentUser.getIdToken();
+    return false;
   }
 
+  /**
+   * returns saved active user
+   * @link https://firebase.google.com/docs/reference/js/firebase.User#uid
+   * @param {boolean} reload flag to trigger manual reload of info
+   */
   getUser(reload = false) {
     if (reload && firebase.auth().currentUser) {
       firebase.auth().currentUser.reload();

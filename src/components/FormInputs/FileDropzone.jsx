@@ -71,7 +71,7 @@ function FileDropzone({
         const binaryStr = reader.result;
         onFileDrop(binaryStr);
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsText(file);
     });
   }, []);
 

@@ -5,10 +5,20 @@ export default {
     error: false,
   },
   user: {
-    org: 'WaTutorOrgDefault',
+    org: 'testorg',
     name: 'Hank Hill',
   },
   students: {
+    list: [],
+    loading: false,
+    error: false,
+  },
+  providers: {
+    list: [],
+    loading: false,
+    error: false,
+  },
+  groups: {
     list: [],
     loading: false,
     error: false,

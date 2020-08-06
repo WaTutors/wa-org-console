@@ -17,8 +17,6 @@ function ConfirmModal({
   const [visible, setVisible] = useState(false);
   const [textCheck, setTextCheck] = useState('');
 
-  console.log({ isOpen });
-
   const handleConfirm = () => {
     if (textCheck === confirmTextCheck || !confirmTextCheck) {
       // only continue if text is confirmed, or confirmTextCheck is false

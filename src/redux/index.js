@@ -12,7 +12,7 @@ function configureStore(preloadedState) {
   const middlewares = [loggerMiddleware, thunkMiddleware];
   const middlewareEnhancer = applyMiddleware(...middlewares);
 
-  const enhancers = [middlewareEnhancer, monitorReducersEnhancer];
+  const enhancers = [middlewareEnhancer];
   const composedEnhancers = compose(...enhancers);
 
   return createStore(rootReducer, preloadedState, composedEnhancers);

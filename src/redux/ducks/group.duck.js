@@ -3,65 +3,65 @@ import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
 
-const GET_STUDENTS_BEGIN = 'GET_STUDENTS_BEGIN';
-const GET_STUDENTS_SUCCESS = 'GET_STUDENTS_SUCCESS';
-const GET_STUDENTS_FAILURE = 'GET_STUDENTS_FAILURE';
+const GET_GROUPS_BEGIN = 'GET_GROUPS_BEGIN';
+const GET_GROUPS_SUCCESS = 'GET_GROUPS_SUCCESS';
+const GET_GROUPS_FAILURE = 'GET_GROUPS_FAILURE';
 
-const ADD_STUDENTS_BEGIN = 'ADD_STUDENTS_BEGIN';
-const ADD_STUDENTS_SUCCESS = 'ADD_STUDENTS_SUCCESS';
-const ADD_STUDENTS_FAILURE = 'ADD_STUDENTS_FAILURE';
+const ADD_GROUPS_BEGIN = 'ADD_GROUPS_BEGIN';
+const ADD_GROUPS_SUCCESS = 'ADD_GROUPS_SUCCESS';
+const ADD_GROUPS_FAILURE = 'ADD_GROUPS_FAILURE';
 
-const REMOVE_STUDENT_BEGIN = 'REMOVE_STUDENT_BEGIN';
-const REMOVE_STUDENT_SUCCESS = 'REMOVE_STUDENT_SUCCESS';
-const REMOVE_STUDENT_FAILURE = 'REMOVE_STUDENT_FAILURE';
+const REMOVE_GROUP_BEGIN = 'REMOVE_GROUP_BEGIN';
+const REMOVE_GROUP_SUCCESS = 'REMOVE_GROUP_SUCCESS';
+const REMOVE_GROUP_FAILURE = 'REMOVE_GROUP_FAILURE';
 // REDUCER
 
-export default function studentsReducer(
-  state = initialState.students, action = {},
+export default function groupsReducer(
+  state = initialState.groups, action = {},
 ) {
   switch (action.type) {
-    case GET_STUDENTS_BEGIN:
+    case GET_GROUPS_BEGIN:
       return {
         ...state,
         loading: true,
       };
-    case GET_STUDENTS_SUCCESS:
+    case GET_GROUPS_SUCCESS:
       return {
         ...state,
         loading: false,
         list: action.payload,
       };
-    case GET_STUDENTS_FAILURE:
+    case GET_GROUPS_FAILURE:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
 
-    case ADD_STUDENTS_BEGIN:
+    case ADD_GROUPS_BEGIN:
       return {
         ...state,
         loading: true,
       };
-    case ADD_STUDENTS_SUCCESS:
+    case ADD_GROUPS_SUCCESS:
       return {
         ...state,
         loading: false,
         list: [...state.list, ...action.payload],
       };
-    case ADD_STUDENTS_FAILURE:
+    case ADD_GROUPS_FAILURE:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
 
-    case REMOVE_STUDENT_BEGIN:
+    case REMOVE_GROUP_BEGIN:
       return {
         ...state,
         loading: true,
       };
-    case REMOVE_STUDENT_SUCCESS:
+    case REMOVE_GROUP_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -71,7 +71,7 @@ export default function studentsReducer(
           return el.iid !== action.payload.iid;
         }),
       };
-    case REMOVE_STUDENT_FAILURE:
+    case REMOVE_GROUP_FAILURE:
       return {
         ...state,
         loading: false,
@@ -86,36 +86,36 @@ export default function studentsReducer(
 const getProfileFromPhoneNumber = firebaseAuthService
   .generateCallableFunction('getPhoneNumberFromProfile');
 
-export function getStudentsThunk() {
+export function getGroupsThunk() {
   return async (dispatch, getState) => {
-    dispatch(getStudentsBegin());
+    dispatch(getGroupsBegin());
     console.log('getState', getState());
     const { org } = getState().userReducer;
 
     try {
-      const studentsObj = await apiFetch({
+      const groupsObj = await apiFetch({
         method: 'GET',
         endpoint: `admin/profiles/consumer/${org}`,
       });
       // get phone numbers
-      const { profiles, invites } = studentsObj;
+      const { profiles, invites } = groupsObj;
       const uuids = profiles.map((profile) => profile.uuid);
       const profilePhoneNumbers = await getProfileFromPhoneNumber({ uuids });
       console.log({ profilePhoneNumbers });
       profilePhoneNumbers.data.forEach((phone, i) => { profiles[i].phone = phone; });
       // dispatch bullshit
-      dispatch(getStudentsSuccess([...profiles, ...invites]));
+      dispatch(getGroupsSuccess([...profiles, ...invites]));
     } catch (error) {
-      console.error('getStudents thunk threw', error);
-      dispatch(getStudentsFailure(error.message));
+      console.error('getGroups thunk threw', error);
+      dispatch(getGroupsFailure(error.message));
     }
   };
 }
 
-export function inviteStudentsThunk(newStudents) {
+export function createGroupsThunk(newGroups) { // TODO
   return async (dispatch, getState) => {
-    dispatch(addStudentsBegin());
-    console.log('inviteStudentsThunk state', firebaseAuthService.getUser());
+    dispatch(addGroupsBegin());
+    console.log('inviteGroupsThunk state', firebaseAuthService.getUser());
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
@@ -126,84 +126,84 @@ export function inviteStudentsThunk(newStudents) {
         type: 'org',
         sender: uid,
         itemId: org,
-        invitees: newStudents,
+        invitees: newGroups,
         profileType: 'consumer',
         // inviteMsg, // optional
       },
     })
       .then(() => {
-        dispatch(addStudentsSuccess(newStudents));
+        dispatch(addGroupsSuccess(newGroups));
       })
       .catch((error) => {
-        console.error('addStudents');
-        dispatch(addStudentsFailure(error.message));
+        console.error('addGroups');
+        dispatch(addGroupsFailure(error.message));
       });
   };
 }
 
-export function removeStudentThunk({ pid, iid }) {
+export function removeGroupThunk({ gid, iid }) {
   return async (dispatch, getState) => {
-    dispatch(getStudentsBegin());
+    dispatch(getGroupsBegin());
     console.log('getState', getState());
     const { org, uuid } = getState().userReducer;
 
     let request;
-    if (pid) {
-      const queryString = `?pids=${pid}`;
+    if (gid)
       request = apiFetch({
         method: 'DELETE',
-        endpoint: `admin/profiles/consumer/${org}${queryString}`,
+        endpoint: `/group/single/${gid}`,
       });
-    } else if (iid) {
+    else if (iid)
       request = apiFetch({
         method: 'DELETE',
         endpoint: `admin/org/invitations?iids=${iid}`,
       });
-    } else { throw new Error('removeStudentThunk pid or iid must be defined'); }
+    else
+      throw new Error('removeGroupThunk pid or iid must be defined');
 
     try {
       await Promise.all([request]);
-      dispatch(removeStudentSuccess({ pid, iid }));
+      dispatch(removeGroupSuccess({ gid, iid }));
     } catch (error) {
-      console.error(`removeStudentThunk of ${pid || iid}, threw`, error);
-      dispatch(removeStudentFailure(error.message));
+      console.error(`removeGroupThunk of ${gid || iid}, threw`, error);
+      dispatch(removeGroupFailure(error.message));
     }
   };
 }
 
 // ACTIONS
-export const getStudentsBegin = () => ({
-  type: GET_STUDENTS_BEGIN,
+export const getGroupsBegin = () => ({
+  type: GET_GROUPS_BEGIN,
 });
-export const getStudentsSuccess = (newStudents) => ({
-  type: GET_STUDENTS_SUCCESS,
-  payload: newStudents,
+export const getGroupsSuccess = (newGroups) => ({
+  type: GET_GROUPS_SUCCESS,
+  payload: newGroups,
 });
-export const getStudentsFailure = (error) => ({
-  type: GET_STUDENTS_FAILURE,
+export const getGroupsFailure = (error) => ({
+  type: GET_GROUPS_FAILURE,
   payload: { error },
 });
 
-export const addStudentsBegin = () => ({
-  type: ADD_STUDENTS_BEGIN,
+export const addGroupsBegin = () => ({
+  type: ADD_GROUPS_BEGIN,
 });
-export const addStudentsSuccess = (newStudents) => ({
-  type: ADD_STUDENTS_SUCCESS,
-  payload: newStudents,
+export const addGroupsSuccess = (newGroups) => ({
+  type: ADD_GROUPS_SUCCESS,
+  payload: newGroups,
 });
-export const addStudentsFailure = (error) => ({
-  type: ADD_STUDENTS_FAILURE,
+export const addGroupsFailure = (error) => ({
+  type: ADD_GROUPS_FAILURE,
   payload: { error },
 });
 
-export const removeStudentBegin = () => ({
-  type: REMOVE_STUDENT_BEGIN,
+export const removeGroupBegin = () => ({
+  type: REMOVE_GROUP_BEGIN,
 });
-export const removeStudentSuccess = (newStudents) => ({
-  type: REMOVE_STUDENT_SUCCESS,
-  payload: newStudents,
+export const removeGroupSuccess = (newGroups) => ({
+  type: REMOVE_GROUP_SUCCESS,
+  payload: newGroups,
 });
-export const removeStudentFailure = (error) => ({
-  type: REMOVE_STUDENT_FAILURE,
+export const removeGroupFailure = (error) => ({
+  type: REMOVE_GROUP_FAILURE,
   payload: { error },
 });

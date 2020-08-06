@@ -17,11 +17,13 @@ AddModal.propTypes = {
   onSubmit: PropTypes.func,
   isOpen: PropTypes.bool.isRequired,
   toggleOpen: PropTypes.func.isRequired,
+  hideFile: PropTypes.bool,
 };
 
 AddModal.defaultProps = {
   infoText: '',
   onSubmit: (e) => console.log('form submitted', e),
+  hideFile: false,
 };
 
 const BODY_TYPES = { form: 'form', file: 'file' };
@@ -33,19 +35,45 @@ function AddModal({
   onSubmit,
   isOpen,
   toggleOpen,
+  hideFile,
 }) {
-  const [bodySelected, setBody] = useState(BODY_TYPES.file);
+  const [bodySelected, setBody] = useState(hideFile ? BODY_TYPES.form : BODY_TYPES.file);
+  const [inputData, setInputData] = useState({});
 
-  console.log({ isOpen });
+  function handleFileDrop(rawData) { // rawData is uint8 encoded
+    console.log('addModal raw data', rawData);
+    const phoneArray = rawData.split(',');
+    setInputData({ phone: phoneArray });
+  }
 
-  const handleConfirm = (e) => {
+  function handleConfirm(e) {
     console.log('AddModal confirm', e);
-    onSubmit();
-  };
+    onSubmit(inputData.phone); // {phone: [phoneNumber]}
+    setTimeout(() => {
+      toggleOpen();
+    }, 100);
+  }
 
   function handleFormChange(e, name) {
-    console.log('AddModal form change', name, e);
+    setInputData({ ...inputData, [name]: [e.target.value] });
+    console.log('AddModal form change', name, e.target.value);
   }
+
+  const buttonGroups = hideFile
+    ? [[{
+      text: 'Form',
+      onClick: () => setBody(BODY_TYPES.form),
+      icon: 'pe-7s-note2',
+    }]]
+    : [[{
+      text: 'Form',
+      onClick: () => setBody(BODY_TYPES.form),
+      icon: 'pe-7s-note2',
+    }, {
+      text: 'File Upload',
+      onClick: () => setBody(BODY_TYPES.file),
+      icon: 'pe-7s-copy-file',
+    }]];
 
   return (
     <Modal show={isOpen} onHide={toggleOpen}>
@@ -56,21 +84,13 @@ function AddModal({
         <div>
           <ButtonBar
             universalOptions={{ color: 'info' }}
-            buttonGroups={[[{
-              text: 'Form',
-              onClick: () => setBody(BODY_TYPES.form),
-              icon: 'pe-7s-note2',
-            }, {
-              text: 'File Upload',
-              onClick: () => setBody(BODY_TYPES.file),
-              icon: 'pe-7s-copy-file',
-            }]]}
+            buttonGroups={buttonGroups}
           />
           <p>{infoText}</p>
           {bodySelected === BODY_TYPES.form
               && (
               <FormInputs
-                ncols={['col-xs-12']}
+                ncols={form.map(() => 'col-xs-12')}
                 handleChange={handleFormChange}
                 properties={form}
               />
@@ -80,6 +100,7 @@ function AddModal({
           <FileDropzone
             targetText="Upload formatted CSV file"
             acceptTypes=".csv, application/vnd.ms-excel, text/csv"
+            onFileDrop={handleFileDrop}
           />
           )}
         </div>
