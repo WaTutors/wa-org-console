@@ -46,7 +46,7 @@ TemplateList.defaultProps = {
 };
 
 function TemplateList({
-  props, listName, columnDefs, rowData, isLoading, addInfo, addForm, hideAddFile,
+  props, listName, processFile, columnDefs, rowData, isLoading, addInfo, addForm, hideAddFile,
   getData, addData, removeRow, // callback functions
 }) {
   const [selectedRow, selectRow] = useState({});
@@ -191,6 +191,7 @@ function TemplateList({
         infoText={addInfo}
         form={addForm}
         hideFile={hideAddFile}
+        processFile={processFile}
       />
     </div>
   );

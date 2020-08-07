@@ -1,6 +1,13 @@
 export default {
   properties: {
-    list: [],
+    list: [
+      'Math 1',
+      'Math 2',
+      'Math 3',
+      'Spanish 1',
+      'Spanish 2',
+      'ESL',
+    ],
     loading: false,
     error: false,
   },

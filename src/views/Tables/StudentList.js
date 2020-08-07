@@ -68,7 +68,7 @@ const mapStateToProps = ({ userReducer, studentsReducer }) => ({
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getStudentsThunk()),
-  addData: (phones) => dispatch(inviteStudentsThunk(phones)),
+  addData: (inputData) => dispatch(inviteStudentsThunk(inputData.phone)),
   removeData: (data) => dispatch(removeStudentThunk(data)),
 });
 

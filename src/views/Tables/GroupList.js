@@ -9,7 +9,7 @@ import TemplateList from './Template';
 function GroupList({
   // redux props go brrrrr
   getData, addData, removeData, // functions
-  dataList, loading, // variables
+  dataList, loading, properties, // variables
   ...props
 }) {
   const rowData = useMemo(() => dataList.map((item) => ({
@@ -41,23 +41,41 @@ function GroupList({
         headerName: 'Remove', cellRenderer: 'deleteButton', width: '64px', flex: 0.5,
       }]}
       rowData={rowData}
-      hideAddFile
+      // hideAddFile
       addInfo="Groups are required to create sessions"
       addForm={[{
-        name: 'Group Subject',
-        label: 'property',
+        name: 'subject',
+        label: 'Group Subject',
         type: 'select',
         componentClass: 'select',
         placeholder: 'select',
-        options: ['1', '2'],
+        options: properties,
       }, {
-        name: 'Invite Users',
-        label: 'property',
+        name: 'type',
+        label: 'Group Type',
         type: 'select',
         componentClass: 'select',
         placeholder: 'select',
-        options: ['1', '2'],
+        options: ['private'],
+      }, {
+        name: 'info',
+        label: 'Group Information',
+        type: 'text',
+        placeholder: 'This group is for ...',
+      }, {
+        name: 'invitees',
+        label: 'Invite Users By Phone Number (colon seperated)',
+        type: 'tel',
+        bsClass: 'form-control',
+        placeholder: '+1 5031231234:+1 2141291288',
       }]}
+      processFile={(raw) => {
+        const arr = raw.split(','); // file is csv
+        return {
+          phones: arr[1],
+          property: arr[0],
+        };
+      }}
     />
   );
 }
@@ -67,13 +85,15 @@ GroupList.propTypes = {
   addData: PropTypes.func.isRequired,
   removeData: PropTypes.func.isRequired,
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
 };
 
-const mapStateToProps = ({ userReducer, groupsReducer }) => ({
+const mapStateToProps = ({ userReducer, propertiesReducer, groupsReducer }) => ({
   orgState: userReducer.org,
   loading: groupsReducer.loading,
   dataList: groupsReducer.list,
+  properties: propertiesReducer.list,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getGroupsThunk()),

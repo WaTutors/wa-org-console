@@ -136,7 +136,8 @@ export function inviteProvidersThunk(newProviders) {
       },
     })
       .then(() => {
-        dispatch(addProvidersSuccess(newProviders));
+        const newProviderObjs = newProviders.map((item) => ({ to: item }));
+        dispatch(addProvidersSuccess(newProviderObjs));
       })
       .catch((error) => {
         console.error('addProviders');

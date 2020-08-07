@@ -115,7 +115,7 @@ export function getStudentsThunk() {
 export function inviteStudentsThunk(newStudents) {
   return async (dispatch, getState) => {
     dispatch(addStudentsBegin());
-    console.log('inviteStudentsThunk state', firebaseAuthService.getUser());
+    console.log('inviteStudentsThunk state', firebaseAuthService.getUser(), newStudents);
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
@@ -132,7 +132,8 @@ export function inviteStudentsThunk(newStudents) {
       },
     })
       .then(() => {
-        dispatch(addStudentsSuccess(newStudents));
+        const newStudentObjs = newStudents.map((item) => ({ to: item }));
+        dispatch(addStudentsSuccess(newStudentObjs));
       })
       .catch((error) => {
         console.error('addStudents');

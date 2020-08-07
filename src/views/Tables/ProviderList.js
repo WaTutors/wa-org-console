@@ -47,9 +47,12 @@ function ProviderList({
         {
           headerName: 'Remove', cellRenderer: 'deleteButton', width: '64px', flex: 0.5,
         },
-        // removed columns
-        // {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true, flex: 0.75, filter: 'agNumberColumnFilter',},
-        // {headerName: 'Complete Sessions', field: 'completedSessions', sortable: true, flex: 0.75, filter: 'agNumberColumnFilter',},
+        /* removed columns
+        {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true,
+            flex: 0.75, filter: 'agNumberColumnFilter'},
+        {headerName: 'Complete Sessions', field: 'completedSessions', sortable: true,
+            flex: 0.75, filter: 'agNumberColumnFilter'},
+        */
       ]}
       rowData={rowData}
       /* example
@@ -79,7 +82,7 @@ const mapStateToProps = ({ userReducer, providersReducer }) => ({
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getProvidersThunk()),
-  addData: (phones) => dispatch(inviteProvidersThunk(phones)),
+  addData: (inputData) => dispatch(inviteProvidersThunk(inputData.phone)),
   removeData: (data) => dispatch(removeProviderThunk(data)),
 });
 

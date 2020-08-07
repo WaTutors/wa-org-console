@@ -112,24 +112,31 @@ export function getGroupsThunk() {
   };
 }
 
-export function createGroupsThunk(newGroups) { // TODO
+export function createGroupsThunk(inputData) { // TODO
   return async (dispatch, getState) => {
+    let newGroups;
+    if (Array.isArray(inputData))
+      newGroups = inputData;
+    else
+      newGroups = [inputData];
+
     dispatch(addGroupsBegin());
-    console.log('inviteGroupsThunk state', firebaseAuthService.getUser());
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
+    // format body
+    const body = inputData.map((data) => ({
+      sender: uid,
+      type: data.type,
+      info: data.info,
+      labels: [data.subject],
+      invitees: data.invitees,
+    }));
+
     await apiFetch({
       method: 'POST',
-      endpoint: '/admin/org/invitations',
-      body: {
-        type: 'org',
-        sender: uid,
-        itemId: org,
-        invitees: newGroups,
-        profileType: 'consumer',
-        // inviteMsg, // optional
-      },
+      endpoint: '/group/multi', // TODO
+      body: { groups: body },
     })
       .then(() => {
         dispatch(addGroupsSuccess(newGroups));

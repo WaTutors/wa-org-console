@@ -21,7 +21,7 @@ import { Grid, Row, Col } from 'react-bootstrap';
 
 import { Card } from 'components/Card/Card.jsx';
 import { StatsCard } from 'components/StatsCard/StatsCard.jsx';
-import { Labels } from 'components/Labels/Labels.jsx';
+import Labels from 'components/Labels/Labels.jsx';
 import SearchForm from 'components/FormInputs/SearchForm.jsx';
 
 import {

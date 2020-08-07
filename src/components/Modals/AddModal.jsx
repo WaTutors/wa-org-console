@@ -12,11 +12,12 @@ import FormInputs from 'components/FormInputs/FormInputs';
 
 AddModal.propTypes = {
   header: PropTypes.string.isRequired,
-  infoText: PropTypes.string,
   form: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)).isRequired,
-  onSubmit: PropTypes.func,
   isOpen: PropTypes.bool.isRequired,
   toggleOpen: PropTypes.func.isRequired,
+  infoText: PropTypes.string,
+  onSubmit: PropTypes.func,
+  processFile: PropTypes.func,
   hideFile: PropTypes.bool,
 };
 
@@ -24,6 +25,7 @@ AddModal.defaultProps = {
   infoText: '',
   onSubmit: (e) => console.log('form submitted', e),
   hideFile: false,
+  processFile: (raw) => ({ phone: raw.split(',') }),
 };
 
 const BODY_TYPES = { form: 'form', file: 'file' };
@@ -36,19 +38,19 @@ function AddModal({
   isOpen,
   toggleOpen,
   hideFile,
+  processFile,
 }) {
   const [bodySelected, setBody] = useState(hideFile ? BODY_TYPES.form : BODY_TYPES.file);
   const [inputData, setInputData] = useState({});
 
   function handleFileDrop(rawData) { // rawData is uint8 encoded
     console.log('addModal raw data', rawData);
-    const phoneArray = rawData.split(',');
-    setInputData({ phone: phoneArray });
+    setInputData(processFile(rawData));
   }
 
   function handleConfirm(e) {
-    console.log('AddModal confirm', e);
-    onSubmit(inputData.phone); // {phone: [phoneNumber]}
+    console.log('AddModal confirm', inputData);
+    onSubmit(inputData); // {phone: [phoneNumber]}
     setTimeout(() => {
       toggleOpen();
     }, 100);
