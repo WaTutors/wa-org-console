@@ -14,6 +14,7 @@ const ADD_STUDENTS_FAILURE = 'ADD_STUDENTS_FAILURE';
 const REMOVE_STUDENT_BEGIN = 'REMOVE_STUDENT_BEGIN';
 const REMOVE_STUDENT_SUCCESS = 'REMOVE_STUDENT_SUCCESS';
 const REMOVE_STUDENT_FAILURE = 'REMOVE_STUDENT_FAILURE';
+
 // REDUCER
 
 export default function studentsReducer(
@@ -89,7 +90,6 @@ const getProfileFromPhoneNumber = firebaseAuthService
 export function getStudentsThunk() {
   return async (dispatch, getState) => {
     dispatch(getStudentsBegin());
-    console.log('getState', getState());
     const { org } = getState().userReducer;
 
     try {
@@ -112,27 +112,37 @@ export function getStudentsThunk() {
   };
 }
 
-export function inviteStudentsThunk(newStudents) {
+export function inviteStudentsThunk(payload) {
   return async (dispatch, getState) => {
     dispatch(addStudentsBegin());
-    console.log('inviteStudentsThunk state', firebaseAuthService.getUser(), newStudents);
+    const newStudents = Array.isArray(payload) ? payload : [payload];
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
-    await apiFetch({
+    const postedLabels = newStudents[0].labels
+      ? newStudents.map((student) => student.labels.split('.')
+        .map((str) => str.trim())
+        .filter((str) => str.length > 0)) : [];
+
+    return apiFetch({
       method: 'POST',
       endpoint: '/admin/org/invitations',
       body: {
         type: 'org',
         sender: uid,
         itemId: org,
-        invitees: newStudents,
+        invitees: newStudents.map((item) => item.phone),
+        labels: postedLabels,
         profileType: 'consumer',
         // inviteMsg, // optional
       },
     })
-      .then(() => {
-        const newStudentObjs = newStudents.map((item) => ({ to: item }));
+      .then((response) => {
+        const newStudentObjs = newStudents.map((item, i) => ({
+          to: item.phone,
+          labels: postedLabels[i],
+          iid: response.iids[i].iid,
+        }));
         dispatch(addStudentsSuccess(newStudentObjs));
       })
       .catch((error) => {
@@ -150,7 +160,7 @@ export function removeStudentThunk({ pid, iid }) {
 
     let request;
     if (pid) {
-      const queryString = `?pids=${pid}`;
+      const queryString = `?pids=${pid}${queryString}&limit=500`;
       request = apiFetch({
         method: 'DELETE',
         endpoint: `admin/profiles/consumer/${org}${queryString}`,

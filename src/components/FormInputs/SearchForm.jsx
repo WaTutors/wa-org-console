@@ -27,9 +27,9 @@ import {
   FormControl,
 } from 'react-bootstrap';
 
-import { Card } from 'components/Card/Card.jsx';
-import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
-import Button from 'components/Buttons/CustomButton.jsx';
+import { Card } from 'components/Cards/Card';
+import { FormInputs } from 'components/FormInputs/FormInputs';
+import Button from 'components/Buttons/CustomButton';
 
 // eslint-disable-next-line no-use-before-define
 SearchForm.propTypes = {

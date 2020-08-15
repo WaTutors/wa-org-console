@@ -15,12 +15,14 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { Table, Grid, Row, Col } from "react-bootstrap";
+import React, { Component } from 'react';
+import {
+  Table, Grid, Row, Col,
+} from 'react-bootstrap';
 
-import Card from "components/Card/Card";
+import Card from 'components/Cards/Card';
 
-import Button from "components/Buttons/CustomButton";
+import Button from 'components/Buttons/CustomButton';
 
 class Icons extends Component {
   render() {
@@ -36,7 +38,7 @@ class Icons extends Component {
                 ctTableResponsive
                 ctTableFullWidth
                 ctTableUpgrade
-                content={
+                content={(
                   <Table>
                     <thead>
                       <tr>
@@ -111,7 +113,7 @@ class Icons extends Component {
                       </tr>
                     </tbody>
                   </Table>
-                }
+                )}
               />
             </Col>
           </Row>

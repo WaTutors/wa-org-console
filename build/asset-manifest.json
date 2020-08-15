@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.75448370.chunk.css",
-    "main.js": "/static/js/main.94611383.chunk.js",
-    "main.js.map": "/static/js/main.94611383.chunk.js.map",
+    "main.css": "/static/css/main.6cc72e97.chunk.css",
+    "main.js": "/static/js/main.999ed0e5.chunk.js",
+    "main.js.map": "/static/js/main.999ed0e5.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.2a21dafe.js",
     "runtime-main.js.map": "/static/js/runtime-main.2a21dafe.js.map",
-    "static/css/2.b402cd39.chunk.css": "/static/css/2.b402cd39.chunk.css",
-    "static/js/2.10f35df9.chunk.js": "/static/js/2.10f35df9.chunk.js",
-    "static/js/2.10f35df9.chunk.js.map": "/static/js/2.10f35df9.chunk.js.map",
+    "static/css/2.4fccfd63.chunk.css": "/static/css/2.4fccfd63.chunk.css",
+    "static/js/2.b9631559.chunk.js": "/static/js/2.b9631559.chunk.js",
+    "static/js/2.b9631559.chunk.js.map": "/static/js/2.b9631559.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.6592ab5100b32e8f6372e115fcc8deb8.js": "/precache-manifest.6592ab5100b32e8f6372e115fcc8deb8.js",
+    "precache-manifest.c603460214d519cbc2f38e5a4a406879.js": "/precache-manifest.c603460214d519cbc2f38e5a4a406879.js",
     "service-worker.js": "/service-worker.js",
-    "static/css/2.b402cd39.chunk.css.map": "/static/css/2.b402cd39.chunk.css.map",
-    "static/css/main.75448370.chunk.css.map": "/static/css/main.75448370.chunk.css.map",
-    "static/js/2.10f35df9.chunk.js.LICENSE.txt": "/static/js/2.10f35df9.chunk.js.LICENSE.txt",
-    "static/js/main.94611383.chunk.js.LICENSE.txt": "/static/js/main.94611383.chunk.js.LICENSE.txt",
+    "static/css/2.4fccfd63.chunk.css.map": "/static/css/2.4fccfd63.chunk.css.map",
+    "static/css/main.6cc72e97.chunk.css.map": "/static/css/main.6cc72e97.chunk.css.map",
+    "static/js/2.b9631559.chunk.js.LICENSE.txt": "/static/js/2.b9631559.chunk.js.LICENSE.txt",
+    "static/js/main.999ed0e5.chunk.js.LICENSE.txt": "/static/js/main.999ed0e5.chunk.js.LICENSE.txt",
     "static/media/pe-icon-7-stroke.css": "/static/media/Pe-icon-7-stroke.dedf2698.svg",
     "static/media/face-3.jpg": "/static/media/face-3.ce7a6b79.jpg",
     "static/media/bootstrap.min.css": "/static/media/glyphicons-halflings-regular.fa277232.woff",
@@ -23,9 +23,9 @@
   },
   "entrypoints": [
     "static/js/runtime-main.2a21dafe.js",
-    "static/css/2.b402cd39.chunk.css",
-    "static/js/2.10f35df9.chunk.js",
-    "static/css/main.75448370.chunk.css",
-    "static/js/main.94611383.chunk.js"
+    "static/css/2.4fccfd63.chunk.css",
+    "static/js/2.b9631559.chunk.js",
+    "static/css/main.6cc72e97.chunk.css",
+    "static/js/main.999ed0e5.chunk.js"
   ]
 }

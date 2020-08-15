@@ -14,6 +14,11 @@ const ADD_GROUPS_FAILURE = 'ADD_GROUPS_FAILURE';
 const REMOVE_GROUP_BEGIN = 'REMOVE_GROUP_BEGIN';
 const REMOVE_GROUP_SUCCESS = 'REMOVE_GROUP_SUCCESS';
 const REMOVE_GROUP_FAILURE = 'REMOVE_GROUP_FAILURE';
+
+const EDIT_MEMBERS_GROUP_BEGIN = 'EDIT_MEMBERS_GROUP_BEGIN';
+const EDIT_MEMBERS_GROUP_SUCCESS = 'EDIT_MEMBERS_GROUP_SUCCESS';
+const EDIT_MEMBERS_GROUP_FAILURE = 'EDIT_MEMBERS_GROUP_FAILURE';
+
 // REDUCER
 
 export default function groupsReducer(
@@ -65,11 +70,7 @@ export default function groupsReducer(
       return {
         ...state,
         loading: false,
-        list: state.list.filter((el) => {
-          if (el.pid)
-            return el.pid !== action.payload.pid;
-          return el.iid !== action.payload.iid;
-        }),
+        list: state.list.filter((el) => el.gid !== action.payload.gid),
       };
     case REMOVE_GROUP_FAILURE:
       return {
@@ -77,6 +78,25 @@ export default function groupsReducer(
         loading: false,
         error: action.payload,
       };
+
+    case EDIT_MEMBERS_GROUP_BEGIN:
+      return {
+        ...state,
+        loading: true,
+      };
+    case EDIT_MEMBERS_GROUP_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        list: state.list,
+      };
+    case EDIT_MEMBERS_GROUP_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
     default:
       return state;
   }
@@ -95,16 +115,13 @@ export function getGroupsThunk() {
     try {
       const groupsObj = await apiFetch({
         method: 'GET',
-        endpoint: `admin/profiles/consumer/${org}`,
+        endpoint: `admin/groups/${org}`,
       });
       // get phone numbers
-      const { profiles, invites } = groupsObj;
-      const uuids = profiles.map((profile) => profile.uuid);
-      const profilePhoneNumbers = await getProfileFromPhoneNumber({ uuids });
-      console.log({ profilePhoneNumbers });
-      profilePhoneNumbers.data.forEach((phone, i) => { profiles[i].phone = phone; });
+      const { groups } = groupsObj;
+
       // dispatch bullshit
-      dispatch(getGroupsSuccess([...profiles, ...invites]));
+      dispatch(getGroupsSuccess(groups));
     } catch (error) {
       console.error('getGroups thunk threw', error);
       dispatch(getGroupsFailure(error.message));
@@ -112,7 +129,7 @@ export function getGroupsThunk() {
   };
 }
 
-export function createGroupsThunk(inputData) { // TODO
+export function createGroupsThunk(inputData) {
   return async (dispatch, getState) => {
     let newGroups;
     if (Array.isArray(inputData))
@@ -123,23 +140,25 @@ export function createGroupsThunk(inputData) { // TODO
     dispatch(addGroupsBegin());
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
-
+    console.log({ newGroups });
     // format body
-    const body = inputData.map((data) => ({
+    const body = newGroups.map((data) => ({
+      org,
       sender: uid,
-      type: data.type,
+      type: 'private',
       info: data.info,
-      labels: [data.subject],
-      invitees: data.invitees,
+      properties: [data.subject.trim()],
+      // invitees: data.invitees.split('.'), deprecated bc of manager
     }));
 
     await apiFetch({
       method: 'POST',
-      endpoint: '/group/multi', // TODO
+      endpoint: 'group/multi',
       body: { groups: body },
     })
       .then(() => {
         dispatch(addGroupsSuccess(newGroups));
+        dispatch(getGroupsThunk());
       })
       .catch((error) => {
         console.error('addGroups');
@@ -158,7 +177,7 @@ export function removeGroupThunk({ gid, iid }) {
     if (gid)
       request = apiFetch({
         method: 'DELETE',
-        endpoint: `/group/single/${gid}`,
+        endpoint: `group/single/${gid}`,
       });
     else if (iid)
       request = apiFetch({
@@ -174,6 +193,68 @@ export function removeGroupThunk({ gid, iid }) {
     } catch (error) {
       console.error(`removeGroupThunk of ${gid || iid}, threw`, error);
       dispatch(removeGroupFailure(error.message));
+    }
+  };
+}
+
+export function editTeacherGroupThunk({ id, addMembers, removeMembers }) {
+  return async (dispatch, getState) => {
+    dispatch(editMembersGroupBegin());
+    console.log('getState', getState());
+    const { uid } = firebaseAuthService.getUser(true);
+
+    const body = {
+      type: 'group',
+      sender: uid,
+      itemId: id,
+      addMembers,
+      removeMembers,
+    };
+
+    const request = apiFetch({ // TODO
+      body,
+      method: 'PATCH',
+      endpoint: 'group/members',
+    });
+
+    try {
+      const response = await Promise.all([request]);
+      dispatch(editMembersGroupSuccess(response));
+      dispatch(getGroupsThunk());
+    } catch (error) {
+      console.error(`editMembersGroupThunk of ${id}, threw`, error);
+      dispatch(editMembersGroupFailure(error.message));
+    }
+  };
+}
+
+export function editMembersGroupThunk({ id, addMembers, removeMembers }) {
+  return async (dispatch, getState) => {
+    dispatch(editMembersGroupBegin());
+    console.log('getState', getState());
+    const { uid } = firebaseAuthService.getUser(true);
+
+    const body = {
+      type: 'group',
+      sender: uid,
+      itemId: id,
+      addMembers,
+      removeMembers,
+    };
+
+    const request = apiFetch({
+      body,
+      method: 'PATCH',
+      endpoint: 'group/members',
+    });
+
+    try {
+      const response = await Promise.all([request]);
+      dispatch(editMembersGroupSuccess(response));
+      dispatch(getGroupsThunk());
+    } catch (error) {
+      console.error(`editMembersGroupThunk of ${id}, threw`, error);
+      dispatch(editMembersGroupFailure(error.message));
     }
   };
 }
@@ -212,5 +293,17 @@ export const removeGroupSuccess = (newGroups) => ({
 });
 export const removeGroupFailure = (error) => ({
   type: REMOVE_GROUP_FAILURE,
+  payload: { error },
+});
+
+export const editMembersGroupBegin = () => ({
+  type: EDIT_MEMBERS_GROUP_BEGIN,
+});
+export const editMembersGroupSuccess = (newGroups) => ({
+  type: EDIT_MEMBERS_GROUP_SUCCESS,
+  payload: newGroups,
+});
+export const editMembersGroupFailure = (error) => ({
+  type: EDIT_MEMBERS_GROUP_FAILURE,
   payload: { error },
 });

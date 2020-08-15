@@ -19,11 +19,11 @@ import React, { useState } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 
-import { Card } from 'components/Card/Card.jsx';
-import { StatsCard } from 'components/StatsCard/StatsCard.jsx';
-import Labels from 'components/Labels/Labels.jsx';
-import SearchForm from 'components/FormInputs/SearchForm.jsx';
-import AddModal from 'components/Modals/AddModal';
+import { getOrgSummaryThunk } from 'redux/ducks/group.duck';
+import { Card } from 'components/Cards/Card';
+import { StatsCard } from 'components/Cards/StatsCard';
+import OrgProperties from 'components/Cards/Properties';
+import SearchForm from 'components/FormInputs/SearchForm';
 
 import {
   dataPie,
@@ -39,9 +39,6 @@ import {
 } from 'variables/Variables.jsx';
 
 function Dashboard(props) {
-  const [isAddOpen, setAddOpen] = useState();
-  const toggleAddOpen = () => setAddOpen(!isAddOpen);
-
   function createLegend(json) {
     const legend = [];
     for (let i = 0; i < json.names.length; i++) {
@@ -54,7 +51,8 @@ function Dashboard(props) {
   }
 
   function onSearchGroup(formData) {
-    alert('Search Group coming soon!');
+    console.log('onSearchGroup formData', formData);
+    props.history.push('/admin/groups', { filters: formData }); // pass to route
   }
 
   function onSearchStudent(formData) {
@@ -67,12 +65,9 @@ function Dashboard(props) {
     props.history.push('/admin/providers', { filters: formData }); // pass to route
   }
 
-  function onSearchSession() {
-    alert('Search Session coming soon!');
-  }
-
-  function handleAddSubjectProperty() {
-    window.alert('Add not yet implemented');
+  function onSearchSession(formData) {
+    console.log('onSearchSession formData', formData);
+    props.history.push('/admin/sessions', { filters: formData }); // pass to route
   }
 
   const databaseUpdateString = '6 Hours Ago';
@@ -149,7 +144,7 @@ function Dashboard(props) {
     <Col md={6}>
       <Card
         id="chartActivity"
-        title="Last 6 Months of Sessions"
+        title="Last 6 Months of Sessions (Mockup)"
         category="All products including Taxes"
         stats={databaseUpdateString}
         statsIcon="fa fa-clock-o"
@@ -170,32 +165,11 @@ function Dashboard(props) {
     </Col>
   );
 
-  const labelsCol = (
-    <Col md={6}>
-      <Card
-        title="Subjects"
-        category="Active subjects for your organization for sessions and groups"
-        stats="Updated now"
-        statsIcon="fa fa-history"
-        button={{
-          buttonColor: 'info',
-          icon: 'pe-7s-plus',
-          buttonText: 'Add',
-          onButtonClick: () => setAddOpen(true),
-        }}
-        content={(
-          <div className="table-full-width">
-            <table className="table">
-              <Labels />
-            </table>
-          </div>
-                )}
-      />
-    </Col>
-  );
-
   const searchRow = (
     <Row>
+      <Col xs={12}>
+        <p className="text-muted">Fill in one or more fields to search items</p>
+      </Col>
       <Col md={6} sm={12}>
         <SearchForm
           searchType="Students"
@@ -244,75 +218,56 @@ function Dashboard(props) {
       <Col md={6} sm={12}>
         <SearchForm
           searchType="Groups"
-          cols={['col-xs-4', 'col-xs-4', 'col-xs-4']}
+          cols={['col-xs-6', 'col-xs-6']}
           onSearch={onSearchGroup}
-          searchProperties={[
-            {
-              label: 'Label',
-              type: 'text',
-              name: 'label',
-              bsClass: 'form-control',
-              placeholder: 'Username',
-            },
-            {
-              label: 'User Phone',
-              type: 'phone',
-              name: 'phone',
-              bsClass: 'form-control',
-              placeholder: 'Email',
-            },
-            {
-              label: 'Name Member',
-              type: 'name',
-              name: 'name',
-              bsClass: 'form-control',
-              placeholder: 'Email',
-            },
-          ]}
+          searchProperties={[{
+            label: 'Description',
+            type: 'text',
+            name: 'info',
+            bsClass: 'form-control',
+            placeholder: 'Username',
+          }, {
+            label: 'Member (name)',
+            type: 'name',
+            name: 'members',
+            bsClass: 'form-control',
+            placeholder: 'Email',
+          }]}
         />
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
           searchType="Sessions"
-          cols={['col-xs-6']}
+          cols={['col-sm-3', 'col-sm-3', 'col-sm-3', 'col-sm-3']}
           onSearch={onSearchSession}
-          searchProperties={[
-            {
-              label: 'Coming Soon!',
-              type: 'text',
-              name: 'label',
-              disabled: true,
-              bsClass: 'form-control',
-              placeholder: 'Not ready yet',
-            },
-          ]}
+          searchProperties={[{
+            label: 'Name',
+            type: 'name',
+            name: 'name',
+            bsClass: 'form-control',
+            placeholder: 'Study Session',
+          }, {
+            label: 'About',
+            type: 'text',
+            name: 'about',
+            bsClass: 'form-control',
+            placeholder: 'Hotdogs',
+          }, {
+            label: 'Subject',
+            type: 'text',
+            name: 'subjects',
+            bsClass: 'form-control',
+            placeholder: 'Math 4',
+          }, {
+            label: 'Member (name)',
+            type: 'name',
+            name: 'members',
+            bsClass: 'form-control',
+            placeholder: 'Frank',
+          }]}
         />
       </Col>
     </Row>
-  );
-
-  const addSubjectPropertyModal = (
-    <AddModal
-      onSubmit={handleAddSubjectProperty}
-      isOpen={isAddOpen}
-      toggleOpen={toggleAddOpen}
-      header="Add Subjects to Organization"
-      infoText={`
-      Subjects are central to providing context to the platform.
-      Groups, sessions, and providers operate with subjects.
-      For example a subject of "Beginning Spanish" will be for early spanish learners.
-      A session with "Spanish 1" will be between users learning beginning spanish.
-      `}
-      form={[
-        {
-          name: 'property',
-          label: 'New Subject Name',
-          type: 'text',
-          bsClass: 'form-control',
-          placeholder: 'Beginning Spanish',
-        },
-      ]}
-    />
   );
 
   return (
@@ -322,11 +277,10 @@ function Dashboard(props) {
         {userBehaviorGraphRow}
         <Row>
           {activityGraphCol}
-          {labelsCol}
+          <OrgProperties />
         </Row>
         {searchRow}
       </Grid>
-      {addSubjectPropertyModal}
     </div>
   );
 }

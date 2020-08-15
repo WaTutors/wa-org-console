@@ -19,8 +19,9 @@ import Dashboard from 'views/Dashboard.jsx';
 import LegacyDashboard from 'views/_LegacyDashboard.jsx';
 import UserProfile from 'views/UserProfile.jsx';
 import TableList from 'views/TableList.jsx';
-import SessionList from 'views/SessionList';
-import { GroupList, ProviderList, StudentList } from 'views/Tables';
+import {
+  GroupList, ProviderList, StudentList, SessionList,
+} from 'views/Tables';
 
 import Typography from 'views/Typography.jsx';
 import Icons from 'views/Icons.jsx';
@@ -72,7 +73,7 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
-    live: true,
+    live: false,
     external: true,
     icon: 'pe-7s-piggy',
     name: 'Invoices',
@@ -86,7 +87,7 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
-    path: '/dashboard',
+    path: '/_dashboard',
     name: 'Dashboard',
     icon: 'pe-7s-graph',
     component: LegacyDashboard,

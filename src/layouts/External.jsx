@@ -149,7 +149,6 @@ class External extends Component {
         <div id="main-panel"           ref="mainPanel"
           style={{  
             background: 'rgba(203, 203, 210, 0.15)', 
-            paddingTop: '40px', 
             justifyContent: 'center',
           }} 
           >

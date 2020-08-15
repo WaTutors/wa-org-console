@@ -25,10 +25,10 @@ import {
   FormControl,
 } from 'react-bootstrap';
 
-import { Card } from 'components/Card/Card.jsx';
-import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
-import { UserCard } from 'components/UserCard/UserCard.jsx';
-import Button from 'components/Buttons/CustomButton.jsx';
+import { Card } from 'components/Cards/Card';
+import { FormInputs } from 'components/FormInputs/FormInputs';
+import { UserCard } from 'components/Cards/UserCard';
+import Button from 'components/Buttons/CustomButton';
 
 import avatar from 'assets/img/faces/face-3.jpg';
 

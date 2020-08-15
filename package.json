@@ -11,6 +11,7 @@
     "fetch": "^1.1.0",
     "firebase": "^7.17.1",
     "isomorphic-fetch": "^2.2.1",
+    "moment": "^2.27.0",
     "node-sass": "^4.14.1",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",

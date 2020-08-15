@@ -20,9 +20,12 @@ import { connect } from 'react-redux';
 
 import FirebaseAuthService from 'services/firebaseAuthService';
 import { setOrganization } from 'redux/ducks/user.duck';
-import { Card } from 'components/Card/Card.jsx';
+import { Card } from 'components/Cards/Card.jsx';
 import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
 import Button from 'components/Buttons/CustomButton.jsx';
+import bg from 'assets/img/blur-classroom.png';
+
+const BACKGROUND_LINK = 'https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Fassets%2Fblur-classroom-min%20(1).png?alt=media&token=42fe721a-2d9a-4f70-9310-2205fc15590e';
 
 function Login({
   history, setOrganizationStore,
@@ -61,15 +64,24 @@ function Login({
   }
 
   return (
-    <div style={{ height: '88vh', justifyContent: 'center' }}>
+    <div style={{
+      height: '92vh',
+      justifyContent: 'center',
+      backgroundImage: `url(${bg})`,
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+    }}
+    >
       <div style={{
+        paddingTop: '40px',
         marginLeft: 'auto',
         marginRight: 'auto',
         maxWidth: '500px',
       }}
       >
         <Card
-          title="Sign Into the Watutor Organization Management Console"
+          title="Welcome to the Watutor Organization Management Console"
           content={(
             <div>
               <FormInputs

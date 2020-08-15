@@ -15,10 +15,10 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
+import React, { Component } from 'react';
+import { Grid, Row, Col } from 'react-bootstrap';
 
-import Card from "components/Card/Card.jsx";
+import Card from 'components/Cards/Card';
 
 class Typography extends Component {
   render() {
@@ -30,48 +30,56 @@ class Typography extends Component {
               <Card
                 title="Light Bootstrap Table Heading"
                 category="Created using Roboto Font Family"
-                content={
+                content={(
                   <div>
                     <div className="typo-line">
                       <h1>
-                        <p className="category">Header 1</p>Light Bootstrap
-                        Table Heading{" "}
+                        <p className="category">Header 1</p>
+                        Light Bootstrap
+                        Table Heading
+                        {' '}
                       </h1>
                     </div>
 
                     <div className="typo-line">
                       <h2>
-                        <p className="category">Header 2</p>Light Bootstrap
+                        <p className="category">Header 2</p>
+                        Light Bootstrap
                         Table Heading
                       </h2>
                     </div>
                     <div className="typo-line">
                       <h3>
-                        <p className="category">Header 3</p>Light Bootstrap
+                        <p className="category">Header 3</p>
+                        Light Bootstrap
                         Table Heading
                       </h3>
                     </div>
                     <div className="typo-line">
                       <h4>
-                        <p className="category">Header 4</p>Light Bootstrap
+                        <p className="category">Header 4</p>
+                        Light Bootstrap
                         Table Heading
                       </h4>
                     </div>
                     <div className="typo-line">
                       <h5>
-                        <p className="category">Header 5</p>Light Bootstrap
+                        <p className="category">Header 5</p>
+                        Light Bootstrap
                         Table Heading
                       </h5>
                     </div>
                     <div className="typo-line">
                       <h6>
-                        <p className="category">Header 6</p>Light Bootstrap
+                        <p className="category">Header 6</p>
+                        Light Bootstrap
                         Table Heading
                       </h6>
                     </div>
                     <div className="typo-line">
                       <p>
-                        <span className="category">Paragraph</span>Lorem ipsum
+                        <span className="category">Paragraph</span>
+                        Lorem ipsum
                         dolor sit amet, consectetuer adipiscing elit, sed diam
                         nonummy nibh euismod tincidunt ut laoreet dolore magna
                         aliquam erat volutpat. Ut wisi enim ad minim veniam.
@@ -127,13 +135,16 @@ class Typography extends Component {
 
                     <div className="typo-line">
                       <h2>
-                        <p className="category">Small Tag</p>Header with small
-                        subtitle <br />
-                        <small>".small" is a tag for the headers</small>{" "}
+                        <p className="category">Small Tag</p>
+                        Header with small
+                        subtitle
+                        <br />
+                        <small>".small" is a tag for the headers</small>
+                        {' '}
                       </h2>
                     </div>
                   </div>
-                }
+                )}
               />
             </Col>
           </Row>

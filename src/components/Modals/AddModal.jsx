@@ -19,6 +19,8 @@ AddModal.propTypes = {
   onSubmit: PropTypes.func,
   processFile: PropTypes.func,
   hideFile: PropTypes.bool,
+  exampleFilePath: PropTypes.oneOf(PropTypes.string, PropTypes.bool),
+  onChangeSetFieldInvisibility: PropTypes.func,
 };
 
 AddModal.defaultProps = {
@@ -26,6 +28,8 @@ AddModal.defaultProps = {
   onSubmit: (e) => console.log('form submitted', e),
   hideFile: false,
   processFile: (raw) => ({ phone: raw.split(',') }),
+  exampleFilePath: false,
+  onChangeSetFieldInvisibility: () => [],
 };
 
 const BODY_TYPES = { form: 'form', file: 'file' };
@@ -39,29 +43,42 @@ function AddModal({
   toggleOpen,
   hideFile,
   processFile,
+  exampleFilePath,
+  onChangeSetFieldInvisibility,
 }) {
   const [bodySelected, setBody] = useState(hideFile ? BODY_TYPES.form : BODY_TYPES.file);
   const [inputData, setInputData] = useState({});
+  const [invisibleFieldNames, setInvisibleFieldNames] = useState(onChangeSetFieldInvisibility({}));
 
   function handleFileDrop(rawData) { // rawData is uint8 encoded
     console.log('addModal raw data', rawData);
     setInputData(processFile(rawData));
   }
 
-  function handleConfirm(e) {
-    console.log('AddModal confirm', inputData);
-    onSubmit(inputData); // {phone: [phoneNumber]}
+  function close() {
+    setInputData({}); // reset data
     setTimeout(() => {
-      toggleOpen();
+      toggleOpen(false);
     }, 100);
   }
 
-  function handleFormChange(e, name) {
-    setInputData({ ...inputData, [name]: [e.target.value] });
-    console.log('AddModal form change', name, e.target.value);
+  function handleConfirm(e) {
+    console.log('AddModal confirm', inputData);
+    onSubmit(inputData); // {phone: [phoneNumber]}
+    close();
   }
 
-  const buttonGroups = hideFile
+  function handleFormChange(e, name) {
+    console.log('AddModal form change', { name, value: e.target.value });
+    const newInputData = { ...inputData, [name]: e.target.value };
+    setInputData(newInputData);
+    // conditiionally hide fields
+    setInvisibleFieldNames(
+      onChangeSetFieldInvisibility(newInputData),
+    );
+  }
+
+  const buttonGroups = hideFile // if hideFile == true only show Form option
     ? [[{
       text: 'Form',
       onClick: () => setBody(BODY_TYPES.form),
@@ -78,7 +95,7 @@ function AddModal({
     }]];
 
   return (
-    <Modal show={isOpen} onHide={toggleOpen}>
+    <Modal show={isOpen} onHide={close}>
       <Modal.Header closeButton>
         {header}
       </Modal.Header>
@@ -95,6 +112,7 @@ function AddModal({
                 ncols={form.map(() => 'col-xs-12')}
                 handleChange={handleFormChange}
                 properties={form}
+                invisibleFieldNames={invisibleFieldNames}
               />
               )}
           {bodySelected === BODY_TYPES.file
@@ -108,9 +126,19 @@ function AddModal({
         </div>
       </Modal.Body>
       <Modal.Footer>
+        {exampleFilePath
+        && (
+        <Button
+          color="success"
+          style={{ float: 'left' }}
+          href={exampleFilePath}
+        >
+          Example File
+        </Button>
+        )}
         <Button color="primary" onClick={handleConfirm}>Continue</Button>
         {' '}
-        <Button color="secondary" onClick={toggleOpen}>Cancel</Button>
+        <Button color="secondary" onClick={close}>Cancel</Button>
       </Modal.Footer>
     </Modal>
   );

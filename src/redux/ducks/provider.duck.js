@@ -93,9 +93,10 @@ export function getProvidersThunk() {
     const { org } = getState().userReducer;
 
     try {
+      const queryString = '?limit=500';
       const providersObj = await apiFetch({
         method: 'GET',
-        endpoint: `admin/profiles/provider/${org}`,
+        endpoint: `admin/profiles/provider/${org}${queryString}`,
       });
       // get phone numbers
       const { profiles, invites } = providersObj;
@@ -116,12 +117,31 @@ export function getProvidersThunk() {
   };
 }
 
-export function inviteProvidersThunk(newProviders) {
+export function inviteProvidersThunk(payload) {
   return async (dispatch, getState) => {
     dispatch(addProvidersBegin());
-    console.log('inviteProvidersThunk state', firebaseAuthService.getUser());
+    const newProviders = Array.isArray(payload) ? payload : [payload];
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
+
+    const draftLabels = newProviders[0].labels
+      ? newProviders.map((provider) => provider.labels.split('.')
+        .map((str) => str.trim())
+        .filter((str) => str.length > 0)) : [];
+
+    // set special labels (teacher/tutor) for file submission
+    if (payload.Teacher)
+      draftLabels.map((els) => { els.push('TEACHER'); });
+    if (payload.Tutor)
+      draftLabels.map((els) => { els.push('TUTOR'); });
+    // set special labels (teacher/tutor) for file submission
+    const postedLabels = draftLabels.map((els) => els.map((el) => {
+      if (el === 'Teacher')
+        return 'TEACHER';
+      if (el === 'Tutor')
+        return 'TUTOR';
+      return el;
+    }));
 
     await apiFetch({
       method: 'POST',
@@ -130,13 +150,18 @@ export function inviteProvidersThunk(newProviders) {
         type: 'org',
         sender: uid,
         itemId: org,
-        invitees: newProviders,
+        invitees: newProviders.map((item) => item.phone),
+        labels: postedLabels,
         profileType: 'provider',
         // inviteMsg, // optional
       },
     })
-      .then(() => {
-        const newProviderObjs = newProviders.map((item) => ({ to: item }));
+      .then((response) => {
+        const newProviderObjs = newProviders.map((item, i) => ({
+          to: item.phone,
+          labels: postedLabels[i],
+          iid: response.iids[i].iid,
+        }));
         dispatch(addProvidersSuccess(newProviderObjs));
       })
       .catch((error) => {

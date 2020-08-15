@@ -15,11 +15,11 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
+import React, { Component } from 'react';
+import { Grid, Row, Col } from 'react-bootstrap';
 
-import Card from "components/Card/Card";
-import { iconsArray } from "variables/Variables.jsx";
+import Card from 'components/Cards/Card';
+import { iconsArray } from 'variables/Variables.jsx';
 
 class Icons extends Component {
   render() {
@@ -31,9 +31,10 @@ class Icons extends Component {
               <Card
                 title="202 Awesome Stroke Icons"
                 ctAllIcons
-                category={
+                category={(
                   <span>
-                    Handcrafted by our friends from{" "}
+                    Handcrafted by our friends from
+                    {' '}
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
@@ -42,28 +43,26 @@ class Icons extends Component {
                       Pixeden
                     </a>
                   </span>
-                }
-                content={
+                )}
+                content={(
                   <Row>
-                    {iconsArray.map((prop, key) => {
-                      return (
-                        <Col
-                          lg={2}
-                          md={3}
-                          sm={4}
-                          xs={6}
-                          className="font-icon-list"
-                          key={key}
-                        >
-                          <div className="font-icon-detail">
-                            <i className={prop} />
-                            <input type="text" defaultValue={prop} />
-                          </div>
-                        </Col>
-                      );
-                    })}
+                    {iconsArray.map((prop, key) => (
+                      <Col
+                        lg={2}
+                        md={3}
+                        sm={4}
+                        xs={6}
+                        className="font-icon-list"
+                        key={key}
+                      >
+                        <div className="font-icon-detail">
+                          <i className={prop} />
+                          <input type="text" defaultValue={prop} />
+                        </div>
+                      </Col>
+                    ))}
                   </Row>
-                }
+                )}
               />
             </Col>
           </Row>

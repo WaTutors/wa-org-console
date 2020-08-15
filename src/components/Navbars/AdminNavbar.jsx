@@ -34,14 +34,17 @@ class Header extends Component {
       this.setState({
         sidebarExists: true,
       });
+    console.log('AdminNavbar mobileSidebarToggle triggered');
 
     e.preventDefault();
     document.documentElement.classList.toggle('nav-open');
     const node = document.createElement('div');
     node.id = 'bodyClick';
     node.onclick = function () {
+      console.log('AdminNavbar node triggered', document.documentElement.className.indexOf('nav-open'));
       this.parentElement.removeChild(this);
-      document.documentElement.classList.toggle('nav-open');
+      if (document.documentElement.className.indexOf('nav-open') === 0) // dont show sidebar if already open
+        document.documentElement.classList.toggle('nav-open');
     };
     document.body.appendChild(node);
   }

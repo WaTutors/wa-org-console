@@ -19,10 +19,10 @@ import React, { Component } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 
-import { Card } from 'components/Card/Card.jsx';
-import { StatsCard } from 'components/StatsCard/StatsCard.jsx';
-import Labels from 'components/Labels/Labels.jsx';
-import SearchForm from 'components/FormInputs/SearchForm.jsx';
+import { Card } from 'components/Cards/Card';
+import { StatsCard } from 'components/Cards/StatsCard';
+import Labels from 'components/Labels/Labels';
+import SearchForm from 'components/FormInputs/SearchForm';
 
 import {
   dataPie,
@@ -35,7 +35,7 @@ import {
   optionsBar,
   responsiveBar,
   legendBar,
-} from 'variables/Variables.jsx';
+} from 'variables/Variables';
 
 class Dashboard extends Component {
   createLegend(json) {

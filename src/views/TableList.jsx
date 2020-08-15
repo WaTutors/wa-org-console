@@ -15,11 +15,13 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import { Grid, Row, Col, Table } from "react-bootstrap";
+import React, { Component } from 'react';
+import {
+  Grid, Row, Col, Table,
+} from 'react-bootstrap';
 
-import Card from "components/Card/Card.jsx";
-import { thArray, tdArray } from "variables/Variables.jsx";
+import Card from 'components/Cards/Card';
+import { thArray, tdArray } from 'variables/Variables';
 
 class TableList extends Component {
   render() {
@@ -33,28 +35,22 @@ class TableList extends Component {
                 category="Here is a subtitle for this table"
                 ctTableFullWidth
                 ctTableResponsive
-                content={
+                content={(
                   <Table striped hover>
                     <thead>
                       <tr>
-                        {thArray.map((prop, key) => {
-                          return <th key={key}>{prop}</th>;
-                        })}
+                        {thArray.map((prop, key) => <th key={key}>{prop}</th>)}
                       </tr>
                     </thead>
                     <tbody>
-                      {tdArray.map((prop, key) => {
-                        return (
-                          <tr key={key}>
-                            {prop.map((prop, key) => {
-                              return <td key={key}>{prop}</td>;
-                            })}
-                          </tr>
-                        );
-                      })}
+                      {tdArray.map((prop, key) => (
+                        <tr key={key}>
+                          {prop.map((prop, key) => <td key={key}>{prop}</td>)}
+                        </tr>
+                      ))}
                     </tbody>
                   </Table>
-                }
+                )}
               />
             </Col>
 
@@ -65,28 +61,22 @@ class TableList extends Component {
                 category="Here is a subtitle for this table"
                 ctTableFullWidth
                 ctTableResponsive
-                content={
+                content={(
                   <Table hover>
                     <thead>
                       <tr>
-                        {thArray.map((prop, key) => {
-                          return <th key={key}>{prop}</th>;
-                        })}
+                        {thArray.map((prop, key) => <th key={key}>{prop}</th>)}
                       </tr>
                     </thead>
                     <tbody>
-                      {tdArray.map((prop, key) => {
-                        return (
-                          <tr key={key}>
-                            {prop.map((prop, key) => {
-                              return <td key={key}>{prop}</td>;
-                            })}
-                          </tr>
-                        );
-                      })}
+                      {tdArray.map((prop, key) => (
+                        <tr key={key}>
+                          {prop.map((prop, key) => <td key={key}>{prop}</td>)}
+                        </tr>
+                      ))}
                     </tbody>
                   </Table>
-                }
+                )}
               />
             </Col>
           </Row>

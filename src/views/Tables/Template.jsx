@@ -2,13 +2,15 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import DeleteButton from 'components/Buttons/DeleteButton';
+import DeleteUserButton from 'components/Buttons/DeleteUserButton';
+import DeleteItemButton from 'components/Buttons/DeleteItemButton';
+import AddUserButton from 'components/Buttons/AddUserButton';
 import ConfirmModal from 'components/Modals/ConfirmModal';
 import AddModal from 'components/Modals/AddModal';
+import ManageMembersModal from 'components/Modals/ManageMembersModal';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import { Grid } from 'react-bootstrap';
 import ButtonBar from 'components/Buttons/ButtonBar';
 import Loader from 'components/Loader';
 
@@ -28,6 +30,12 @@ TemplateList.propTypes = {
   ),
   hideAddFile: PropTypes.bool,
   addInfo: PropTypes.string,
+  buttonBarExt: PropTypes.arrayOf(PropTypes.arrayOf(
+    PropTypes.objectOf(PropTypes.any),
+  )),
+  manageMembersFor: PropTypes.oneOf(['students', 'groups']),
+  exampleFilePath: PropTypes.string,
+  formOnChangeSetFieldInvisibility: PropTypes.func,
 };
 
 TemplateList.defaultProps = {
@@ -43,28 +51,44 @@ TemplateList.defaultProps = {
   }],
   hideAddFile: false,
   addInfo: 'Submitted profiles will be sent an invitation',
+  buttonBarExt: [],
+  manageMembersFor: 'Session',
+  exampleFilePath: false,
+  formOnChangeSetFieldInvisibility: () => [],
 };
 
 function TemplateList({
-  props, listName, processFile, columnDefs, rowData, isLoading, addInfo, addForm, hideAddFile,
+  props, listName, columnDefs, rowData, isLoading, addInfo,
+  addForm, hideAddFile, buttonBarExt, manageMembersFor, exampleFilePath, // vars
   getData, addData, removeRow, // callback functions
+  formOnChangeSetFieldInvisibility, processFile, // passed forward functions
 }) {
   const [selectedRow, selectRow] = useState({});
   const [gridApi, setGridApi] = useState(null);
   const [confirmText, setConfirmText] = useState();
   const [isAddOpen, setAddOpen] = useState();
   const toggleAddOpen = () => setAddOpen(!isAddOpen);
+  const [isManageOpen, setManageOpen] = useState();
+  const toggleManageOpen = () => setManageOpen(!isManageOpen);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const toggleConfirmOpen = () => {
     console.log('confirm toggle');
     setConfirmOpen(!isConfirmOpen);
   };
 
+  // if no data, load data with page
   useEffect(() => {
-    // if no data, load data with page
     if (Object.keys(rowData).length < 1)
       getData();
   }, []);
+
+  // update selected row ui on data change
+  useEffect(() => {
+    rowData.forEach((row) => {
+      if (row.id === selectedRow.id)
+        selectRow(row);
+    });
+  }, [rowData]);
 
   useEffect(() => {
     if (!gridApi)
@@ -106,22 +130,32 @@ function TemplateList({
     getData();
   }
 
+  /**
+   * handle cell button clicks
+   * @param {object} cell clicked cell information
+   */
   function handleCellClick(cell) {
     // console.log('cell click', cell.colDef.headerName, cell);
-    if (cell.colDef.headerName === 'Remove') {
+    if (cell.colDef.headerName === 'Remove'
+      || cell.colDef.headerName === 'Delete') {
       selectRow(cell.data);
-      setConfirmText(`Are you sure you want to remove ${cell.data.name || cell.data.phone} from your organization?`);
+      setConfirmText(`Are you sure you want to remove ${cell.data.name || cell.data.phone || 'this'} from your organization?`);
       setConfirmOpen(true);
+    } else if (cell.colDef.headerName === 'Manage') {
+      selectRow(cell.data);
+      setManageOpen(true);
     }
   }
 
   const rowConstants = {
     frameworkComponents: {
-      deleteButton: DeleteButton,
+      deleteButton: DeleteUserButton,
+      deleteItem: DeleteItemButton,
+      addUserButton: AddUserButton,
     },
     defaultColumnDefs: {
       resizable: true,
-      minWidth: 75,
+      minWidth: 100,
       filter: true,
       flex: 1,
       autoHeight: true,
@@ -129,7 +163,6 @@ function TemplateList({
     defaultRowData: {
       autoHeight: true,
       resizable: true,
-      flex: 1,
     },
   };
 
@@ -151,12 +184,13 @@ function TemplateList({
             onClick: () => setAddOpen(true),
             icon: 'pe-7s-add-user',
           }],
+          ...buttonBarExt,
         ]}
       />
       <div
         className="ag-theme-alpine"
         style={{
-          height: '80vh', width: '100%', maxWidth: '1200px', justifyContent: 'center',
+          height: '80vh', width: '100%', maxWidth: '1500px', justifyContent: 'center',
         }}
       >
         {isLoading
@@ -190,8 +224,18 @@ function TemplateList({
         header={`Add ${listName}(s) to Organization`}
         infoText={addInfo}
         form={addForm}
+        onChangeSetFieldInvisibility={formOnChangeSetFieldInvisibility}
         hideFile={hideAddFile}
         processFile={processFile}
+        exampleFilePath={exampleFilePath}
+      />
+      <ManageMembersModal
+        isOpen={isManageOpen}
+        toggleOpen={toggleManageOpen}
+        itemData={selectedRow}
+        header={`Manage Users in ${listName}`}
+        defaultMembersOf={manageMembersFor}
+        rowData
       />
     </div>
   );

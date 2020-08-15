@@ -12,8 +12,9 @@ export default {
     error: false,
   },
   user: {
-    org: 'testorg',
+    org: false, // testorg
     name: 'Hank Hill',
+    properties: ['Loading...'],
   },
   students: {
     list: [],
@@ -26,6 +27,11 @@ export default {
     error: false,
   },
   groups: {
+    list: [],
+    loading: false,
+    error: false,
+  },
+  sessions: {
     list: [],
     loading: false,
     error: false,

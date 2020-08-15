@@ -18,6 +18,7 @@ Edited Brett Stoddard 7/29 WaTutor
 
 */
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import { Route, Switch } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
 
@@ -167,6 +168,7 @@ class Admin extends Component {
       e.history.location.pathname !== e.location.pathname &&
       document.documentElement.className.indexOf("nav-open") !== -1
     ) {
+      console.log('Admin componentDidUpdate triggered')
       document.documentElement.classList.toggle("nav-open");
     }
     if (e.history.action === "PUSH") {
@@ -176,6 +178,9 @@ class Admin extends Component {
     }
   }
   render() {
+    if (!this.props.orgState)
+      this.props.history.push('/')
+
     return (
       <div className="wrapper">
         <NotificationSystem ref="notificationSystem" style={style} />
@@ -205,4 +210,10 @@ class Admin extends Component {
   }
 }
 
-export default Admin;
+const mapStateToProps = ({ userReducer }) => ({
+  orgState: userReducer.org,
+});
+
+export default connect(
+  mapStateToProps, null,
+)(Admin);

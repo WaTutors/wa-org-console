@@ -547,7 +547,7 @@ const responsiveSales = [
   ],
 ];
 const legendSales = {
-  names: ['Open App', 'Joined Group', 'Book Session'],
+  names: ['Open App ', 'Joined Group ', 'Book Session '],
   types: ['info', 'danger', 'warning'],
 };
 
@@ -593,7 +593,7 @@ const responsiveBar = [
   ],
 ];
 const legendBar = {
-  names: ['Study Sessions', 'Tutor Sessions'],
+  names: ['Study Sessions ', 'Tutor Sessions '],
   types: ['info', 'danger'],
 };
 
