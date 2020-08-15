@@ -14,9 +14,9 @@ function FieldGroup({
 
   if (checkboxes) {
     const onCheckbox = (option) => {
-      const formData = { target: { value: !checkboxData[option] } };
-      handleChange(formData, option);
-      const newData = { ...checkboxData, [option]: !checkboxData[option] };
+      const formData = { target: { value: !checkboxData[option.value] } };
+      handleChange(formData, option.value);
+      const newData = { ...checkboxData, [option.value]: !checkboxData[option.value] };
       setCheckboxData(newData);
       console.log('checkbox', { option, newData });
     };

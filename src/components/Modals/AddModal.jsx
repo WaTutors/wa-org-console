@@ -63,7 +63,7 @@ function AddModal({
   }
 
   function handleConfirm(e) {
-    console.log('AddModal confirm', inputData);
+    console.log('AddModal confirm', { inputData });
     onSubmit(inputData); // {phone: [phoneNumber]}
     close();
   }

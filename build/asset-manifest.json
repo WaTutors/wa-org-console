@@ -1,21 +1,22 @@
 {
   "files": {
     "main.css": "/static/css/main.6cc72e97.chunk.css",
-    "main.js": "/static/js/main.999ed0e5.chunk.js",
-    "main.js.map": "/static/js/main.999ed0e5.chunk.js.map",
+    "main.js": "/static/js/main.e349bd80.chunk.js",
+    "main.js.map": "/static/js/main.e349bd80.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.2a21dafe.js",
     "runtime-main.js.map": "/static/js/runtime-main.2a21dafe.js.map",
     "static/css/2.4fccfd63.chunk.css": "/static/css/2.4fccfd63.chunk.css",
-    "static/js/2.b9631559.chunk.js": "/static/js/2.b9631559.chunk.js",
-    "static/js/2.b9631559.chunk.js.map": "/static/js/2.b9631559.chunk.js.map",
+    "static/js/2.f5b80f1b.chunk.js": "/static/js/2.f5b80f1b.chunk.js",
+    "static/js/2.f5b80f1b.chunk.js.map": "/static/js/2.f5b80f1b.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.c603460214d519cbc2f38e5a4a406879.js": "/precache-manifest.c603460214d519cbc2f38e5a4a406879.js",
+    "precache-manifest.c853e88566656606b5005661bd368a5f.js": "/precache-manifest.c853e88566656606b5005661bd368a5f.js",
     "service-worker.js": "/service-worker.js",
     "static/css/2.4fccfd63.chunk.css.map": "/static/css/2.4fccfd63.chunk.css.map",
     "static/css/main.6cc72e97.chunk.css.map": "/static/css/main.6cc72e97.chunk.css.map",
-    "static/js/2.b9631559.chunk.js.LICENSE.txt": "/static/js/2.b9631559.chunk.js.LICENSE.txt",
-    "static/js/main.999ed0e5.chunk.js.LICENSE.txt": "/static/js/main.999ed0e5.chunk.js.LICENSE.txt",
+    "static/js/2.f5b80f1b.chunk.js.LICENSE.txt": "/static/js/2.f5b80f1b.chunk.js.LICENSE.txt",
+    "static/js/main.e349bd80.chunk.js.LICENSE.txt": "/static/js/main.e349bd80.chunk.js.LICENSE.txt",
     "static/media/pe-icon-7-stroke.css": "/static/media/Pe-icon-7-stroke.dedf2698.svg",
+    "static/media/blur-classroom.png": "/static/media/blur-classroom.e03296ab.png",
     "static/media/face-3.jpg": "/static/media/face-3.ce7a6b79.jpg",
     "static/media/bootstrap.min.css": "/static/media/glyphicons-halflings-regular.fa277232.woff",
     "static/media/sidebar-3.jpg": "/static/media/sidebar-3.34535b95.jpg",
@@ -24,8 +25,8 @@
   "entrypoints": [
     "static/js/runtime-main.2a21dafe.js",
     "static/css/2.4fccfd63.chunk.css",
-    "static/js/2.b9631559.chunk.js",
+    "static/js/2.f5b80f1b.chunk.js",
     "static/css/main.6cc72e97.chunk.css",
-    "static/js/main.999ed0e5.chunk.js"
+    "static/js/main.e349bd80.chunk.js"
   ]
 }

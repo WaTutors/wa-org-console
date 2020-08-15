@@ -160,7 +160,7 @@ export function removeStudentThunk({ pid, iid }) {
 
     let request;
     if (pid) {
-      const queryString = `?pids=${pid}${queryString}&limit=500`;
+      const queryString = `?pids=${pid}&limit=500`;
       request = apiFetch({
         method: 'DELETE',
         endpoint: `admin/profiles/consumer/${org}${queryString}`,

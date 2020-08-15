@@ -91,6 +91,7 @@ function SessionList({
   }, [dataList]);
 
   const teacherList = useMemo(() => {
+    console.log('SessionList subject filter', { subjectAddFormFilter });
     if (providerList)
       return providerList.map((item) => ({
         invite: item.profile ? 'Accepted' : 'Sent',
@@ -106,7 +107,7 @@ function SessionList({
       }))
         .filter((user) => user.invite === 'Accepted'
           && user.instructorType === 'Teacher'
-          && user.properties.includes(subjectAddFormFilter));
+          && (user.properties.includes(subjectAddFormFilter) || user.properties.includes(`${orgState}_${subjectAddFormFilter}`)));
     return [];
   }, [providerList, subjectAddFormFilter]);
 
@@ -175,7 +176,8 @@ function SessionList({
     name: 'dotw',
     label: 'Select days of the week',
     checkboxes: true,
-    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      .map((dotw) => ({ label: dotw, value: dotw })),
   }, {
     name: 'startDay',
     label: 'First Possible Start Date',

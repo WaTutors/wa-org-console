@@ -35,8 +35,8 @@ export default async function apiFetch({ method, endpoint, body = {} }) {
   if (method !== 'GET')
     config.body = JSON.stringify(body);
 
-  const baseUrl = false // FIXME before deploying set to true
-    ? 'https://20200810t211851-dot-watutors-1.uc.r.appspot.com'
+  const baseUrl = true // FIXME before deploying set to true
+    ? 'https://20200814t200339-dot-watutors-1.uc.r.appspot.com'
     : 'http://localhost:3001';
   return fetch(`${baseUrl}/v2/${endpoint}`, config)
     .then((response) => parseResponse(response))
