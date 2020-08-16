@@ -7,6 +7,15 @@ import {
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 
+import {
+  mapStudentMembersAgGridRows, generateStudentMembersAgGridColumns,
+} from 'services/parsers/student.parser';
+import {
+  mapGroupMembersAgGridRows, generateGroupMembersAgGridColumns,
+} from 'services/parsers/group.parser';
+import {
+  mapProviderMembersAgGridRows, generateProviderMembersAgGridColumns,
+} from 'services/parsers/provider.parser';
 import { getStudentsThunk } from 'redux/ducks/student.duck';
 import { getProvidersThunk } from 'redux/ducks/provider.duck';
 import { getGroupsThunk, editMembersGroupThunk } from 'redux/ducks/group.duck';
@@ -62,111 +71,32 @@ function ManageMembersModal({
     if (tableDataSource === SOURCE.students)
       return studentList
         .filter((item) => Boolean(item.profile)) // remove invitations
-        .map((item) => ({
-          invite: item.profile ? 'Accepted' : 'Sent',
-          name: item.profile ? item.profile.name.split('~')[0] : undefined,
-          labels: item.profile
-            ? item.profile.org
-              .filter((str) => str.includes(orgState) && str !== orgState)
-              .map((str) => str.replace(`${orgState}_`, ''))
-            : item.labels,
-          isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
-          id: item.pid || item.iid,
-        }));
+        .map((item) => mapStudentMembersAgGridRows(item, itemData, orgState));
     if (tableDataSource === SOURCE.groups)
-      return groupList.map((item) => ({
-        subjects: item.labels,
-        info: item.info,
-        members: item.activeMembers
-          ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])
-          : [],
-        numMembers: item.activeMembers ? item.activeMembers.length : 0,
-        isIncluded: item.activeMembers && itemData.activeMembers
-          && item.activeMembers.length > 0 // only show if group has members
-        // && item.activeMembers.length === itemData.activeMembers.length // filter subsets
-          && item.activeMembers
-            .every((pid) => itemData.activeMembers.includes(pid)), // evey user is included
-        activeMembers: item.activeMembers,
-        id: item.gid,
-      }));
+      return groupList.map((item) => mapGroupMembersAgGridRows(item, itemData, orgState));
     if (tableDataSource === SOURCE.teachers)
       return providerList
         .filter((item) => item.profile
           && item.profile.org.includes(`${orgState}_TEACHER`)) // filter out tutors and invitations
-        .map((item) => ({
-          name: item.profile ? item.profile.name.split('~')[0] : undefined,
-          rating: item.rating,
-          properties: item.profile ? item.profile.properties : null,
-          labels: item.profile
-            ? item.profile.org
-              .filter((str) => str.includes(orgState) && str !== orgState
-            && !str.includes('TEACHER') && !str.includes('TUTOR'))
-              .map((str) => str.replace(`${orgState}_`, ''))
-          // if invitation
-            : item.labels
-              .filter((str) => str !== 'TEACHER' && str !== 'TUTOR'),
-          isIncluded: itemData.providerId && itemData.providerId === item.pid,
-          id: item.pid,
-        }));
+        .map((item) => mapProviderMembersAgGridRows(item, itemData, orgState));
     if (tableDataSource === SOURCE.tutors)
       return providerList
         .filter((item) => item.profile
           && item.profile.org.includes(`${orgState}_TEACHER`)) // filter out teachers and invitations
-        .map((item) => ({
-          name: item.profile ? item.profile.name.split('~')[0] : undefined,
-          rating: item.rating,
-          properties: item.profile ? item.profile.properties : null,
-          labels: item.profile
-            ? item.profile.org
-              .filter((str) => str.includes(orgState) && str !== orgState
-              && !str.includes('TEACHER') && !str.includes('TUTOR'))
-              .map((str) => str.replace(`${orgState}_`, ''))
-            // if invitation
-            : item.labels
-              .filter((str) => str !== 'TEACHER' && str !== 'TUTOR'),
-          isIncluded: itemData.providerId && itemData.providerId === item.pid,
-          id: item.pid,
-        }));
+        .map((item) => mapProviderMembersAgGridRows(item, itemData, orgState));
     throw new Error(`ManageMembersModal modal tableDataSource not recognized: ${tableDataSource}`);
   }, [studentList, providerList, groupList, itemData, tableDataSource]);
 
   const columnDefs = useMemo(() => {
     if (tableDataSource === SOURCE.students)
-      return [ // student columns
-        {
-          headerName: 'Name', field: 'name',
-        }, {
-          headerName: 'Labels', field: 'labels', flex: 1.25,
-        }, {
-          headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
-        }];
+      return generateStudentMembersAgGridColumns();
     // else group columns
     if (tableDataSource === SOURCE.groups)
-      return [{
-        headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
-      }, {
-        headerName: 'Subject', field: 'subjects', sortable: true,
-      }, {
-        headerName: '# Members', field: 'numMembers', sortable: true, flex: 0.75, filter: 'agNumberColumnFilter',
-      }, {
-        headerName: 'Members', field: 'members', sortable: true,
-      }, {
-        headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
-      }];
+      return generateGroupMembersAgGridColumns();
     if (tableDataSource === SOURCE.teachers)
-      return [{
-        headerName: 'Name', field: 'name',
-      }, {
-        headerName: 'Role', field: 'instructorType',
-      }, {
-        headerName: 'Labels', field: 'labels', flex: 1.25,
-      }, {
-        headerName: 'Rating', field: 'rating', flex: 0.75, filter: 'agNumberColumnFilter',
-      }, {
-        headerName: 'Subjects', field: 'properties', sortable: true, flex: 1.25,
-      }, {
-        headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
-      }];
+      return generateProviderMembersAgGridColumns();
+    if (tableDataSource === SOURCE.tutors)
+      return generateProviderMembersAgGridColumns();
     throw new Error(`ManageMembersModal modal tableDataSource not recognized: ${tableDataSource}`);
   }, [tableDataSource]);
 

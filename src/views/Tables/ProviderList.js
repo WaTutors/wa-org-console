@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import {
+  mapProviderMainAgGridRows, generateProviderMainAgGridColumns,
+} from 'services/parsers/provider.parser';
 import {
   getProvidersThunk, inviteProvidersThunk, removeProviderThunk,
 } from 'redux/ducks/provider.duck';
@@ -12,30 +16,10 @@ function ProviderList({
   dataList, loading, orgState, // variables
   ...props
 }) {
-  const rowData = useMemo(() => dataList.map((item) => ({
-    invite: item.profile ? 'Accepted' : 'Sent',
-    name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: item.profile ? item.phone : item.to,
-    rating: item.rating,
-    ratingCount: item.numRating,
-    properties: item.profile ? item.profile.properties : null,
-    instructorType: item.profile
-      ? (item.profile.org.includes(`${orgState}_TEACHER`) && 'Teacher')
-    || (item.profile.org.includes(`${orgState}_TUTOR`) && 'Tutor') || ''
-    // if invitation
-      : (item.labels.includes('TEACHER') && 'Teacher')
-    || (item.labels.includes('TUTOR') && 'Tutor') || '',
-    labels: item.profile
-      ? item.profile.org
-        .filter((str) => str.includes(orgState) && str !== orgState
-          && !str.includes('TEACHER') && !str.includes('TUTOR'))
-        .map((str) => str.replace(`${orgState}_`, ''))
-      // if invitation
-      : item.labels
-        .filter((str) => str !== 'TEACHER' && str !== 'TUTOR'),
-    iid: item.iid,
-    pid: item.pid,
-  })), [dataList]);
+  const rowData = useMemo(() => dataList.map(
+    (item) => mapProviderMainAgGridRows(item, orgState),
+  ),
+  [dataList]);
 
   return (
     <TemplateList
@@ -45,32 +29,7 @@ function ProviderList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={[{
-        headerName: 'Invite', field: 'invite', flex: 0.5,
-      }, {
-        headerName: 'Name', field: 'name',
-      }, {
-        headerName: 'Role', field: 'instructorType',
-      }, {
-        headerName: 'Labels', field: 'labels', flex: 1.25,
-      }, {
-        headerName: 'Phone Number', field: 'phone',
-      }, {
-        headerName: 'Rating', field: 'rating', flex: 0.75, filter: 'agNumberColumnFilter',
-      }, {
-        headerName: '# Ratings', field: 'ratingCount', flex: 0.75, filter: 'agNumberColumnFilter',
-      }, {
-        headerName: 'Subjects', field: 'properties', sortable: true, flex: 1.25,
-      }, {
-        headerName: 'Remove', cellRenderer: 'deleteButton', width: 64,
-      },
-        /* removed columns
-        {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true,
-            flex: 0.75, filter: 'agNumberColumnFilter'},
-        {headerName: 'Complete Sessions', field: 'completedSessions', sortable: true,
-            flex: 0.75, filter: 'agNumberColumnFilter'},
-        */
-      ]}
+      columnDefs={generateProviderMainAgGridColumns()}
       rowData={rowData}
       /* example rowData
         {invite: true,name: 'Tom Ng',phone: '+1 59333384448',completedSessions: 1,

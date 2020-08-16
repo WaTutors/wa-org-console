@@ -1,6 +1,10 @@
 import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import {
+  mapGroupMainAgGridRows, generateGroupMainAgGridColumns,
+} from 'services/parsers/group.parser';
 import {
   getGroupsThunk, createGroupsThunk, removeGroupThunk, editMembersGroupThunk,
 } from 'redux/ducks/group.duck';
@@ -20,18 +24,7 @@ function GroupList({
 
   const rowData = useMemo(() => {
     if (dataList)
-      return dataList.map((item) => ({
-        subjects: item.properties,
-        info: item.info,
-        members: item.activeMembers
-          ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])
-          : [],
-        activeMembers: item.activeMembers,
-        numMembers: item.activeMembers ? item.activeMembers.length : 0,
-        created: item.created ? new Date(item.created._seconds * 1000) : new Date(),
-        gid: item.gid,
-        id: `g~${item.gid}`,
-      }));
+      return dataList.map(mapGroupMainAgGridRows);
     return [];
   }, [dataList]);
 
@@ -44,21 +37,7 @@ function GroupList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={[{
-        headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
-      }, {
-        headerName: 'Subjects', field: 'subjects', sortable: true,
-      }, {
-        headerName: 'Created', field: 'created', sortable: true, filter: 'agDateColumnFilter',
-      }, {
-        headerName: '# Members', field: 'numMembers', flex: 0.5, sortable: true, filter: 'agNumberColumnFilter',
-      }, {
-        headerName: 'Members', field: 'members', sortable: true,
-      }, {
-        headerName: 'Manage', cellRenderer: 'addUserButton', width: 64, flex: 0.5,
-      }, {
-        headerName: 'Delete', cellRenderer: 'deleteItem', width: 64, flex: 0.5,
-      }]}
+      columnDefs={generateGroupMainAgGridColumns()}
       rowData={rowData}
       // hideAddFile
       addInfo="Groups are required to create sessions"

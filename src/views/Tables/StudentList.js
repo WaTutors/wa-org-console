@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import {
+  mapStudentMainAgGridRows, generateStudentMainAgGridColumns,
+} from 'services/parsers/student.parser';
 import { getStudentsThunk, inviteStudentsThunk, removeStudentThunk } from 'redux/ducks/student.duck';
 import TemplateList from './Template';
 
@@ -10,21 +14,10 @@ function StudentList({
   dataList, loading, orgState, // variables
   ...props
 }) {
-  const rowData = useMemo(() => dataList.map((item) => ({
-    invite: item.profile ? 'Accepted' : 'Sent',
-    name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-    labels: item.profile
-      ? item.profile.org
-        .filter((str) => str.includes(orgState) && str !== orgState)
-        .map((str) => str.replace(`${orgState}_`, ''))
-      : item.labels,
-    // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
-    // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
-    iid: item.iid,
-    pid: item.pid,
-    id: `u~${item.pid || item.iid}`,
-  })), [dataList]);
+  const rowData = useMemo(
+    () => dataList.map((item) => mapStudentMainAgGridRows(item, orgState)),
+    [dataList],
+  );
 
   return (
     <TemplateList
@@ -34,26 +27,8 @@ function StudentList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={[{
-        headerName: 'Invite', field: 'invite', flex: 0.5,
-      }, {
-        headerName: 'Name', field: 'name',
-      }, {
-        headerName: 'Phone Number', field: 'phone',
-      }, {
-        headerName: 'Labels', field: 'labels', flex: 1.25,
-      }, {
-        headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
-      }]}
+      columnDefs={generateStudentMainAgGridColumns()}
       rowData={rowData}
-      /* example
-      rowData={[
-      headerName: '# Groups', field: 'groupNum', sortable: true, flex: 0.75,}
-      headerName: 'Group Subjects', field: 'groups', sortable: true, flex: 1.5,}
-      invite: true, name: 'Tonya Harding', phone: '+1 59333384448',
-          groupNum: 3, groups: ['Beginner Piano', 'Math 4', 'ESL'],}
-      invite: false, phone: '+1 25688484862'}
-      */
       addForm={[{
         name: 'phone',
         label: 'Phone Number',
