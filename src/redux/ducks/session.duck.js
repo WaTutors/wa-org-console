@@ -1,7 +1,11 @@
 /* eslint-disable no-use-before-define */
+import moment from 'moment';
+
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
+
+const TIME_STRING = 'HH:mm-MM-DD-YY ZZ';
 
 const GET_SESSIONS_BEGIN = 'GET_SESSIONS_BEGIN';
 const GET_SESSIONS_SUCCESS = 'GET_SESSIONS_SUCCESS';
@@ -18,6 +22,11 @@ const REMOVE_SESSION_FAILURE = 'REMOVE_SESSION_FAILURE';
 const EDIT_USERS_BEGIN = 'EDIT_USERS_BEGIN';
 const EDIT_USERS_SUCCESS = 'EDIT_USERS_SUCCESS';
 const EDIT_USERS_FAILURE = 'EDIT_USERS_FAILURE';
+
+const GET_AVAILABLE_BEGIN = 'GET_AVAILABLE_BEGIN';
+const GET_AVAILABLE_SUCCESS = 'GET_AVAILABLE_SUCCESS';
+const GET_AVAILABLE_FAILURE = 'GET_AVAILABLE_FAILURE';
+
 // REDUCER
 
 export default function sessionsReducer(
@@ -93,6 +102,24 @@ export default function sessionsReducer(
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case GET_AVAILABLE_BEGIN:
+      return {
+        ...state,
+        error: null,
+      };
+
+    case GET_AVAILABLE_SUCCESS:
+      return {
+        ...state,
+        availableSessions: action.payload,
+      };
+
+    case GET_AVAILABLE_FAILURE:
+      return {
+        ...state,
+        error: action.payload.error,
       };
 
     default:
@@ -244,6 +271,33 @@ export function editMembersSessionThunk({
   };
 }
 
+export function getAvailableSessionsThunk(property, startDate, startTime) {
+  return async (dispatch, getState) => {
+    const { org } = getState().userReducer;
+
+    dispatch(getAvailableBegin());
+
+    const startTimeMom = moment(startTime, 'HH:mm');
+
+    const start = moment(startDate, 'YYYY-MM-DD')
+      .set('hours', startTimeMom.hours())
+      .set('minutes', startTimeMom.minutes());
+
+    const end = moment().set('hours', 23).set('minutes', 0);
+
+    await apiFetch({
+      method: 'GET',
+      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}&org=${org}`,
+    })
+      .then(({ availableSessions }) => {
+        dispatch(getAvailableSuccess(
+          availableSessions.filter((session) => session && Object.keys(session).length > 0),
+        ));
+      })
+      .catch((error) => dispatch(getAvailableFailure(error)));
+  };
+}
+
 // ACTIONS
 export const getSessionsBegin = () => ({
   type: GET_SESSIONS_BEGIN,
@@ -290,5 +344,19 @@ export const editUsersSuccess = (newSessions) => ({
 });
 export const editUsersFailure = (error) => ({
   type: EDIT_USERS_FAILURE,
+  payload: { error },
+});
+
+const getAvailableBegin = () => ({
+  type: GET_AVAILABLE_BEGIN,
+});
+
+const getAvailableSuccess = (availableSessions) => ({
+  type: GET_AVAILABLE_SUCCESS,
+  payload: availableSessions,
+});
+
+const getAvailableFailure = (error) => ({
+  type: GET_AVAILABLE_FAILURE,
   payload: { error },
 });
