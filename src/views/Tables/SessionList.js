@@ -2,10 +2,10 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Button } from 'react-bootstrap';
+import { Button, Panel, Image } from 'react-bootstrap';
 
 import {
-  mapSessionMainAgGridRows, generateSessionMainAgGridColumns,
+  mapSessionMainAgGridRows, generateSessionMainAgGridColumns, getProviderAvatars,
 } from 'services/parsers/session.parser';
 import {
   getSessionsThunk, createSessionsThunk, removeSessionThunk, getAvailableSessionsThunk,
@@ -18,13 +18,15 @@ import TemplateList from './Template';
 function SessionList({
   // redux props go brrrrr
   getData, getProperties, addData, removeData, getProviders, getAvailableSessions, // functions
-  dataList, loading, properties, providerList, orgState, // variables
+  dataList, loading, properties, providerList, orgState, availableSessions, // variables
   ...props
 }) {
   const [subjectAddFormFilter, setSubjectAddFormFilter] = useState('');
   const [isAddMultiOpen, setAddMultiOpen] = useState(false);
   const [isLoadingAvailable, setLoadingAvailable] = useState(false);
   const [formData, setFormData] = useState({});
+  const [providerAvatars, setProviderAvatars] = useState({});
+  const [selectedSession, selectSession] = useState(null);
 
   useEffect(() => {
     // if no data, load data with page
@@ -33,6 +35,14 @@ function SessionList({
     if (!properties || properties.includes('Loading...'))
       getProperties();
   }, []);
+
+  useEffect(() => {
+    if (availableSessions.length > 0)
+      getProviderAvatars(availableSessions.map(({ provider: { pid } }) => pid))
+        .then((avatars) => {
+          setProviderAvatars(avatars);
+        });
+  }, [availableSessions]);
 
   const rowData = useMemo(() => {
     if (dataList)
@@ -77,6 +87,8 @@ function SessionList({
     label: 'Start Time',
     type: 'time',
     placeholder: 'HH:MM AA',
+    help: 'Start Times must end with :00 or :30.',
+    step: 1800,
   }, {
     name: 'startDate',
     label: 'Start Date',
@@ -147,7 +159,7 @@ function SessionList({
         columnDefs={generateSessionMainAgGridColumns()}
         rowData={rowData}
         // hideAddFile
-        addChildren={(
+        addChildren={formData.type === 'Tutoring Session' && (
           isLoadingAvailable
             ? <Loader />
             : (
@@ -160,21 +172,64 @@ function SessionList({
                       .then(() => setLoadingAvailable(false));
                   }}
                   className="btn-fill"
+                  style={{ marginBottom: 10 }}
                 >
                   <i className="pe-7s-search" />
                   {' '}
                   Search
                 </Button>
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: 'lightgray',
-                }}
-                >
-                  Luca Palermo
-                  This is my about
-                </div>
+                <br />
+                {availableSessions.map(({ provider: { pid, name, about }, id }) => {
+                  const selected = selectedSession === id;
+
+                  return (
+                    <Panel
+                      key={id}
+                      bsStyle={selected ? 'info' : undefined}
+                      onClick={() => {
+                        if (selected)
+                          selectSession(null);
+                        else
+                          selectSession(id);
+                      }}
+                      style={{
+                        marginTop: 10,
+                        padding: 10,
+                        display: 'inline-block',
+                        marginRight: 10,
+                      }}
+                    >
+                      <div style={{
+                        overflow: 'hidden',
+                        height: 75,
+                        width: 75,
+                        borderRadius: 37.5,
+                        margin: 'auto',
+                      }}
+                      >
+                        <Image
+                          src={providerAvatars[pid]}
+                          responsive
+                          style={{
+                            width: 'auto',
+                            height: 75,
+                            alignSelf: 'center',
+                            backgroundColor: 'gray',
+                          }}
+                        />
+                      </div>
+                      <h5 style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                        {name.slice(0, -2)}
+                      </h5>
+                      <p style={{
+                        fontSize: 14, color: 'gray', maxWidth: 150, textAlign: 'center',
+                      }}
+                      >
+                        {about}
+                      </p>
+                    </Panel>
+                  );
+                })}
               </>
             )
         )}
@@ -222,6 +277,9 @@ SessionList.propTypes = {
   providerList: PropTypes.objectOf(PropTypes.any).isRequired,
   getProperties: PropTypes.func.isRequired,
   getAvailableSessions: PropTypes.func.isRequired,
+  availableSessions: PropTypes.arrayOf(PropTypes.shape({
+
+  })).isRequired,
 };
 
 const mapStateToProps = ({
@@ -232,6 +290,7 @@ const mapStateToProps = ({
   properties: userReducer.properties,
   providerList: providersReducer.list,
   loading: sessionsReducer.loading && providersReducer.loading,
+  availableSessions: sessionsReducer.availableSessions,
 });
 const mapDispatchToProps = (dispatch) => ({
   getProviders: () => dispatch(getProvidersThunk()),

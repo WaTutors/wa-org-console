@@ -285,9 +285,11 @@ export function getAvailableSessionsThunk(property, startDate, startTime) {
 
     const end = moment().set('hours', 23).set('minutes', 0);
 
+    const property = 'math';
+
     await apiFetch({
       method: 'GET',
-      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}&org=${org}`,
+      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}`, // &org=${org}
     })
       .then(({ availableSessions }) => {
         dispatch(getAvailableSuccess(

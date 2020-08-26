@@ -1,10 +1,10 @@
 import React, { Component, useState } from 'react';
 import {
-  FormGroup, ControlLabel, FormControl, Row,
+  FormGroup, ControlLabel, FormControl, Row, HelpBlock,
 } from 'react-bootstrap';
 
 function FieldGroup({
-  label, name, options = false, handleChange, checkboxes, type, ...props
+  label, name, options = false, handleChange, checkboxes, type, help, ...props
 }) {
   const [checkboxData, setCheckboxData] = useState({});
 
@@ -56,18 +56,23 @@ function FieldGroup({
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
       {type !== 'search' && (
-        <FormControl
-          onChange={(e) => {
-            if (options) // spoof e.target.value for json option value
-              handleChange({ target: { value: JSON.parse(e.target.value) } }, name);
-            else
-              handleChange(e, name);
-          }}
-          type={type}
-          {...props}
-        >
-          {optionsRender}
-        </FormControl>
+        <>
+          <FormControl
+            onChange={(e) => {
+              if (options) // spoof e.target.value for json option value
+                handleChange({ target: { value: JSON.parse(e.target.value) } }, name);
+              else
+                handleChange(e, name);
+            }}
+            type={type}
+            {...props}
+          >
+            {optionsRender}
+          </FormControl>
+          {!!help && (
+            <HelpBlock>{help}</HelpBlock>
+          )}
+        </>
       )}
     </FormGroup>
   );

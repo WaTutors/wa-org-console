@@ -1,4 +1,6 @@
-exports.generateSessionMainAgGridColumns = () => [{
+import FirebaseAuthService from '../firebaseAuthService';
+
+export const generateSessionMainAgGridColumns = () => [{
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
@@ -67,7 +69,7 @@ function getProviderInfo(item, type) {
  * @param {object} item session object
  * @returns {object}
  */
-exports.mapSessionMainAgGridRows = (item) => {
+export const mapSessionMainAgGridRows = (item) => {
   const events = item.events || [];
   let status = 'No status';
   if (events.includes('ended'))
@@ -110,4 +112,35 @@ exports.mapSessionMainAgGridRows = (item) => {
     sid: item.sid,
     id: `s~${item.sid}`,
   };
+};
+
+/**
+ * Retrieves download links for provider avatars.
+ *
+ * Intakes an array of profile IDs and returns and object of download URLs for each PID's avatar.
+ *
+ * @param {array}  pids  Array of PIDs.
+ * @param {number} limit Optional limit of avatars to return.
+ *
+ * @returns {Object} Object of profile avatars with PIDs as keys and URLs as values.
+ */
+export const getProviderAvatars = async (pids, limit) => {
+  const avatars = {};
+
+  await Promise.all(pids.slice(0, limit).map(async (pid) => {
+    if (!Object.keys(avatars).includes(pid)) {
+      const ref = FirebaseAuthService.generateStorageRef(`profile/${pid}/avatar.png`);
+
+      try {
+        const avatar = await ref.getDownloadURL();
+        avatars[pid] = avatar;
+      } catch (e) {
+        avatars[pid] = null;
+      }
+    }
+
+    return null;
+  }));
+
+  return avatars;
 };
