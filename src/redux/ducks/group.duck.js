@@ -146,10 +146,17 @@ export function createGroupsThunk(inputData) {
       org,
       sender: uid,
       type: 'private',
+      name: data.name,
       info: data.info,
       properties: [data.subject.trim()],
       // invitees: data.invitees.split('.'), deprecated bc of manager
     }));
+
+    if (!body.info) {
+      // ideally call redux action to show form error here
+      console.log('info not defined during pre-api call validation');
+      return;
+    }
 
     await apiFetch({
       method: 'POST',
@@ -235,7 +242,7 @@ export function editMembersGroupThunk({ id, addMembers, removeMembers }) {
     const { uid } = firebaseAuthService.getUser(true);
 
     const body = {
-      type: 'group',
+      type: 'groupAndLinkedFutureSessions',
       sender: uid,
       itemId: id,
       addMembers,

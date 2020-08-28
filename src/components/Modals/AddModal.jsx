@@ -46,7 +46,7 @@ function AddModal({
   exampleFilePath,
   onChangeSetFieldInvisibility,
 }) {
-  const [bodySelected, setBody] = useState(hideFile ? BODY_TYPES.form : BODY_TYPES.file);
+  const [bodySelected, setBody] = useState(BODY_TYPES.form); // if `hideFile` cannot be file
   const [inputData, setInputData] = useState({});
   const [invisibleFieldNames, setInvisibleFieldNames] = useState(onChangeSetFieldInvisibility({}));
 
@@ -82,16 +82,19 @@ function AddModal({
     ? [[{
       text: 'Form',
       onClick: () => setBody(BODY_TYPES.form),
+      field: BODY_TYPES.form,
       icon: 'pe-7s-note2',
     }]]
     : [[{
       text: 'Form',
       onClick: () => setBody(BODY_TYPES.form),
+      field: BODY_TYPES.form,
       icon: 'pe-7s-note2',
     }, {
       text: 'File Upload',
       onClick: () => setBody(BODY_TYPES.file),
       icon: 'pe-7s-copy-file',
+      field: BODY_TYPES.file,
     }]];
 
   return (
@@ -104,6 +107,7 @@ function AddModal({
           <ButtonBar
             universalOptions={{ color: 'info' }}
             buttonGroups={buttonGroups}
+            selectedField={bodySelected}
           />
           <p>{infoText}</p>
           {bodySelected === BODY_TYPES.form

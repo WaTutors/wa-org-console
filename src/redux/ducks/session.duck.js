@@ -207,7 +207,7 @@ export function removeSessionThunk({ sid }) {
 }
 
 export function editMembersSessionThunk({
-  id, addMembers, removeMembers, areLeaders = false,
+  id, gid, addMembers, removeMembers, areLeaders = false,
 }) {
   return async (dispatch, getState) => {
     dispatch(getSessionsBegin());
@@ -215,6 +215,7 @@ export function editMembersSessionThunk({
     const { uid } = firebaseAuthService.getUser(true);
 
     const body = {
+      gid,
       areLeaders,
       sender: uid,
       itemId: id,

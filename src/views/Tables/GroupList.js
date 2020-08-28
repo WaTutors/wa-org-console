@@ -42,6 +42,11 @@ function GroupList({
       // hideAddFile
       addInfo="Groups are required to create sessions"
       addForm={[{
+        name: 'name',
+        label: 'Group Name (this will note be visible by users)',
+        type: 'text',
+        placeholder: 'Spring Cohort 52',
+      }, {
         name: 'subject',
         label: 'Group Subject',
         type: 'select',

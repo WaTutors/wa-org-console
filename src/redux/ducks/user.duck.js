@@ -99,7 +99,9 @@ export function setOrgSummaryPropertiesThunk(newProperties) {
         endpoint: 'admin/org/summary',
         body: {
           oid: org,
-          properties: newProperties.sort(),
+          properties: newProperties.sort( // case insensivie sort
+            (a, b) => a.toLowerCase().localeCompare(b.toLowerCase()),
+          ),
         },
       });
 

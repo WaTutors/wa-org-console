@@ -33,7 +33,7 @@ TemplateList.propTypes = {
   buttonBarExt: PropTypes.arrayOf(PropTypes.arrayOf(
     PropTypes.objectOf(PropTypes.any),
   )),
-  manageMembersFor: PropTypes.oneOf(['students', 'groups']),
+  manageMembersFor: PropTypes.oneOf(['Session', 'Group']),
   exampleFilePath: PropTypes.string,
   formOnChangeSetFieldInvisibility: PropTypes.func,
 };

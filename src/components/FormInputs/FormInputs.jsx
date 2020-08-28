@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react';
 import {
   FormGroup, ControlLabel, FormControl, Row, Checkbox, Col,
 } from 'react-bootstrap';
+import Select from 'react-select';
 
 function FieldGroup({
   label, name, options = false, handleChange, checkboxes, ...props
@@ -45,27 +46,29 @@ function FieldGroup({
     );
   }
 
-  const optionsRender = options
-    ? renderOptions.map((option, i) => (
-      // encode value as json because it gets forced to string in browser
-      <option key={i} value={JSON.stringify(option.value)}>{option.label}</option>
-    ))
-    : null;
+  if (options)
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <Select
+          isClearable
+          isSearchable
+          className="basic-single"
+          classNamePrefix="select"
+          name={name}
+          options={options}
+          onChange={(e) => handleChange({ target: { value: e.value } }, name)}
+        />
+      </FormGroup>
+    );
 
   return (
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
       <FormControl
-        onChange={(e) => {
-          if (options) // spoof e.target.value for json option value
-            handleChange({ target: { value: JSON.parse(e.target.value) } }, name);
-          else
-            handleChange(e, name);
-        }}
+        onChange={(e) => handleChange(e, name)}
         {...props}
-      >
-        {optionsRender}
-      </FormControl>
+      />
     </FormGroup>
   );
 }

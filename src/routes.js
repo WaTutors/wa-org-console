@@ -142,7 +142,7 @@ const dashboardRoutes = [
     name: 'Sign Out',
     icon: 'pe-7s-back-2',
     component: Login,
-    layout: '/ext', // FIXME doesn't actually log out
+    layout: '/ext',
   },
 ];
 

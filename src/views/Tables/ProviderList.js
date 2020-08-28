@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import useWindowSize from 'services/useWindowSize';
 import {
   mapProviderMainAgGridRows, generateProviderMainAgGridColumns,
 } from 'services/parsers/provider.parser';
@@ -16,10 +17,20 @@ function ProviderList({
   dataList, loading, orgState, // variables
   ...props
 }) {
+  const { isMD } = useWindowSize();
   const rowData = useMemo(() => dataList.map(
     (item) => mapProviderMainAgGridRows(item, orgState),
   ),
   [dataList]);
+
+  // NOTE could leverage a redux prop if needed
+  const columnDefs = useMemo(() => {
+    console.log('calc columnDefs', { isMD });
+    if (isMD) // full screen, filter nothing
+      return generateProviderMainAgGridColumns([]);
+      // if mobile, filter less important things
+    return generateProviderMainAgGridColumns(['ratingCount', 'phone']);
+  }, [isMD]);
 
   return (
     <TemplateList
@@ -29,7 +40,7 @@ function ProviderList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateProviderMainAgGridColumns()}
+      columnDefs={columnDefs}
       rowData={rowData}
       /* example rowData
         {invite: true,name: 'Tom Ng',phone: '+1 59333384448',completedSessions: 1,

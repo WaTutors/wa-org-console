@@ -1,4 +1,4 @@
-exports.generateSessionMainAgGridColumns = () => [{
+exports.generateSessionMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
@@ -22,7 +22,11 @@ exports.generateSessionMainAgGridColumns = () => [{
   headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
 }, {
   headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
-}];
+}].filter((colObj) => {
+  if (columnsToHide)
+    return !columnsToHide.includes(colObj.field);
+  return true;
+});
 
 /**
  * parses provider info from database object
