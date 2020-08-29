@@ -2,6 +2,7 @@
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
+import { toast } from 'react-toastify';
 
 const GET_GROUPS_BEGIN = 'GET_GROUPS_BEGIN';
 const GET_GROUPS_SUCCESS = 'GET_GROUPS_SUCCESS';
@@ -150,6 +151,8 @@ export function createGroupsThunk(inputData) {
       properties: [data.subject.trim()],
       // invitees: data.invitees.split('.'), deprecated bc of manager
     }));
+
+    //shouldn't need front end validation, it's a select and a freeform text field
 
     await apiFetch({
       method: 'POST',

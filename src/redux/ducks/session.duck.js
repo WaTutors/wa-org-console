@@ -1,7 +1,9 @@
 /* eslint-disable no-use-before-define */
+import React from 'react';
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
+import { toast } from 'react-toastify';
 
 const GET_SESSIONS_BEGIN = 'GET_SESSIONS_BEGIN';
 const GET_SESSIONS_SUCCESS = 'GET_SESSIONS_SUCCESS';
@@ -135,6 +137,57 @@ export function createSessionsThunk(inputData) {
       newSessions = inputData;
     else
       newSessions = [inputData];
+
+    //input validation
+    if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)){ 
+      //inputData is an array for csv inputs
+      const inputTypes = ['Classroom', 'Study Session']
+      let inputError = false;
+      let inputErrors = [];
+
+      if (!inputData.type || !inputTypes.includes(inputData.type)){
+        inputError = true;
+        inputErrors.push("-- Invalid session type --")
+      }
+      if (!inputData.startDate){
+        inputError = true;
+        inputErrors.push("-- No start date --")
+      }
+      if (!inputData.startTime){
+        inputError = true;
+        inputErrors.push("-- No start time --")
+      }
+      const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`)
+      if (isNaN(timestamp)) {
+        inputError = true;
+        inputErrors.push("-- Invalid date and time --")
+      }
+      if (!inputData.about){
+        inputError = true;
+        inputErrors.push("-- Invalid description --")
+      }
+      if (!inputData.name){
+        inputError = true;
+        inputErrors.push("-- Invalid name --")
+      }
+      if (!inputData.subject){
+        inputError = true;
+        inputErrors.push("-- Invalid subject --")
+      }
+      if (inputData.type == 'Classroom' && !inputData.provider){
+        inputError = true;
+        inputErrors.push("-- Invalid provider --")
+      }
+      
+      if (inputError){
+        toast.error(
+          <div>
+            {inputErrors.map((error) => <div>{error}</div>)}
+          </div>);
+          dispatch(addSessionsFailure(inputErrors.toString()))
+        return false;
+      }
+    }
 
     dispatch(addSessionsBegin());
     const { org } = getState().userReducer;
