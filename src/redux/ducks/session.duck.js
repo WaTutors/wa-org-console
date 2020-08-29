@@ -162,13 +162,13 @@ export function createSessionsThunk(inputData) {
         inputError = true;
         inputErrors.push("-- Invalid date and time --")
       }
-      if (!inputData.about){
-        inputError = true;
-        inputErrors.push("-- Invalid description --")
-      }
       if (!inputData.name){
         inputError = true;
         inputErrors.push("-- Invalid name --")
+      }
+      if (!inputData.about){
+        inputError = true;
+        inputErrors.push("-- Invalid description --")
       }
       if (!inputData.subject){
         inputError = true;
