@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Button, Panel, Image } from 'react-bootstrap';
 
 import {
-  mapSessionMainAgGridRows, generateSessionMainAgGridColumns, getProviderAvatars,
+  mapSessionMainAgGridRows, generateSessionMainAgGridColumns, getProviderAvatars, parseSessionTime,
 } from 'services/parsers/session.parser';
 import {
   getSessionsThunk, createSessionsThunk, removeSessionThunk, getAvailableSessionsThunk,
@@ -87,8 +87,6 @@ function SessionList({
     label: 'Start Time',
     type: 'time',
     placeholder: 'HH:MM AA',
-    help: 'Start Times must end with :00 or :30.',
-    step: 1800,
   }, {
     name: 'startDate',
     label: 'Start Date',
@@ -143,6 +141,9 @@ function SessionList({
     if (inputData.type !== 'Tutoring Session')
       hideFieldsArray.push('tutor');
 
+    if (inputData.type === 'Tutoring Session')
+      hideFieldsArray.push('name', 'about', 'startTime', 'startDate');
+
     return hideFieldsArray;
   }
 
@@ -154,7 +155,14 @@ function SessionList({
         props={props}
         isLoading={loading}
         getData={getData}
-        addData={addData}
+        addData={(data) => {
+          addData(
+            data,
+            selectedSession
+              ? availableSessions.find((session) => session.id === selectedSession)
+              : null,
+          );
+        }}
         removeRow={removeData}
         columnDefs={generateSessionMainAgGridColumns()}
         rowData={rowData}
@@ -179,7 +187,9 @@ function SessionList({
                   Search
                 </Button>
                 <br />
-                {availableSessions.map(({ provider: { pid, name, about }, id }) => {
+                {availableSessions.map((
+                  { provider: { pid, name, about }, id, info: { start: { _seconds } } },
+                ) => {
                   const selected = selectedSession === id;
 
                   return (
@@ -227,6 +237,9 @@ function SessionList({
                       >
                         {about}
                       </p>
+                      <h5 style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                        {parseSessionTime(_seconds * 1000)}
+                      </h5>
                     </Panel>
                   );
                 })}
@@ -296,7 +309,7 @@ const mapDispatchToProps = (dispatch) => ({
   getProviders: () => dispatch(getProvidersThunk()),
   getData: () => dispatch(getSessionsThunk()),
   getProperties: () => dispatch(getOrgSummaryThunk()),
-  addData: (data) => dispatch(createSessionsThunk(data)),
+  addData: (data, selectedSession) => dispatch(createSessionsThunk(data, selectedSession)),
   removeData: (data) => dispatch(removeSessionThunk(data)),
   getAvailableSessions: (property, startDate, startTime) => dispatch(
     getAvailableSessionsThunk(property, startDate, startTime),

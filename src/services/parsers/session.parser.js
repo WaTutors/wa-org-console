@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import FirebaseAuthService from '../firebaseAuthService';
 
 export const generateSessionMainAgGridColumns = () => [{
@@ -50,7 +52,9 @@ function getProviderInfo(item, type) {
       (pid) => Boolean(item.members[pid].isLead) && item.activeMembers.includes(pid),
     )[0]
     : null;
-  const provider = type === 'paid_available_timed' ? item.provider.name : providerNameClassroom;
+  const provider = type === 'paid_available_timed'
+    ? item.provider.name.slice(0, -2)
+    : providerNameClassroom;
   const providerId = type === 'paid_available_timed' ? item.provider.pid : providerPidClassroom;
 
   return {
@@ -92,7 +96,7 @@ export const mapSessionMainAgGridRows = (item) => {
       console.log('Session type not recognized', item);
   }
 
-  const { name: providerName, pid: providerId } = getProviderInfo(item, type);
+  const { name: providerName, pid: providerId } = getProviderInfo(item, item.type);
 
   return {
     status,
@@ -100,7 +104,7 @@ export const mapSessionMainAgGridRows = (item) => {
     type,
     providerId,
     active: true,
-    subjects: item.info.properties,
+    subjects: type === 'Tutoring' ? [item.info.property] : item.info.properties,
     name: item.info.name,
     about: item.info.about,
     startTime: new Date(item.info.start._seconds * 1000),
@@ -143,4 +147,26 @@ export const getProviderAvatars = async (pids, limit) => {
   }));
 
   return avatars;
+};
+
+/**
+ * Parses session start and end time.
+ *
+ * Intakes a session start time in milliseconds and returns the parsed start and end time of the
+ * session in the format h:mm [A]-h:mm A.
+ *
+ * @param {number} time Start time in milliseconds.
+ *
+ * @returns {string} Session start and end time in the format h:mm [A]-h:mm A.
+ */
+export const parseSessionTime = (time) => {
+  const start = moment(time);
+
+  // const end = moment(time).add(1, 'hour'); FIXME - testing 10 minute sessions.
+  const end = moment(time).add(10, 'minutes');
+
+  if (start.hours() === 11 && end.hours() === 12)
+    return `${start.format('h:mm A')}-${end.format('h:mm A')}`;
+
+  return `${start.format('h:mm')}-${end.format('h:mm A')}`;
 };

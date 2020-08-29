@@ -155,7 +155,7 @@ export function getSessionsThunk() {
   };
 }
 
-export function createSessionsThunk(inputData) {
+export function createSessionsThunk(inputData, selectedSession) {
   return async (dispatch, getState) => {
     let newSessions;
     if (Array.isArray(inputData))
@@ -164,39 +164,53 @@ export function createSessionsThunk(inputData) {
       newSessions = [inputData];
 
     dispatch(addSessionsBegin());
+
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
+
     console.log({ newSessions });
+
     // format body
-    const body = newSessions.map((data) => {
-      const start = new Date(`${data.startDate} ${data.startTime}`);
-
-      const typeInputToDbMap = {
-        Classroom: 'free_private_timed',
-        'Study Session': 'free_private',
-      };
-      const addProfilePresenters = data.provider
-        ? [data.provider.pid]
-        : undefined;
-
-      return {
+    const body = selectedSession
+      ? {
+        sid: selectedSession.id,
         sender: uid,
-        type: typeInputToDbMap[data.type],
-        info: {
-          org,
-          start,
-          name: data.name,
-          about: data.about,
-          properties: [data.subject],
-        },
-        addProfilePresenters,
-      };
-    });
+        property: newSessions[0].subject,
+        transaction_stripe: 'placeholder',
+      }
+      : newSessions.map((data) => {
+        const start = selectedSession
+          ? new Date(selectedSession.info.start._seconds * 1000)
+          : new Date(`${data.startDate} ${data.startTime}`);
+
+        const typeInputToDbMap = {
+          Classroom: 'free_private_timed',
+          'Study Session': 'free_private',
+          'Tutoring Session': 'paid_available_timed',
+        };
+
+        const addProfilePresenters = data.provider
+          ? [data.provider.pid]
+          : undefined;
+
+        return {
+          sender: uid,
+          type: typeInputToDbMap[data.type],
+          info: {
+            org,
+            start,
+            name: data.name,
+            about: data.about,
+            properties: [data.subject],
+          },
+          addProfilePresenters,
+        };
+      });
 
     await apiFetch({
       method: 'POST',
-      endpoint: 'session/multi',
-      body: { sessions: body },
+      endpoint: selectedSession ? 'session/paid/scheduled/book' : 'session/multi',
+      body: selectedSession ? body : { sessions: body },
     })
       .then(() => {
         dispatch(addSessionsSuccess([]));
@@ -271,25 +285,25 @@ export function editMembersSessionThunk({
   };
 }
 
-export function getAvailableSessionsThunk(property, startDate, startTime) {
+export function getAvailableSessionsThunk(property) {
   return async (dispatch, getState) => {
     const { org } = getState().userReducer;
 
     dispatch(getAvailableBegin());
 
-    const startTimeMom = moment(startTime, 'HH:mm');
-
-    const start = moment(startDate, 'YYYY-MM-DD')
-      .set('hours', startTimeMom.hours())
-      .set('minutes', startTimeMom.minutes());
-
+    const start = moment();
     const end = moment().set('hours', 23).set('minutes', 0);
 
-    const property = 'math';
+    if (start.minutes() > 30 && start.hours() !== 23)
+      // start.add(1, 'hours').set('minutes', 0); // FIXME - testing 10 minute sessions
+      start.set('minutes', 0);
+    else
+      // start.set('minutes', 30); // FIXME - testing 10 minute sessions
+      start.set('minutes', 0);
 
     await apiFetch({
       method: 'GET',
-      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}`, // &org=${org}
+      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}&org=${org}`,
     })
       .then(({ availableSessions }) => {
         dispatch(getAvailableSuccess(
