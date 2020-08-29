@@ -1,2 +1,12 @@
 package-lock.json
+yarn.lock
 node_modules/
+
+# Firebase hosting cache files
+*.cache
+
+# Firebase log
+debug.log
+
+# Build output
+build/

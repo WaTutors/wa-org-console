@@ -1,11 +1,11 @@
 import React, { Component, useState } from 'react';
 import {
-  FormGroup, ControlLabel, FormControl, Row, Checkbox, Col,
+  FormGroup, ControlLabel, FormControl, Row, HelpBlock,
 } from 'react-bootstrap';
 import Select from 'react-select';
 
 function FieldGroup({
-  label, name, options = false, handleChange, checkboxes, ...props
+  label, name, options = false, handleChange, checkboxes, type, help, ...props
 }) {
   const [checkboxData, setCheckboxData] = useState({});
 
@@ -65,10 +65,18 @@ function FieldGroup({
   return (
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
-      <FormControl
-        onChange={(e) => handleChange(e, name)}
-        {...props}
-      />
+      {type !== 'search' && (
+        <>
+          <FormControl
+            onChange={(e) => handleChange(e, name)}
+            type={type}
+            {...props}
+          />
+          {!!help && (
+            <HelpBlock>{help}</HelpBlock>
+          )}
+        </>
+      )}
     </FormGroup>
   );
 }

@@ -33,6 +33,7 @@ export default {
   },
   sessions: {
     list: [],
+    availableSessions: [],
     loading: false,
     error: false,
   },
