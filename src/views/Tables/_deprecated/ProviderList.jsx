@@ -205,7 +205,7 @@ function ProviderList(props) {
             label: 'Phone Number',
             type: 'tel',
             bsClass: 'form-control',
-            placeholder: '+1 5031231234',
+            placeholder: '503 123 1234',
           },
         ]}
       />
