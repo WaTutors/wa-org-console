@@ -95,7 +95,7 @@ function Labels({
         onSubmit={handleSubmitEdit}
         isOpen={isEditOpen}
         toggleOpen={toggleEditOpen}
-        header={`Add ${propertyAlias} to Organization`}
+        header={`Add ${propertyAlias} to Organization`} // LD-- example of static UI words
         infoText={`
       ${propertyAlias} are central to providing context to the platform.
       Groups, sessions, and providers operate with ${propertyAlias.toLowerCase()}.

@@ -45,7 +45,7 @@ exports.mapProviderMainAgGridRows = (item, orgState) => ({
   rating: item.rating,
   ratingCount: item.numRating,
   properties: item.profile ? item.profile.properties : null,
-  instructorType: item.profile
+  instructorType: item.profile // LD-- reserved labels parsing
     ? (item.profile.org.includes(`${orgState}_TEACHER`) && 'Teacher')
     || (item.profile.org.includes(`${orgState}_TUTOR`) && 'Tutor') || ''
     // if invitation

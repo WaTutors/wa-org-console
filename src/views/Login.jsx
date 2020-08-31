@@ -84,6 +84,7 @@ function Login({
           title="Welcome to the Watutor Organization Management Console"
           content={(
             <div>
+              {/* LD-- form "enter" to submit accessability */}
               <FormInputs
                 ncols={['col-xs-12', 'col-xs-12', 'col-xs-12']}
                 handleChange={handleChange}
