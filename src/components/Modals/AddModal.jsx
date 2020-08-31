@@ -68,8 +68,16 @@ function AddModal({
 
   function handleConfirm(e) {
     console.log('AddModal confirm', { inputData });
-    onSubmit(inputData); // {phone: [phoneNumber]}
-    close();
+     // {phone: [phoneNumber]}
+    onSubmit(inputData).then(result =>{
+      //currently returns undefined if no errors
+      if(result !== false){
+        close()
+      }
+    }).catch(err => {
+      close()
+    })
+    // close();
   }
 
   function handleFormChange(e, name) {

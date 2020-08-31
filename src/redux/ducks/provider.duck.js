@@ -2,6 +2,7 @@
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
+import { toast } from 'react-toastify';
 
 const GET_PROVIDERS_BEGIN = 'GET_PROVIDERS_BEGIN';
 const GET_PROVIDERS_SUCCESS = 'GET_PROVIDERS_SUCCESS';
@@ -142,6 +143,24 @@ export function inviteProvidersThunk(payload) {
         return 'TUTOR';
       return el;
     }));
+
+    //regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
+    //only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
+    const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+    
+    if (newProviders.map((provider) => {
+      //check if phone # matches 
+      if (provider.phone){
+        return provider.phone.match(phoneno) ? true : false
+      }
+      return false
+      //period split labels are free form, no need to validate
+      //checkboxes can be empty, true, or false, no need to validate
+    }).includes(false)){
+      toast.error("-- Invalid phone number --")
+      dispatch(addProvidersFailure("-- Invalid phone number --"));
+      return false
+    }
 
     await apiFetch({
       method: 'POST',
