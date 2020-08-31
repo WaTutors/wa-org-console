@@ -147,6 +147,7 @@ export function createGroupsThunk(inputData) {
       org,
       sender: uid,
       type: 'private',
+      name: data.name,
       info: data.info,
       properties: [data.subject.trim()],
       // invitees: data.invitees.split('.'), deprecated bc of manager
@@ -238,7 +239,7 @@ export function editMembersGroupThunk({ id, addMembers, removeMembers }) {
     const { uid } = firebaseAuthService.getUser(true);
 
     const body = {
-      type: 'group',
+      type: 'groupAndLinkedFutureSessions',
       sender: uid,
       itemId: id,
       addMembers,

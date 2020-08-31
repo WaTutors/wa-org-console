@@ -1,4 +1,6 @@
-exports.generateGroupMainAgGridColumns = () => [{
+exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
+  headerName: 'Name', field: 'name', sortable: true,
+}, {
   headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
 }, {
   headerName: 'Subjects', field: 'subjects', sortable: true,
@@ -12,7 +14,11 @@ exports.generateGroupMainAgGridColumns = () => [{
   headerName: 'Manage', cellRenderer: 'addUserButton', width: 64, flex: 0.5,
 }, {
   headerName: 'Delete', cellRenderer: 'deleteItem', width: 64, flex: 0.5,
-}];
+}].filter((colObj) => {
+  if (columnsToHide)
+    return !columnsToHide.includes(colObj.field);
+  return true;
+});
 
 /**
  * parses database group object into something to be displayed
@@ -23,6 +29,7 @@ exports.generateGroupMainAgGridColumns = () => [{
  * @returns {object}
  */
 exports.mapGroupMainAgGridRows = (item) => ({
+  name: item.name || 'Not Found',
   subjects: item.properties,
   info: item.info,
   members: item.activeMembers
@@ -36,6 +43,8 @@ exports.mapGroupMainAgGridRows = (item) => ({
 });
 
 exports.generateGroupMembersAgGridColumns = () => [{
+  headerName: 'Name', field: 'name', sortable: true,
+}, {
   headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
 }, {
   headerName: 'Subject', field: 'subjects', sortable: true,
@@ -61,6 +70,7 @@ exports.generateGroupMembersAgGridColumns = () => [{
  * @returns {object}
  */
 exports.mapGroupMembersAgGridRows = (item, itemData, orgState) => ({
+  name: item.name || 'Not Found',
   subjects: item.labels,
   info: item.info,
   members: item.activeMembers

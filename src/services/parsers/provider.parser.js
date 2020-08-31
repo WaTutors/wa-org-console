@@ -1,4 +1,4 @@
-exports.generateProviderMainAgGridColumns = () => [{
+exports.generateProviderMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Invite', field: 'invite', flex: 0.5,
 }, {
   headerName: 'Name', field: 'name',
@@ -23,7 +23,11 @@ exports.generateProviderMainAgGridColumns = () => [{
   {headerName: 'Complete Sessions', field: 'completedSessions', sortable: true,
       flex: 0.75, filter: 'agNumberColumnFilter'},
   */
-];
+].filter((colObj) => {
+  if (columnsToHide)
+    return !columnsToHide.includes(colObj.field);
+  return true;
+});
 
 /**
  * parses database provider object into something to be displayed

@@ -1,10 +1,11 @@
 import React, { Component, useState } from 'react';
 import {
-  FormGroup, ControlLabel, FormControl, Row, Checkbox, Col,
+  FormGroup, ControlLabel, FormControl, Row, HelpBlock,
 } from 'react-bootstrap';
+import Select from 'react-select';
 
 function FieldGroup({
-  label, name, options = false, handleChange, checkboxes, ...props
+  label, name, options = false, handleChange, checkboxes, type, help, ...props
 }) {
   const [checkboxData, setCheckboxData] = useState({});
 
@@ -45,27 +46,37 @@ function FieldGroup({
     );
   }
 
-  const optionsRender = options
-    ? renderOptions.map((option, i) => (
-      // encode value as json because it gets forced to string in browser
-      <option key={i} value={JSON.stringify(option.value)}>{option.label}</option>
-    ))
-    : null;
+  if (options)
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <Select
+          isClearable
+          isSearchable
+          className="basic-single"
+          classNamePrefix="select"
+          name={name}
+          options={options}
+          onChange={(e) => handleChange({ target: { value: e.value } }, name)}
+        />
+      </FormGroup>
+    );
 
   return (
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
-      <FormControl
-        onChange={(e) => {
-          if (options) // spoof e.target.value for json option value
-            handleChange({ target: { value: JSON.parse(e.target.value) } }, name);
-          else
-            handleChange(e, name);
-        }}
-        {...props}
-      >
-        {optionsRender}
-      </FormControl>
+      {type !== 'search' && (
+        <>
+          <FormControl
+            onChange={(e) => handleChange(e, name)}
+            type={type}
+            {...props}
+          />
+          {!!help && (
+            <HelpBlock>{help}</HelpBlock>
+          )}
+        </>
+      )}
     </FormGroup>
   );
 }

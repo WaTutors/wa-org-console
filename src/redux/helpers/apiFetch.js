@@ -36,7 +36,7 @@ export default async function apiFetch({ method, endpoint, body = {} }) {
     config.body = JSON.stringify(body);
 
   const baseUrl = true // FIXME before deploying set to true
-    ? 'https://20200814t200339-dot-watutors-1.uc.r.appspot.com'
+    ? 'https://v2-0-22-dot-watutors-1.uc.r.appspot.com'
     : 'http://localhost:3001';
   return fetch(`${baseUrl}/v2/${endpoint}`, config)
     .then((response) => parseResponse(response))
@@ -57,7 +57,7 @@ async function parseResponse(response) {
   if (content.includes('json'))
     return response.json()
       .then((data) => {
-        console.log(`Response content JSON: ${JSON.stringify(data, null, 2)}`);
+        console.log('Response content', { JSON: JSON.stringify(data, null, 2) });
         return data;
       });
 

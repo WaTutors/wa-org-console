@@ -9,17 +9,20 @@ ButtonBar.propTypes = {
   ).isRequired,
   universalOptions: PropTypes.objectOf(PropTypes.string),
   containerStyle: PropTypes.objectOf(PropTypes.string),
+  selectedField: PropTypes.string,
 };
 
 ButtonBar.defaultProps = {
   universalOptions: {},
   containerStyle: {},
+  selectedField: false,
 };
 
 function ButtonBar({
   universalOptions,
   buttonGroups,
   containerStyle,
+  selectedField,
 }) {
   if (!buttonGroups)
     return null;
@@ -35,13 +38,13 @@ function ButtonBar({
         <ButtonGroup key={gi} style={{ paddingRight: '10px' }}>
           {buttonGroup.map((button, bi) => {
             const {
-              text, size, color, icon, onClick, className,
+              text, size, color, icon, onClick, className, field,
             } = { ...universalOptions, ...button };
             return (
               <Button
                 key={bi}
                 bsSize={size}
-                bsStyle={color}
+                bsStyle={selectedField && selectedField !== field ? undefined : color}
                 onClick={onClick}
                 className={className || 'btn-fill'}
               >

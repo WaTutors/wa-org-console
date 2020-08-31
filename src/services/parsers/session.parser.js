@@ -1,4 +1,8 @@
-exports.generateSessionMainAgGridColumns = () => [{
+import moment from 'moment';
+
+import FirebaseAuthService from '../firebaseAuthService';
+
+export const generateSessionMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
@@ -22,7 +26,11 @@ exports.generateSessionMainAgGridColumns = () => [{
   headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
 }, {
   headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
-}];
+}].filter((colObj) => {
+  if (columnsToHide)
+    return !columnsToHide.includes(colObj.field);
+  return true;
+});
 
 /**
  * parses provider info from database object
@@ -48,7 +56,9 @@ function getProviderInfo(item, type) {
       (pid) => Boolean(item.members[pid].isLead) && item.activeMembers.includes(pid),
     )[0]
     : null;
-  const provider = type === 'paid_available_timed' ? item.provider.name : providerNameClassroom;
+  const provider = type === 'paid_available_timed'
+    ? item.provider.name.slice(0, -2)
+    : providerNameClassroom;
   const providerId = type === 'paid_available_timed' ? item.provider.pid : providerPidClassroom;
 
   return {
@@ -67,7 +77,7 @@ function getProviderInfo(item, type) {
  * @param {object} item session object
  * @returns {object}
  */
-exports.mapSessionMainAgGridRows = (item) => {
+export const mapSessionMainAgGridRows = (item) => {
   const events = item.events || [];
   let status = 'No status';
   if (events.includes('ended'))
@@ -90,7 +100,7 @@ exports.mapSessionMainAgGridRows = (item) => {
       console.log('Session type not recognized', item);
   }
 
-  const { name: providerName, pid: providerId } = getProviderInfo(item, type);
+  const { name: providerName, pid: providerId } = getProviderInfo(item, item.type);
 
   return {
     status,
@@ -98,7 +108,7 @@ exports.mapSessionMainAgGridRows = (item) => {
     type,
     providerId,
     active: true,
-    subjects: item.info.properties,
+    subjects: type === 'Tutoring' ? [item.info.property] : item.info.properties,
     name: item.info.name,
     about: item.info.about,
     startTime: new Date(item.info.start._seconds * 1000),
@@ -110,4 +120,57 @@ exports.mapSessionMainAgGridRows = (item) => {
     sid: item.sid,
     id: `s~${item.sid}`,
   };
+};
+
+/**
+ * Retrieves download links for provider avatars.
+ *
+ * Intakes an array of profile IDs and returns and object of download URLs for each PID's avatar.
+ *
+ * @param {array}  pids  Array of PIDs.
+ * @param {number} limit Optional limit of avatars to return.
+ *
+ * @returns {Object} Object of profile avatars with PIDs as keys and URLs as values.
+ */
+export const getProviderAvatars = async (pids, limit) => {
+  const avatars = {};
+
+  await Promise.all(pids.slice(0, limit).map(async (pid) => {
+    if (!Object.keys(avatars).includes(pid)) {
+      const ref = FirebaseAuthService.generateStorageRef(`profile/${pid}/avatar.png`);
+
+      try {
+        const avatar = await ref.getDownloadURL();
+        avatars[pid] = avatar;
+      } catch (e) {
+        avatars[pid] = null;
+      }
+    }
+
+    return null;
+  }));
+
+  return avatars;
+};
+
+/**
+ * Parses session start and end time.
+ *
+ * Intakes a session start time in milliseconds and returns the parsed start and end time of the
+ * session in the format h:mm [A]-h:mm A.
+ *
+ * @param {number} time Start time in milliseconds.
+ *
+ * @returns {string} Session start and end time in the format h:mm [A]-h:mm A.
+ */
+export const parseSessionTime = (time) => {
+  const start = moment(time);
+
+  // const end = moment(time).add(1, 'hour'); FIXME - testing 10 minute sessions.
+  const end = moment(time).add(10, 'minutes');
+
+  if (start.hours() === 11 && end.hours() === 12)
+    return `${start.format('h:mm A')}-${end.format('h:mm A')}`;
+
+  return `${start.format('h:mm')}-${end.format('h:mm A')}`;
 };

@@ -176,7 +176,8 @@ function ManageMembersModal({
       addMembers = activeMembers;
 
     editMembersSession({
-      id: itemData.sid,
+      gid: cell.data.id, // update group link
+      id: itemData.sid, // update document
       addMembers,
       removeMembers,
     });
@@ -260,6 +261,12 @@ function ManageMembersModal({
     // throw new Error(`generateButtonBarForSession item type not recognized: ${itemData.type}`);
   }
 
+  function selectAllFiltered() {
+    gridApi.forEachNodeAfterFilter((node, index) => {
+      console.log('filtered row', { node, index });
+    });
+  }
+
   const buttonGroups = (membersOf === 'Group') ? [[{
     text: 'Students',
     onClick: () => setTableDataSource(SOURCE.students),
@@ -288,6 +295,17 @@ function ManageMembersModal({
             universalOptions={{ color: 'info' }}
             buttonGroups={buttonGroups}
           />
+          {defaultMembersOf === 'Group' && (
+            <div style={{ overflow: 'hidden', marginBottom: '5px' }}>
+              <Button
+                style={{ float: 'right' }}
+                onClick={selectAllFiltered}
+              >
+                Select All Visible
+              </Button>
+            </div>
+          )}
+
           <div
             className="ag-theme-alpine"
             style={{
@@ -307,7 +325,7 @@ function ManageMembersModal({
                   )}
                   rowData={rowData.map(
                     (def) => ({ ...rowConstants.defaultRowData, ...def }),
-                  )}
+                  ).sort((a, b) => (a.isIncluded && !b.isIncluded ? -1 : 1))} // included to top
                 />
               )}
           </div>

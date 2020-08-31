@@ -33,7 +33,7 @@ TemplateList.propTypes = {
   buttonBarExt: PropTypes.arrayOf(PropTypes.arrayOf(
     PropTypes.objectOf(PropTypes.any),
   )),
-  manageMembersFor: PropTypes.oneOf(['students', 'groups']),
+  manageMembersFor: PropTypes.oneOf(['Session', 'Group']),
   exampleFilePath: PropTypes.string,
   formOnChangeSetFieldInvisibility: PropTypes.func,
 };
@@ -62,6 +62,7 @@ function TemplateList({
   addForm, hideAddFile, buttonBarExt, manageMembersFor, exampleFilePath, // vars
   getData, addData, removeRow, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
+  addChildren, passInputData, // custom AddModal children
 }) {
   const [selectedRow, selectRow] = useState({});
   const [gridApi, setGridApi] = useState(null);
@@ -228,7 +229,10 @@ function TemplateList({
         hideFile={hideAddFile}
         processFile={processFile}
         exampleFilePath={exampleFilePath}
-      />
+        passInputData={passInputData}
+      >
+        {addChildren}
+      </AddModal>
       <ManageMembersModal
         isOpen={isManageOpen}
         toggleOpen={toggleManageOpen}

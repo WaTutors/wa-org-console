@@ -21,6 +21,7 @@ import { Provider } from 'react-redux';
 import {
   BrowserRouter, Route, Switch, Redirect,
 } from 'react-router-dom';
+import { hot } from 'react-hot-loader';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/animate.min.css';
@@ -34,6 +35,22 @@ import AdminLayout from 'layouts/Admin.jsx';
 import External from 'layouts/External.jsx';
 import store from './redux';
 import { ToastContainer } from 'react-toastify';
+
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
+          <Route path="/ext" render={(props) => <External {...props} />} />
+          <Redirect from="/" to="/ext/login" />
+        </Switch>
+      </BrowserRouter>
+    </Provider>
+  );
+}
+
+const AppContainer = hot(module)(App);
 
 ReactDOM.render(
   <Provider store={store}>

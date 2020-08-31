@@ -1,4 +1,4 @@
-exports.generateStudentMainAgGridColumns = () => [{
+exports.generateStudentMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Invite', field: 'invite', flex: 0.5,
 }, {
   headerName: 'Name', field: 'name',
@@ -8,7 +8,11 @@ exports.generateStudentMainAgGridColumns = () => [{
   headerName: 'Labels', field: 'labels', flex: 1.25,
 }, {
   headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
-}];
+}].filter((colObj) => {
+  if (columnsToHide)
+    return !columnsToHide.includes(colObj.field);
+  return true;
+});
 
 /**
  * parses organization labels into human readable format
@@ -51,15 +55,13 @@ exports.mapStudentMainAgGridRows = (item, orgState) => ({
 });
 
 exports.generateStudentMembersAgGridColumns = () => [{
-  headerName: 'Invite', field: 'invite', flex: 0.5,
-}, {
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'Phone Number', field: 'phone',
 }, {
   headerName: 'Labels', field: 'labels', flex: 1.25,
 }, {
-  headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
+  headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
 }];
 
 /**
