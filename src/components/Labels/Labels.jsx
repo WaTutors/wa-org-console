@@ -11,10 +11,15 @@ Labels.propTypes = {
   setProperties: PropTypes.func.isRequired,
   properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
+  propertyAlias: PropTypes.string,
 };
+Labels.defaultProps = {
+  propertyAlias: 'Properties',
+};
+
 function Labels({
   setProperties, getData, // redux thunks
-  properties, loading, // redux vars
+  properties, loading, propertyAlias, // redux vars
 }) {
   const [editProperty, setEditProperty] = useState();
   const [isEditOpen, setEditOpen] = useState();
@@ -90,17 +95,17 @@ function Labels({
         onSubmit={handleSubmitEdit}
         isOpen={isEditOpen}
         toggleOpen={toggleEditOpen}
-        header="Add Subjects to Organization"
+        header={`Add ${propertyAlias} to Organization`}
         infoText={`
-      Subjects are central to providing context to the platform.
-      Groups, sessions, and providers operate with subjects.
-      For example a subject of "Beginning Spanish" will be for early spanish learners.
-      A session with "Spanish 1" will be between users learning beginning spanish.
+      ${propertyAlias} are central to providing context to the platform.
+      Groups, sessions, and providers operate with ${propertyAlias.toLowerCase()}.
+      For example, ${propertyAlias.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
+      A session with "Spanish 2" will be between users learning beginning spanish.
       `}
         form={[
           {
             name: 'property',
-            label: 'Edit Subject',
+            label: `Edit ${propertyAlias}`,
             type: 'text',
             bsClass: 'form-control',
             placeholder: 'Beginning Spanish',
@@ -116,6 +121,7 @@ const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
   properties: userReducer.properties,
+  propertyAlias: userReducer.propertyAlias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getOrgSummaryThunk()),
