@@ -11,15 +11,17 @@ Labels.propTypes = {
   setProperties: PropTypes.func.isRequired,
   properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
-  propertyAlias: PropTypes.string,
+  alias: PropTypes.object,
 };
 Labels.defaultProps = {
-  propertyAlias: 'Properties',
+  alias: {
+    property: "Properties",
+  },
 };
 
 function Labels({
   setProperties, getData, // redux thunks
-  properties, loading, propertyAlias, // redux vars
+  properties, loading, alias, // redux vars
 }) {
   const [editProperty, setEditProperty] = useState();
   const [isEditOpen, setEditOpen] = useState();
@@ -95,17 +97,17 @@ function Labels({
         onSubmit={handleSubmitEdit}
         isOpen={isEditOpen}
         toggleOpen={toggleEditOpen}
-        header={`Add ${propertyAlias} to Organization`} // LD-- example of static UI words
+        header={`Add ${alias.property} to Organization`} // LD-- example of static UI words
         infoText={`
-      ${propertyAlias} are central to providing context to the platform.
-      Groups, sessions, and providers operate with ${propertyAlias.toLowerCase()}.
-      For example, ${propertyAlias.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
+      ${alias.property} are central to providing context to the platform.
+      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
+      For example, ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
       A session with "Spanish 2" will be between users learning beginning spanish.
       `}
         form={[
           {
             name: 'property',
-            label: `Edit ${propertyAlias}`,
+            label: `Edit ${alias.property}`,
             type: 'text',
             bsClass: 'form-control',
             placeholder: 'Beginning Spanish',
@@ -121,7 +123,7 @@ const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
   properties: userReducer.properties,
-  propertyAlias: userReducer.propertyAlias,
+  alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getOrgSummaryThunk()),

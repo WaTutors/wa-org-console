@@ -18,8 +18,9 @@
 import React, { useState } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
+import { connect } from 'react-redux';
 
-import { getOrgSummaryThunk } from 'redux/ducks/group.duck';
+
 import { Card } from 'components/Cards/Card';
 import { StatsCard } from 'components/Cards/StatsCard';
 import OrgProperties from 'components/Cards/Properties';
@@ -38,7 +39,15 @@ import {
   legendBar,
 } from 'variables/Variables.jsx';
 
-function Dashboard(props) {
+Dashboard.defaultProps = {
+  alias: {
+    property: "Property",
+    provider: "Tutor",
+    consumer: "Student",
+  },
+};
+
+function Dashboard({props, alias}) {
   function createLegend(json) {
     const legend = [];
     for (let i = 0; i < json.names.length; i++) {
@@ -77,7 +86,7 @@ function Dashboard(props) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-server text-warning" />}
-          statsText="Tutors"
+          statsText={`${alias.provider}`}
           statsValue="3"
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
@@ -86,7 +95,7 @@ function Dashboard(props) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-wallet text-success" />}
-          statsText="Students"
+          statsText={`${alias.consumer}`}
           statsValue="10"
           statsIcon={<i className="fa fa-calendar-o" />}
           statsIconText={databaseUpdateString}
@@ -104,7 +113,7 @@ function Dashboard(props) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="fa fa-graduation-cap text-info" />}
-          statsText="Tutor Sessions Last Week"
+          statsText={`${alias.provider} Sessions Last Week`}
           statsValue="+45"
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
@@ -172,7 +181,7 @@ function Dashboard(props) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType="Students"
+          searchType={`${alias.consumer}`}
           onSearch={onSearchStudent}
           cols={['col-xs-6', 'col-xs-6']}
           searchProperties={[
@@ -194,7 +203,7 @@ function Dashboard(props) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType="Tutors"
+          searchType={`${alias.provider}`}
           cols={['col-xs-6', 'col-xs-6']}
           onSearch={onSearchProvider}
           searchProperties={[
@@ -285,4 +294,13 @@ function Dashboard(props) {
   );
 }
 
-export default Dashboard;
+const mapStateToProps = ({ userReducer }) => ({
+  alias: userReducer.alias
+});
+const mapDispatchToProps = (dispatch, componentProps) => ({
+
+});
+
+export default connect(
+  mapStateToProps, mapDispatchToProps,
+)(Dashboard);

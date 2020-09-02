@@ -43,7 +43,9 @@ function Login({
       });
   }
 
-  function handleSubmit() {
+  function handleSubmit(e) {
+    e.preventDefault();
+
     console.log(formData);
     if (!formData.org
       || !formData.email
@@ -83,8 +85,7 @@ function Login({
         <Card
           title="Welcome to the Watutor Organization Management Console"
           content={(
-            <div>
-              {/* LD-- form "enter" to submit accessability */}
+            <form onSubmit={handleSubmit}>
               <FormInputs
                 ncols={['col-xs-12', 'col-xs-12', 'col-xs-12']}
                 handleChange={handleChange}
@@ -113,7 +114,7 @@ function Login({
                 ]}
               />
 
-              <Button bsStyle="primary" pullRight fill onClick={handleSubmit}>
+              <Button bsStyle="primary" pullRight fill type="submit">
                 Login
                 {' '}
                 <i className="pe-7s-lock" />
@@ -124,7 +125,7 @@ function Login({
                 </span>
               </div>
               <div className="clearfix" />
-            </div>
+            </form>
           )}
         />
       </div>
