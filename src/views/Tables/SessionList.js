@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 
 import { Button, Panel, Image } from 'react-bootstrap';
 
@@ -10,6 +11,7 @@ import {
 import {
   getSessionsThunk, createSessionsThunk, removeSessionThunk, getAvailableSessionsThunk,
 } from 'redux/ducks/session.duck';
+import AddModal from 'components/Modals/AddModal';
 import { getProvidersThunk } from 'redux/ducks/provider.duck';
 import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 import Loader from 'components/Loader';
@@ -23,6 +25,7 @@ function SessionList({
 }) {
   const [subjectAddFormFilter, setSubjectAddFormFilter] = useState('');
   const [isAddMultiOpen, setAddMultiOpen] = useState(false);
+  const toggleMulti = () => setAddMultiOpen(!isAddMultiOpen);
   const [isLoadingAvailable, setLoadingAvailable] = useState(false);
   const [formData, setFormData] = useState({});
   const [providerAvatars, setProviderAvatars] = useState({});
@@ -121,6 +124,101 @@ function SessionList({
     placeholder: 'select',
     options: teacherList.map((item) => ({ value: item, label: item.name })),
   }], [properties, teacherList]);
+
+  const addFormMulti = useMemo(() => [{
+    name: 'type',
+    label: 'Session Type',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: [
+      { label: 'Study Session', value: 'Study Session' },
+      { label: 'Classroom', value: 'Classroom' },
+    ],
+  }, {
+    name: 'startTime',
+    label: 'Start Time',
+    type: 'time',
+  // placeholder: 'Study Session 34b',
+  }, {
+    name: 'dotw',
+    label: 'Select days of the week',
+    checkboxes: true,
+    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      .map((dotw) => ({ label: dotw, value: dotw })),
+  }, {
+    name: 'startDay',
+    label: 'First Possible Start Date',
+    type: 'date',
+  // placeholder: 'Study Session 34b',
+  }, {
+    name: 'endDay',
+    label: 'Last Possible End Date',
+    type: 'date',
+  // placeholder: 'Study Session 34b',
+  }, {
+    name: 'name',
+    label: 'Session Name',
+    type: 'text',
+    placeholder: 'Study Session 34b',
+  }, {
+    name: 'about',
+    label: 'Session Description (about)',
+    type: 'text',
+    placeholder: 'This session will cover...',
+  }, {
+    name: 'subject',
+    label: 'Session Subject',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: properties.map((item) => ({ value: item, label: item })),
+  }, {
+    name: 'tutor',
+    label: 'Select Tutor',
+    type: 'search',
+  }, {
+    name: 'provider',
+    label: 'Select Teacher',
+    options: teacherList.map((item) => ({ value: item, label: item.name })),
+  }], [properties, teacherList]);
+
+  // returns array of moments of days between days
+  function enumerateDaysBetweenDates(startDate, endDate) {
+    const currDate = moment(startDate).startOf('day');
+    const lastDate = moment(endDate).startOf('day')
+      .add(2, 'days'); // final day is on endDay
+
+    const dates = [];
+    while (currDate.add(1, 'days').diff(lastDate) < 0)
+      dates.push(currDate.clone());
+    return dates;
+  }
+
+  /**
+   * process array of sessions based on time fields
+   * then pass to thunk for creating sessions
+   * @see enumerateDaysBetweenDates
+   * @param {object} inputData data containing form data
+   */
+  function handleAddMulti(inputData) {
+    const { startDay, endDay } = inputData;
+
+    const startDate = new Date(startDay);
+    const endDate = new Date(endDay);
+    const dates = enumerateDaysBetweenDates(startDate, endDate);
+    const newSessions = [];
+    dates.forEach((dateMom) => {
+      if (inputData[dateMom.format('dddd')]) { // inputData.Tuesday will be boolean
+        const startDateStr = dateMom.format('YYYY-MM-DD');
+        newSessions.push({
+          ...inputData,
+          startDate: startDateStr, // parsed in thunk
+        });
+      }
+    });
+    return addData(newSessions);
+  }
 
   /**
    * called on form change
@@ -246,7 +344,7 @@ function SessionList({
               </>
             )
         )}
-        addInfo="Sessions are required to create sessions" // FIXME lol what
+        addInfo="Create a sessions to create a time for a video call and invite users"
         addForm={addForm}
         passInputData={setFormData}
         processFile={(raw) => {
@@ -273,6 +371,15 @@ function SessionList({
           icon: 'pe-7s-photo-gallery',
         }]]}
         exampleFilePath="https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Forg_example_csvs%2Fsessions.csv?alt=media&token=6dae5126-0ac9-4ef8-b8c9-43e50801c32a"
+      />
+      <AddModal
+        hideFile // if enabled: processFile={(raw) => window.alert('raw data: '+raw)}
+        onSubmit={handleAddMulti}
+        isOpen={isAddMultiOpen}
+        toggleOpen={toggleMulti}
+        header="Create Multiple Sessions within Organization"
+        form={addFormMulti}
+        onChangeSetFieldInvisibility={handleFormChangeAndSetFieldInvisibility}
       />
     </>
   );

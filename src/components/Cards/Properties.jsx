@@ -13,9 +13,8 @@ function PropertiesCard({ setProperties, properties }) {
 
   function handleAddSubjectProperty(data) {
     if (Array.isArray(data.property))
-      setProperties([...properties, ...data.property]);
-    else
-      setProperties([...properties, data.property]);
+      return setProperties([...properties, ...data.property]);
+    return setProperties([...properties, data.property]);
   }
 
   const addSubjectPropertyModal = (
