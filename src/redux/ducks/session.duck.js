@@ -165,53 +165,54 @@ export function createSessionsThunk(inputData, selectedSession) {
     else
       newSessions = [inputData];
 
-    //input validation
-    if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)){ 
-      //inputData is an array for csv inputs
-      const inputTypes = ['Classroom', 'Study Session']
+    // input validation
+    if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
+      // inputData is an array for csv inputs
+      const inputTypes = ['Classroom', 'Study Session'];
       let inputError = false;
-      let inputErrors = [];
+      const inputErrors = [];
 
-      if (!inputData.type || !inputTypes.includes(inputData.type)){
+      if (!inputData.type || !inputTypes.includes(inputData.type)) {
         inputError = true;
-        inputErrors.push("-- Invalid session type --")
+        inputErrors.push('-- Invalid session type --');
       }
-      if (!inputData.startDate){
+      if (!inputData.startDate) {
         inputError = true;
-        inputErrors.push("-- No start date --")
+        inputErrors.push('-- No start date --');
       }
-      if (!inputData.startTime){
+      if (!inputData.startTime) {
         inputError = true;
-        inputErrors.push("-- No start time --")
+        inputErrors.push('-- No start time --');
       }
-      const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`)
+      const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
       if (isNaN(timestamp)) {
         inputError = true;
-        inputErrors.push("-- Invalid date and time --")
+        inputErrors.push('-- Invalid date and time --');
       }
-      if (!inputData.name){
+      if (!inputData.name) {
         inputError = true;
-        inputErrors.push("-- Invalid name --")
+        inputErrors.push('-- Invalid name --');
       }
-      if (!inputData.about){
+      if (!inputData.about) {
         inputError = true;
-        inputErrors.push("-- Invalid description --")
+        inputErrors.push('-- Invalid description --');
       }
-      if (!inputData.subject){
+      if (!inputData.subject) {
         inputError = true;
-        inputErrors.push("-- Invalid subject --")
+        inputErrors.push('-- Invalid subject --');
       }
-      if (inputData.type == 'Classroom' && !inputData.provider){
+      if (inputData.type == 'Classroom' && !inputData.provider) {
         inputError = true;
-        inputErrors.push("-- Invalid provider --")
+        inputErrors.push('-- Invalid provider --');
       }
-      
-      if (inputError){
+
+      if (inputError) {
         toast.error(
           <div>
             {inputErrors.map((error) => <div>{error}</div>)}
-          </div>);
-          dispatch(addSessionsFailure(inputErrors.toString()))
+          </div>,
+        );
+        dispatch(addSessionsFailure(inputErrors.toString()));
         return false;
       }
     }

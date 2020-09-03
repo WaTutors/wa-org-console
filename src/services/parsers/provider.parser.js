@@ -29,6 +29,12 @@ exports.generateProviderMainAgGridColumns = (columnsToHide) => [{
   return true;
 });
 
+const allCapsToText = (string) => {
+  return string.map( s=> 
+    s.charAt(0) + s.substring(1).toLowerCase()
+  )
+}
+
 /**
  * parses database provider object into something to be displayed
  *
@@ -38,7 +44,7 @@ exports.generateProviderMainAgGridColumns = (columnsToHide) => [{
  * @param {string} orgState name of organization
  * @returns {object}
  */
-exports.mapProviderMainAgGridRows = (item, orgState) => ({
+exports.mapProviderMainAgGridRows = (item, orgState, roles) => ({
   invite: item.profile ? 'Accepted' : 'Sent',
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
   phone: item.profile ? item.phone : item.to,
@@ -46,19 +52,17 @@ exports.mapProviderMainAgGridRows = (item, orgState) => ({
   ratingCount: item.numRating,
   properties: item.profile ? item.profile.properties : null,
   instructorType: item.profile
-    ? (item.profile.org.includes(`${orgState}_TEACHER`) && 'Teacher')
-    || (item.profile.org.includes(`${orgState}_TUTOR`) && 'Tutor') || ''
+    ? allCapsToText(roles.filter(r => item.profile.org.includes(`${orgState}_${r}`)) || '')
     // if invitation
-    : (item.labels.includes('TEACHER') && 'Teacher')
-    || (item.labels.includes('TUTOR') && 'Tutor') || '',
+    : allCapsToText(roles.filter(r => item.labels.includes(`${r}`)) || ''),
   labels: item.profile
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState
-          && !str.includes('TEACHER') && !str.includes('TUTOR'))
+          && !roles.includes(str.replace(`${orgState}_`, '')))
       .map((str) => str.replace(`${orgState}_`, ''))
       // if invitation
     : item.labels
-      .filter((str) => str !== 'TEACHER' && str !== 'TUTOR'),
+      .filter((str) => !roles.includes(str)),
   iid: item.iid,
   pid: item.pid,
 });

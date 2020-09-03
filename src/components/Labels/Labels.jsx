@@ -11,10 +11,17 @@ Labels.propTypes = {
   setProperties: PropTypes.func.isRequired,
   properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
+  alias: PropTypes.object,
 };
+Labels.defaultProps = {
+  alias: {
+    property: "Properties",
+  },
+};
+
 function Labels({
   setProperties, getData, // redux thunks
-  properties, loading, // redux vars
+  properties, loading, alias, // redux vars
 }) {
   const [editProperty, setEditProperty] = useState();
   const [isEditOpen, setEditOpen] = useState();
@@ -90,17 +97,17 @@ function Labels({
         onSubmit={handleSubmitEdit}
         isOpen={isEditOpen}
         toggleOpen={toggleEditOpen}
-        header="Add Subjects to Organization"
+        header={`Add ${alias.property} to Organization`} // LD-- example of static UI words
         infoText={`
-      Subjects are central to providing context to the platform.
-      Groups, sessions, and providers operate with subjects.
-      For example a subject of "Beginning Spanish" will be for early spanish learners.
-      A session with "Spanish 1" will be between users learning beginning spanish.
+      ${alias.property} are central to providing context to the platform.
+      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
+      For example, ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
+      A session with "Spanish 2" will be between users learning beginning spanish.
       `}
         form={[
           {
             name: 'property',
-            label: 'Edit Subject',
+            label: `Edit ${alias.property}`,
             type: 'text',
             bsClass: 'form-control',
             placeholder: 'Beginning Spanish',
@@ -116,6 +123,7 @@ const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
   properties: userReducer.properties,
+  alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getOrgSummaryThunk()),
