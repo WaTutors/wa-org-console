@@ -29,11 +29,7 @@ exports.generateProviderMainAgGridColumns = (columnsToHide) => [{
   return true;
 });
 
-const allCapsToText = (string) => {
-  return string.map( s=> 
-    s.charAt(0) + s.substring(1).toLowerCase()
-  )
-}
+const allCapsToText = (string) => string.map((s) => s.charAt(0) + s.substring(1).toLowerCase());
 
 /**
  * parses database provider object into something to be displayed
@@ -52,9 +48,9 @@ exports.mapProviderMainAgGridRows = (item, orgState, roles) => ({
   ratingCount: item.numRating,
   properties: item.profile ? item.profile.properties : null,
   instructorType: item.profile
-    ? allCapsToText(roles.filter(r => item.profile.org.includes(`${orgState}_${r}`)) || '')
+    ? allCapsToText(roles.filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
     // if invitation
-    : allCapsToText(roles.filter(r => item.labels.includes(`${r}`)) || ''),
+    : allCapsToText(roles.filter((r) => item.labels.includes(`${r}`)) || ''),
   labels: item.profile
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState
