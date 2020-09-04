@@ -14,12 +14,16 @@ import TemplateList from './Template';
 function ProviderList({
   // redux props go brrrrr
   getData, addData, removeData, // functions
-  dataList, loading, orgState, // variables
+  dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
+  console.log("LD --")
+  console.log(orgState)
+  console.log(dataList)
+  console.log(orgReservedProps.provider.Role)
   const { isMD } = useWindowSize();
   const rowData = useMemo(() => dataList.map(
-    (item) => mapProviderMainAgGridRows(item, orgState),
+    (item) => mapProviderMainAgGridRows(item, orgState, orgReservedProps.provider.Role),
   ),
   [dataList]);
 
@@ -88,10 +92,12 @@ ProviderList.propTypes = {
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
+  orgReservedProps: PropTypes.array.isRequired,
 };
 
 const mapStateToProps = ({ userReducer, providersReducer }) => ({
   orgState: userReducer.org,
+  orgReservedProps: userReducer.reservedProperties,
   loading: providersReducer.loading,
   dataList: providersReducer.list,
 });

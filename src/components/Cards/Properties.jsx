@@ -7,7 +7,13 @@ import { Card } from 'components/Cards/Card';
 import AddModal from 'components/Modals/AddModal';
 import Labels from 'components/Labels/Labels';
 
-function PropertiesCard({ setProperties, properties }) {
+PropertiesCard.defaultProps = {
+  alias: {
+    property: "Property",
+  },
+};
+
+function PropertiesCard({ setProperties, properties, alias }) {
   const [isAddOpen, setAddOpen] = useState();
   const toggleAddOpen = () => setAddOpen(!isAddOpen);
 
@@ -23,17 +29,17 @@ function PropertiesCard({ setProperties, properties }) {
       isOpen={isAddOpen}
       toggleOpen={toggleAddOpen}
       processFile={(raw) => ({ property: raw.split(',') })}
-      header="Add Subjects to Organization"
+      header={`Add ${alias.property} to Organization`}
       infoText={`
-      Subjects are central to providing context to the platform.
-      Groups, sessions, and providers operate with subjects.
-      For example a subject of "Beginning Spanish" will be for early spanish learners.
+      ${alias.property} are central to providing context to the platform.
+      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
+      For example a ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
       A session with "Spanish 1" will be between users learning beginning spanish.
       `}
       form={[
         {
           name: 'property',
-          label: 'New Subject',
+          label: `New ${alias.property}`,
           type: 'text',
           bsClass: 'form-control',
           placeholder: 'Beginning Spanish',
@@ -45,8 +51,8 @@ function PropertiesCard({ setProperties, properties }) {
   return (
     <Col md={6}>
       <Card
-        title="Subjects"
-        category="Active subjects for your organization for sessions and groups"
+        title={`${alias.property}`}
+        category={`Active ${alias.property.toLowerCase()} for your organization for sessions and groups`}
         stats="Updated now"
         statsIcon="fa fa-history"
         button={{
@@ -72,6 +78,7 @@ const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
   properties: userReducer.properties,
+  alias: userReducer.alias
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   setProperties: (newProperties) => dispatch(setOrgSummaryPropertiesThunk(newProperties)),
