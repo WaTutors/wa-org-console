@@ -57,7 +57,7 @@ function GroupLabelCard({
   return (
     <Col md={mdCol}>
       <Card
-        title={`${alias.property}`}
+        title="Auto-Group Labels"
         category="Currently active Auto-Group Labels"
         stats="Updated now"
         statsIcon="fa fa-history"

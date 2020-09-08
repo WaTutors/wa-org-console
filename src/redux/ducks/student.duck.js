@@ -125,22 +125,22 @@ export function inviteStudentsThunk(payload) {
         .map((str) => str.trim())
         .filter((str) => str.length > 0)) : [];
 
-    //regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    //only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
+    // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
+    // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
     const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-    
+
     if (newStudents.map((student) => {
-      //check if phone # matches 
-      if (student.phone){
-        //needed in case of null
-        return student.phone.match(phoneno) ? true : false
-      }
-      return false
-      //period split labels are free form, no need to validate
-    }).includes(false)){
-      toast.error("-- Invalid phone number --")
-      dispatch(addStudentsFailure("-- Invalid phone number --"));
-      return false
+      // check if phone # matches
+      if (student.phone)
+        // needed in case of null
+        return !!student.phone.match(phoneno);
+
+      return false;
+      // period split labels are free form, no need to validate
+    }).includes(false)) {
+      toast.error('-- Invalid phone number --');
+      dispatch(addStudentsFailure('-- Invalid phone number --'));
+      return false;
     }
 
     return apiFetch({
