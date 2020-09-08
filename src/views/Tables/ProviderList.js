@@ -17,10 +17,10 @@ function ProviderList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
-  console.log("LD --")
-  console.log(orgState)
-  console.log(dataList)
-  console.log(orgReservedProps.provider)
+  console.log('LD --');
+  console.log(orgState);
+  console.log(dataList);
+  console.log(orgReservedProps.provider);
   const { isMD } = useWindowSize();
   const rowData = useMemo(() => dataList.map(
     (item) => mapProviderMainAgGridRows(item, orgState, orgReservedProps.provider),
@@ -31,9 +31,9 @@ function ProviderList({
   const columnDefs = useMemo(() => {
     console.log('calc columnDefs', { isMD });
     if (isMD) // full screen, filter nothing
-      return generateProviderMainAgGridColumns([],orgReservedProps.provider);
+      return generateProviderMainAgGridColumns([], orgReservedProps.provider);
       // if mobile, filter less important things
-    return generateProviderMainAgGridColumns(['ratingCount', 'phone'],orgReservedProps.provider);
+    return generateProviderMainAgGridColumns(['ratingCount', 'phone'], orgReservedProps.provider);
   }, [isMD]);
 
   return (

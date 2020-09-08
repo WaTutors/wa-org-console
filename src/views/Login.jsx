@@ -1,21 +1,4 @@
-/*!
-
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import FirebaseAuthService from 'services/firebaseAuthService';
@@ -28,10 +11,14 @@ import bg from 'assets/img/blur-classroom.png';
 const BACKGROUND_LINK = 'https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Fassets%2Fblur-classroom-min%20(1).png?alt=media&token=42fe721a-2d9a-4f70-9310-2205fc15590e';
 
 function Login({
-  history, setOrganizationStore,
+  history, setOrganizationStore, clearStore,
 }) {
   const [formData, setFormData] = useState({});
   const [errorText, setErrorText] = useState('');
+
+  useEffect(() => {
+    clearStore(); // reset on logout to avoid stale data between users
+  }, []);
 
   function onLogin(username, password) {
     FirebaseAuthService.signInUser({ username, password })
@@ -135,6 +122,7 @@ function Login({
 
 const mapDispatchToProps = {
   setOrganizationStore: setOrganization,
+  clearStore: () => ({ type: 'RESET_APP' }),
 };
 
 export default connect(null, mapDispatchToProps)(Login);

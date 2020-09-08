@@ -5,11 +5,11 @@ import { Col } from 'react-bootstrap';
 import { setOrgSummaryPropertiesThunk } from 'redux/ducks/user.duck';
 import { Card } from 'components/Cards/Card';
 import AddModal from 'components/Modals/AddModal';
-import Labels from 'components/Labels/Labels';
+import Properties from 'components/Lists/Properties';
 
 PropertiesCard.defaultProps = {
   alias: {
-    property: "Property",
+    property: 'Property',
   },
 };
 
@@ -64,7 +64,7 @@ function PropertiesCard({ setProperties, properties, alias }) {
         content={(
           <div className="table-full-width">
             <table className="table">
-              <Labels />
+              <Properties />
             </table>
           </div>
                 )}
@@ -78,7 +78,7 @@ const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
   properties: userReducer.properties,
-  alias: userReducer.alias
+  alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   setProperties: (newProperties) => dispatch(setOrgSummaryPropertiesThunk(newProperties)),

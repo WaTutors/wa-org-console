@@ -153,7 +153,7 @@ export function createGroupsThunk(inputData) {
       // invitees: data.invitees.split('.'), deprecated bc of manager
     }));
 
-    //shouldn't need front end validation, it's a select and a freeform text field
+    // shouldn't need front end validation, it's a select and a freeform text field
 
     await apiFetch({
       method: 'POST',
@@ -215,7 +215,7 @@ export function editTeacherGroupThunk({ id, addMembers, removeMembers }) {
       removeMembers,
     };
 
-    const request = apiFetch({ // TODO
+    const request = apiFetch({
       body,
       method: 'PATCH',
       endpoint: 'group/members',

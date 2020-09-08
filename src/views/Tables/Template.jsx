@@ -79,8 +79,10 @@ function TemplateList({
 
   // if no data, load data with page
   useEffect(() => {
-    if (Object.keys(rowData).length < 1)
+    if (rowData && Object.keys(rowData).length < 1) {
+      console.log('Template', rowData);
       getData();
+    }
   }, []);
 
   // update selected row ui on data change

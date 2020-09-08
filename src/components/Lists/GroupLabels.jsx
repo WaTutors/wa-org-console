@@ -2,40 +2,52 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { getOrgSummaryThunk, setOrgSummaryPropertiesThunk } from 'redux/ducks/user.duck';
+import {
+  getOrgSummaryThunk, removeOrgGroupLabelsThunk,
+} from 'redux/ducks/user.duck';
 import EditModal from 'components/Modals/EditModal';
+import ConfirmModal from 'components/Modals/ConfirmModal';
 import Button from '../Buttons/CustomButton';
 
-Labels.propTypes = {
+GroupLabels.propTypes = {
   getData: PropTypes.func.isRequired,
-  setProperties: PropTypes.func.isRequired,
-  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
+  removeAutoGroupLabels: PropTypes.func.isRequired,
+  autoGroupLabels: PropTypes.arrayOf(PropTypes.string),
   loading: PropTypes.bool.isRequired,
   alias: PropTypes.object,
 };
-Labels.defaultProps = {
+GroupLabels.defaultProps = {
   alias: {
-    property: "Properties",
+    consumer: 'Consumer',
   },
+  autoGroupLabels: [],
 };
 
-function Labels({
-  setProperties, getData, // redux thunks
-  properties, loading, alias, // redux vars
+function GroupLabels({
+  removeAutoGroupLabels, getData, // redux thunks
+  autoGroupLabels, loading, alias, // redux vars
 }) {
   const [editProperty, setEditProperty] = useState();
   const [isEditOpen, setEditOpen] = useState();
   const toggleEditOpen = () => setEditOpen(!isEditOpen);
+  const [confirmText, setConfirmText] = useState('Delete');
+  const [isConfirmOpen, setConfirmOpen] = useState();
+  const toggleConfirmOpen = () => setConfirmOpen(!isConfirmOpen);
+  const [storedToRemove, setToRemove] = useState();
 
   useEffect(() => {
-    if (!properties || properties.includes('Loading...'))
+    if (!autoGroupLabels || autoGroupLabels.includes('Loading...'))
       getData();
   }, []);
 
+  function handleRemoveConfirm() {
+    removeAutoGroupLabels(storedToRemove);
+  }
+
   function handleRemove(toRemove) {
-    setProperties(
-      properties.filter((el) => el !== toRemove),
-    );
+    setConfirmText('Are you sure you want to cancel this session?');
+    setToRemove(toRemove);
+    setConfirmOpen(true);
   }
 
   function handleStartEdit(toEdit) {
@@ -44,16 +56,12 @@ function Labels({
   }
 
   function handleSubmitEdit(form) {
-    setProperties([
-      ...properties.filter((el) => el !== editProperty),
-      form.property,
-    ]);
+    window.alert('Editing not currently supported because Brett thinks it will be difficult');
   }
 
   const edit = <Tooltip id="edit_tooltip">Edit</Tooltip>;
   const remove = <Tooltip id="remove_tooltip">Remove</Tooltip>;
-  const property = properties || ['Loading...'];
-  console.log('Labels', loading);
+  const property = autoGroupLabels || ['Loading...'];
 
   const tasks = [];
   let number;
@@ -97,23 +105,28 @@ function Labels({
         onSubmit={handleSubmitEdit}
         isOpen={isEditOpen}
         toggleOpen={toggleEditOpen}
-        header={`Add ${alias.property} to Organization`} // LD-- example of static UI words
+        header="Edit Auto-Group Label to Organization"
         infoText={`
-      ${alias.property} are central to providing context to the platform.
-      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
-      For example, ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
-      A session with "Spanish 2" will be between users learning beginning spanish.
-      `}
+        Auto-Group Labels are a way to automatically generate groups from labels. 
+        When a new ${alias.consumer} is added with any of these "Auto-Group Labels" then they will be added to a group. 
+        These Groups can then be managed like any other.
+        `}
         form={[
           {
-            name: 'property',
-            label: `Edit ${alias.property}`,
+            name: 'label',
+            label: 'New Auto-Group Label',
             type: 'text',
             bsClass: 'form-control',
-            placeholder: 'Beginning Spanish',
-            defaultValue: editProperty,
+            placeholder: 'Grade 4',
           },
         ]}
+      />
+      <ConfirmModal
+        onConfirm={handleRemoveConfirm}
+        isOpen={isConfirmOpen}
+        toggleOpen={toggleConfirmOpen}
+        text={confirmText}
+        confirmTextCheck={false}
       />
     </tbody>
   );
@@ -122,14 +135,14 @@ function Labels({
 const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
-  properties: userReducer.properties,
+  autoGroupLabels: userReducer.groupLabels,
   alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getOrgSummaryThunk()),
-  setProperties: (newProperties) => dispatch(setOrgSummaryPropertiesThunk(newProperties)),
+  removeAutoGroupLabels: (newGroupLabels) => dispatch(removeOrgGroupLabelsThunk(newGroupLabels)),
 });
 
 export default connect(
   mapStateToProps, mapDispatchToProps,
-)(Labels);
+)(GroupLabels);
