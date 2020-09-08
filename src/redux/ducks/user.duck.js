@@ -113,7 +113,6 @@ export function setOrgSummaryPropertiesThunk(newProperties) {
       console.error('getSessions thunk threw', error);
       dispatch(updateOrgSummaryFailure(error.message));
     }
-    dispatch(getGroupsThunk()); // refresh groups on success or fail
   };
 }
 

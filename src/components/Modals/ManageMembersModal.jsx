@@ -69,7 +69,7 @@ function ManageMembersModal({
       providerList, studentList, itemData, groupList, membersOf,
     });
     if (!groupList)
-      return []
+      return [];
     if (tableDataSource === SOURCE.students)
       return studentList
         .filter((item) => Boolean(item.profile)) // remove invitations
@@ -104,7 +104,7 @@ function ManageMembersModal({
 
   useEffect(() => {
     // if no data, load data with page
-    if (Object.keys(rowData).length < 1) {
+    if (rowData && Object.keys(rowData).length < 1) {
       if (tableDataSource === SOURCE.students)
         getStudentData();
       if (tableDataSource === SOURCE.groups)
@@ -114,7 +114,7 @@ function ManageMembersModal({
       if (tableDataSource === SOURCE.tutors)
         getProviderData();
     }
-  }, [rowData]);
+  }, []);
 
   function close() {
     setTimeout(() => {
