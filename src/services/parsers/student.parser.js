@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-exports.generateStudentMainAgGridColumns = (columnsToHide, reservedProperties) => {
+const generateStudentMainAgGridColumns = (columnsToHide, reservedProperties) => {
   let reserved = {};
   if (reservedProperties && Object.keys(reservedProperties).length > 0)
     reserved = Object.keys(reservedProperties).map((p) => ({
@@ -60,7 +60,7 @@ const allCapsToText = (stringArr) => stringArr.map(
  * @param {object} reservedProperties the reserved properties in the organization
  * @returns {object}
  */
-exports.mapStudentMainAgGridRows = (item, orgState, reservedProperties) => {
+const mapStudentMainAgGridRows = (item, orgState, reservedProperties) => {
   let reserved = [];
   let reduced = [];
   const capsreduced = [];
@@ -90,7 +90,7 @@ exports.mapStudentMainAgGridRows = (item, orgState, reservedProperties) => {
   });
 };
 
-exports.generateStudentMembersAgGridColumns = () => [{
+const generateStudentMembersAgGridColumns = () => [{
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'Phone Number', field: 'phone',
@@ -113,7 +113,7 @@ exports.generateStudentMembersAgGridColumns = () => [{
  * @param {string} orgState name of organization
  * @returns {object}
  */
-exports.mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
+const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   invite: item.profile ? 'Accepted' : 'Sent',
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
   labels: item.profile
@@ -124,3 +124,10 @@ exports.mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
   id: item.pid || item.iid,
 });
+
+export {
+  generateStudentMainAgGridColumns,
+  mapStudentMainAgGridRows,
+  generateStudentMembersAgGridColumns,
+  mapStudentMembersAgGridRows,
+};

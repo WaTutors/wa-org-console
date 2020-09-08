@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-exports.generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) => {
+const generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) => {
   let reserved = {};
   if (reservedProperties && Object.keys(reservedProperties).length > 0)
     reserved = Object.keys(reservedProperties).map((p) => ({
@@ -52,7 +52,7 @@ const allCapsToText = (stringArr) => stringArr.map(
  * @param {object} reservedProperties the reserved properties in the organization
  * @returns {object}
  */
-exports.mapProviderMainAgGridRows = (item, orgState, reservedProperties) => {
+const mapProviderMainAgGridRows = (item, orgState, reservedProperties) => {
   let reserved = [];
   let reduced = [];
   const capsreduced = [];
@@ -93,7 +93,7 @@ exports.mapProviderMainAgGridRows = (item, orgState, reservedProperties) => {
   });
 };
 
-exports.generateProviderMembersAgGridColumns = () => [{
+const generateProviderMembersAgGridColumns = () => [{
   headerName: 'Name', field: 'name',
 }, {
   headerName: 'Role', field: 'instructorType',
@@ -120,7 +120,7 @@ exports.generateProviderMembersAgGridColumns = () => [{
  * @param {string} orgState name of organization
  * @returns {object}
  */
-exports.mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
+const mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
   rating: item.rating,
   properties: item.profile ? item.profile.properties : null,
@@ -135,3 +135,10 @@ exports.mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
   isIncluded: itemData.providerId && itemData.providerId === item.pid,
   id: item.pid,
 });
+
+export {
+  mapProviderMembersAgGridRows,
+  generateProviderMembersAgGridColumns,
+  mapProviderMainAgGridRows,
+  generateProviderMainAgGridColumns,
+};
