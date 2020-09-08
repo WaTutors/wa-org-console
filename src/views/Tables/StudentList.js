@@ -14,10 +14,9 @@ function StudentList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
-  const rowData = useMemo(
-    () => dataList.map((item) => mapStudentMainAgGridRows(item, orgState, orgReservedProps.consumer)),
-    [dataList],
-  );
+  const rowData = useMemo(() => dataList
+    .map((item) => mapStudentMainAgGridRows(item, orgState, orgReservedProps.consumer)),
+  [dataList]);
 
   return (
     <TemplateList
@@ -27,7 +26,7 @@ function StudentList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateStudentMainAgGridColumns([],orgReservedProps.consumer)}
+      columnDefs={generateStudentMainAgGridColumns([], orgReservedProps.consumer)}
       rowData={rowData}
       addForm={[{
         name: 'phone',
