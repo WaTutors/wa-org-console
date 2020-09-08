@@ -36,5 +36,6 @@ module.exports = {
     'react/no-array-index-key': 'warn', // annoying
     'import/no-unresolved': 'off', // objective imports from src don't work correctly
     'react/forbid-prop-types': 'warn', // way too opioniated 
+    'no-plusplus': 'warn', // there's a use for this
   },
 };

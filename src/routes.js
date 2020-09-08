@@ -16,7 +16,6 @@
 
 */
 import Dashboard from 'views/Dashboard.jsx';
-import LegacyDashboard from 'views/_LegacyDashboard.jsx';
 import UserProfile from 'views/UserProfile.jsx';
 import TableList from 'views/TableList.jsx';
 import {
@@ -51,7 +50,7 @@ const dashboardRoutes = [
   {
     live: true,
     path: '/providers',
-    name: 'Tutor List',
+    name: 'Instructor List',
     icon: 'pe-7s-note2',
     component: ProviderList,
     layout: '/admin',
@@ -84,13 +83,6 @@ const dashboardRoutes = [
     name: 'PREBUILT PAGES BELOW vvv',
     icon: 'pe-7s-angle-down',
     component: Dashboard,
-    layout: '/admin',
-  },
-  {
-    path: '/_dashboard',
-    name: 'Dashboard',
-    icon: 'pe-7s-graph',
-    component: LegacyDashboard,
     layout: '/admin',
   },
   {

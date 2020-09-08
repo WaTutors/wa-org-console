@@ -20,10 +20,10 @@ import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
-
 import { Card } from 'components/Cards/Card';
 import { StatsCard } from 'components/Cards/StatsCard';
 import OrgProperties from 'components/Cards/Properties';
+import OrgGroupLabels from 'components/Cards/GroupLabels';
 import SearchForm from 'components/FormInputs/SearchForm';
 
 import {
@@ -41,13 +41,13 @@ import {
 
 Dashboard.defaultProps = {
   alias: {
-    property: "Property",
-    provider: "Tutor",
-    consumer: "Student",
+    property: 'Property',
+    provider: 'Tutor',
+    consumer: 'Student',
   },
 };
 
-function Dashboard({props, alias}) {
+function Dashboard({ props, alias }) {
   function createLegend(json) {
     const legend = [];
     for (let i = 0; i < json.names.length; i++) {
@@ -285,7 +285,8 @@ function Dashboard({props, alias}) {
         {statsRow}
         {userBehaviorGraphRow}
         <Row>
-          {activityGraphCol}
+          {/* activityGraphCol */}
+          <OrgGroupLabels />
           <OrgProperties />
         </Row>
         {searchRow}
@@ -295,7 +296,7 @@ function Dashboard({props, alias}) {
 }
 
 const mapStateToProps = ({ userReducer }) => ({
-  alias: userReducer.alias
+  alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
 

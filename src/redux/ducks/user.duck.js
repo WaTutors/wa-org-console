@@ -2,6 +2,9 @@
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 
+import firebaseAuthService from 'services/firebaseAuthService';
+import { getGroupsThunk, removeGroupSuccess } from './group.duck';
+
 const SET_ORGANIZATION = 'SET_ORGANIZATION';
 
 const GET_ORG_SUMMARY_BEGIN = 'GET_ORG_SUMMARY_BEGIN';
@@ -90,7 +93,6 @@ export function getOrgSummaryThunk() {
 export function setOrgSummaryPropertiesThunk(newProperties) {
   return async (dispatch, getState) => {
     dispatch(updateOrgSummaryBegin());
-    console.log('getState', getState());
     const { org, properties } = getState().userReducer;
 
     try {
@@ -99,7 +101,7 @@ export function setOrgSummaryPropertiesThunk(newProperties) {
         endpoint: 'admin/org/summary',
         body: {
           oid: org,
-          properties: newProperties.sort( // case insensivie sort
+          properties: newProperties.sort( // case insensitive sort
             (a, b) => a.toLowerCase().localeCompare(b.toLowerCase()),
           ),
         },
@@ -111,6 +113,83 @@ export function setOrgSummaryPropertiesThunk(newProperties) {
       console.error('getSessions thunk threw', error);
       dispatch(updateOrgSummaryFailure(error.message));
     }
+    dispatch(getGroupsThunk()); // refresh groups on success or fail
+  };
+}
+
+export function removeOrgGroupLabelsThunk(toRemove) {
+  return async (dispatch, getState) => {
+    dispatch(updateOrgSummaryBegin());
+    const { org, groupLabels } = getState().userReducer;
+    const newGroupLabels = groupLabels.filter((el) => el !== toRemove);
+
+    try {
+      // delete group
+      const { gid } = await apiFetch({
+        method: 'DELETE',
+        endpoint: `group/label/${org}/${toRemove}`,
+      });
+      // update stored data
+      const { org: updates } = await apiFetch({
+        method: 'PATCH',
+        endpoint: 'admin/org/summary',
+        body: {
+          oid: org,
+          groupLabels: newGroupLabels.sort( // case insensitive sort
+            (a, b) => a.toLowerCase().localeCompare(b.toLowerCase()),
+          ),
+        },
+      });
+      // dispatch bullshit
+      dispatch(updateOrgSummarySuccess(updates));
+      dispatch(removeGroupSuccess({ gid }));
+    } catch (error) {
+      console.error('getSessions thunk threw', error);
+      dispatch(updateOrgSummaryFailure(error.message));
+      dispatch(getGroupsThunk()); // refresh groups on fail
+    }
+  };
+}
+
+export function addOrgGroupLabelsThunk(toAdd) {
+  return async (dispatch, getState) => {
+    dispatch(updateOrgSummaryBegin());
+    const { org, groupLabels } = getState().userReducer;
+    const { uid } = firebaseAuthService.getUser(true);
+    const newGroupLabels = [
+      ...(groupLabels || []),
+      toAdd,
+    ];
+
+    try {
+      // update groups
+      const respGroupAdd = await apiFetch({
+        method: 'POST',
+        endpoint: 'group/label',
+        body: {
+          org,
+          label: toAdd,
+          sender: uid,
+        },
+      });
+      // update stored data
+      const { org: updates } = await apiFetch({
+        method: 'PATCH',
+        endpoint: 'admin/org/summary',
+        body: {
+          oid: org,
+          groupLabels: newGroupLabels.sort( // case insensitive sort
+            (a, b) => a.toLowerCase().localeCompare(b.toLowerCase()),
+          ),
+        },
+      });
+      // dispatch bullshit
+      dispatch(updateOrgSummarySuccess(updates));
+    } catch (error) {
+      console.error('getSessions thunk threw', error);
+      dispatch(updateOrgSummaryFailure(error.message));
+    }
+    dispatch(getGroupsThunk()); // refresh groups on every case
   };
 }
 
