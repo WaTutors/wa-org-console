@@ -38,7 +38,9 @@ exports.generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) 
   });
 };
 
-const allCapsToText = (stringArr) => stringArr.map((s) => s.charAt(0) + s.substring(1).toLowerCase());
+const allCapsToText = (stringArr) => stringArr.map(
+  (s) => s.charAt(0) + s.substring(1).toLowerCase(),
+);
 
 /**
  * parses database provider object into something to be displayed
