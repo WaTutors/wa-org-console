@@ -1,18 +1,30 @@
-exports.generateStudentMainAgGridColumns = (columnsToHide) => [{
-  headerName: 'Invite', field: 'invite', flex: 0.5,
-}, {
-  headerName: 'Name', field: 'name',
-}, {
-  headerName: 'Phone Number', field: 'phone',
-}, {
-  headerName: 'Labels', field: 'labels', flex: 1.25,
-}, {
-  headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
-}].filter((colObj) => {
-  if (columnsToHide)
-    return !columnsToHide.includes(colObj.field);
-  return true;
-});
+exports.generateStudentMainAgGridColumns = (columnsToHide, reservedProperties) => {
+  let reserved = {}
+  if (reservedProperties && Object.keys(reservedProperties).length > 0 ){
+    reserved = Object.keys(reservedProperties).map( p => ({
+      headerName: p , field: p
+    }))
+  }
+
+  return [{
+      headerName: 'Invite', field: 'invite', flex: 0.5,
+    }, {
+      headerName: 'Name', field: 'name',
+    }, 
+    ...(reserved && reservedProperties ? reserved : []),
+    {
+      headerName: 'Phone Number', field: 'phone',
+    }, {
+      headerName: 'Labels', field: 'labels', flex: 1.25,
+    }, {
+      headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
+    }].filter((colObj) => {
+      if (columnsToHide)
+        return !columnsToHide.includes(colObj.field);
+      return true;
+    })
+};
+
 
 /**
  * parses organization labels into human readable format
@@ -24,13 +36,18 @@ exports.generateStudentMainAgGridColumns = (columnsToHide) => [{
  * @param {string} orgState name of organization
  * @returns {array} list of human readable session labels
  */
-function parseLabels(item, orgState) {
+function parseLabels(item, orgState, capsreduced) {
   return item.profile
     ? item.profile.org
-      .filter((str) => str.includes(orgState) && str !== orgState) // remove other org labels
+      .filter((str) => str.includes(orgState) && str !== orgState && !Object.values(capsreduced).includes(str.replace(`${orgState}_`, ''))) // remove other org labels
       .map((str) => str.replace(`${orgState}_`, '')) // make human readable
-    : item.labels;
+    : item.labels ?
+      item.labels.filter((str) => !Object.values(capsreduced).includes(str))
+      : ''
+    ;
 }
+
+const allCapsToText = (stringArr) => stringArr.map((s) => s.charAt(0) + s.substring(1).toLowerCase());
 
 /**
  * parses database consumer object into something to be displayed
@@ -40,19 +57,40 @@ function parseLabels(item, orgState) {
  *
  * @param {object} item consumer object
  * @param {string} orgState name of organization
+ * @param {object} reservedProperties the reserved properties in the organization
  * @returns {object}
  */
-exports.mapStudentMainAgGridRows = (item, orgState) => ({
-  invite: item.profile ? 'Accepted' : 'Sent',
-  name: item.profile ? item.profile.name.split('~')[0] : undefined,
-  phone: item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-  labels: parseLabels(item, orgState),
-  iid: item.iid,
-  pid: item.pid,
-  id: `u~${item.pid || item.iid}`,
-  // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
-  // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
-});
+exports.mapStudentMainAgGridRows = (item, orgState, reservedProperties) => {
+  
+
+  let reserved = []
+  let reduced = []
+  let capsreduced = []
+  if (reservedProperties && Object.keys(reservedProperties).length > 0 ){
+    reserved = Object.keys(reservedProperties).map( p => ({
+      [p] : item.profile 
+        ? allCapsToText(reservedProperties[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
+        : allCapsToText(reservedProperties[p].filter((r) => item.labels.includes(`${r}`)) || '')
+    }))
+    reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {})
+    for (const [key, val] of Object.entries(reduced)){
+      val.map(v => capsreduced.push(v.toUpperCase()))
+    }
+  }
+  
+  return ({
+    invite: item.profile ? 'Accepted' : 'Sent',
+    name: item.profile ? item.profile.name.split('~')[0] : undefined,
+    phone: item.profile && typeof item.phone === 'string' ? item.phone : item.to,
+    labels: parseLabels(item, orgState, capsreduced),
+    ...reduced,
+    iid: item.iid,
+    pid: item.pid,
+    id: `u~${item.pid || item.iid}`,
+    // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
+    // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
+  })
+};
 
 exports.generateStudentMembersAgGridColumns = () => [{
   headerName: 'Name', field: 'name',

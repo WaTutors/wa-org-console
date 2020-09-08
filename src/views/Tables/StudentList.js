@@ -11,11 +11,11 @@ import TemplateList from './Template';
 function StudentList({
   // redux props go brrrrr
   getData, addData, removeData, // functions
-  dataList, loading, orgState, // variables
+  dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
   const rowData = useMemo(
-    () => dataList.map((item) => mapStudentMainAgGridRows(item, orgState)),
+    () => dataList.map((item) => mapStudentMainAgGridRows(item, orgState, orgReservedProps.consumer)),
     [dataList],
   );
 
@@ -27,7 +27,7 @@ function StudentList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateStudentMainAgGridColumns()}
+      columnDefs={generateStudentMainAgGridColumns([],orgReservedProps.consumer)}
       rowData={rowData}
       addForm={[{
         name: 'phone',
@@ -65,12 +65,14 @@ StudentList.propTypes = {
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
+  orgReservedProps: PropTypes.array.isRequired,
 };
 
 const mapStateToProps = ({ userReducer, studentsReducer }) => ({
   orgState: userReducer.org,
   loading: studentsReducer.loading,
   dataList: studentsReducer.list,
+  orgReservedProps: userReducer.reservedProperties,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getStudentsThunk()),

@@ -68,6 +68,8 @@ function ManageMembersModal({
     console.log('ManageMembersModalModal rowData memo', {
       providerList, studentList, itemData, groupList, membersOf,
     });
+    if (!groupList)
+      return []
     if (tableDataSource === SOURCE.students)
       return studentList
         .filter((item) => Boolean(item.profile)) // remove invitations

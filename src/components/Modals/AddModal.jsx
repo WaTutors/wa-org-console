@@ -25,7 +25,10 @@ AddModal.propTypes = {
 
 AddModal.defaultProps = {
   infoText: '',
-  onSubmit: (e) => console.log('form submitted', e),
+  onSubmit: (e) => {
+    console.log('form submitted', e);
+    return Promise.resolve(false);
+  },
   hideFile: false,
   processFile: (raw) => ({ phone: raw.split(',') }),
   exampleFilePath: false,

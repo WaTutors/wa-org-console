@@ -57,7 +57,7 @@ function FieldGroup({
           classNamePrefix="select"
           name={name}
           options={options}
-          onChange={(e) => handleChange({ target: { value: e.value } }, name)}
+          onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
         />
       </FormGroup>
     );
