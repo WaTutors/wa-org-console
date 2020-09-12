@@ -5,7 +5,7 @@ import {
 import Select from 'react-select';
 
 function FieldGroup({
-  label, name, options = false, handleChange, checkboxes, type, help, ...props
+  label, name, options = false, handleChange, checkboxes, multi = false, type, help, ...props
 }) {
   const [checkboxData, setCheckboxData] = useState({});
 
@@ -45,22 +45,45 @@ function FieldGroup({
       </FormGroup>
     );
   }
-
-  if (options)
-    return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <Select
-          isClearable
-          isSearchable
-          className="basic-single"
-          classNamePrefix="select"
-          name={name}
-          options={options}
-          onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
-        />
-      </FormGroup>
-    );
+  if (options) {
+    if (multi) {
+      return (
+        <FormGroup>
+          <ControlLabel>{label}</ControlLabel>
+          <Select
+            isClearable
+            isSearchable
+            isMulti
+            className="basic-single"
+            classNamePrefix="select"
+            name={name}
+            options={options}
+            // onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
+            onChange={(e) => {
+              console.log(e);
+              handleChange({ target: { value: e } }, name);
+            }}
+          />
+        </FormGroup>
+      );
+    // eslint-disable-next-line no-else-return
+    } else {
+      return (
+        <FormGroup>
+          <ControlLabel>{label}</ControlLabel>
+          <Select
+            isClearable
+            isSearchable
+            className="basic-single"
+            classNamePrefix="select"
+            name={name}
+            options={options}
+            onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
+          />
+        </FormGroup>
+      );
+    }
+  }
 
   return (
     <FormGroup>

@@ -9,7 +9,9 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) =>
   return [{
     headerName: 'Invite', field: 'invite', flex: 0.5,
   }, {
-    headerName: 'Name', field: 'name',
+    headerName: 'Preferred Name', field: 'name',
+  }, {
+    headerName: 'Full Name', field: 'nickname',
   },
   ...(reserved && reservedProperties ? reserved : []),
   {
@@ -38,9 +40,67 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) =>
   });
 };
 
+/**
+ * parse name label
+ *
+ * name labels for a user are stored as `${organization}_NAME_${text}`
+ * where text is freeform text given by the user
+ *
+ * @param {object} item session object
+ * @param {string} orgState name of organization
+ * @returns {array} list of human readable session labels
+ */
+function parseTextLabel(item, orgState, fieldName = 'NAME') {
+  // if profile doc
+  if (item.profile)
+    return item.profile.org
+      .filter((orgStr) => orgStr.startsWith(`${orgState}_${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${orgState}_${fieldName}_`, ''));
+  // else if invite doc
+  if (item.labels)
+    return item.labels.filter((orgStr) => orgStr.startsWith(`${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${fieldName}_`, ''));
+    // else
+  return '';
+}
+
+/**
+ * parses organization labels into normal text, removes all caps and underscores
+ *
+ *
+ * @param {array} stringArr array of label strings
+ * @returns {array} each label string but first letter capitalized and underscores are spaces
+ */
 const allCapsToText = (stringArr) => stringArr.map(
-  (s) => s.charAt(0) + s.substring(1).toLowerCase(),
+  (s) => s.charAt(0) + s.substring(1).toLowerCase().replace(/_/g, ' '),
 );
+
+/**
+ * parses organization labels into human readable format
+ *
+ * all labels for a user are stored as `${organization}_${label}`
+ * within the same field
+ *
+ * @param {object} item session object
+ * @param {string} orgState name of organization
+ * @returns {array} list of human readable session labels
+ */
+function parseLabels(item, orgState, capsreduced, fieldName = 'NAME') {
+  // if profile doc0.
+  if (item.profile)
+    return item.profile.org
+      .filter((str) => str.includes(orgState) && str !== orgState && !Object.values(capsreduced).includes(str.replace(`${orgState}_`, ''))) // remove other org labels
+      .map((str) => str.replace(`${orgState}_`, ''))
+      .filter((orgStr) => !orgStr.startsWith(`${orgState}_${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${orgState}_${fieldName}_`, ''));
+  // if invite doc
+  if (item.labels)
+    return item.labels.filter((str) => !Object.values(capsreduced).includes(str))
+      .filter((orgStr) => !orgStr.startsWith(`${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${fieldName}_`, ''));
+  // else
+  return '';
+}
 
 /**
  * parses database provider object into something to be displayed
@@ -52,25 +112,32 @@ const allCapsToText = (stringArr) => stringArr.map(
  * @param {object} reservedProperties the reserved properties in the organization
  * @returns {object}
  */
-const mapProviderMainAgGridRows = (item, orgState, reservedProperties) => {
-  let reserved = [];
-  let reduced = [];
-  const capsreduced = [];
-  // make array of {Column : Value} for each reserved property
-  if (reservedProperties && Object.keys(reservedProperties).length > 0) {
-    reserved = Object.keys(reservedProperties).map((p) => ({
-      [p]: item.profile
-        ? allCapsToText(reservedProperties[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-        : allCapsToText(reservedProperties[p].filter((r) => item.labels.includes(`${r}`)) || ''),
-    }));
-    // reduce it to one object for spread
+const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
+  let reserved = []; // All of the reserved labels
+  let reduced = []; // The reserved labels but only as a flat array
+  const capsreduced = []; // the reduced array run through to be user readable
+
+  if (reservedLabels && Object.keys(reservedLabels).length > 0) {
+    reserved = Object.keys(reservedLabels).map((p) => {
+      if (reservedLabels[p] === 'TEXT') // freeform label with keyword (field text)
+        return {
+          [p]: parseTextLabel(item, orgState, p),
+        };
+      if (Array.isArray(reservedLabels[p])) // array of possible labels (field options)
+        return {
+          [p]: item.profile // if profile or invite filter for relevant labels differently
+            ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`)) || ''),
+        };
+      console.error(`In mapProviderMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
+      return {}; // other
+    });
+    console.log({ reserved });
     reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {});
-    // recreate caps list of reserved properties present in this item
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, val] of Object.entries(reduced))
-      val.map((v) => capsreduced.push(v.toUpperCase()));
+      val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
   }
-
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
@@ -79,22 +146,17 @@ const mapProviderMainAgGridRows = (item, orgState, reservedProperties) => {
     ratingCount: item.numRating,
     properties: item.profile ? item.profile.properties : null,
     ...reduced,
-    labels: item.profile
-      ? item.profile.org
-        .filter((str) => str.includes(orgState) && str !== orgState
-          && !Object.values(capsreduced).includes(str.replace(`${orgState}_`, '')))
-        .map((str) => str.replace(`${orgState}_`, ''))
-      // if invitation
-      : item.labels
-        ? item.labels.filter((str) => !Object.values(capsreduced).includes(str))
-        : '',
+    labels: parseLabels(item, orgState, capsreduced),
+    nickname: parseTextLabel(item, orgState),
     iid: item.iid,
     pid: item.pid,
   });
 };
 
 const generateProviderMembersAgGridColumns = () => [{
-  headerName: 'Name', field: 'name',
+  headerName: 'Preferred Name', field: 'name',
+}, {
+  headerName: 'Full Name', field: 'nickname',
 }, {
   headerName: 'Role', field: 'instructorType',
 }, {

@@ -17,13 +17,10 @@ function ProviderList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
-  console.log('LD --');
-  console.log(orgState);
-  console.log(dataList);
-  console.log(orgReservedProps.provider);
+  const providerProps = orgReservedProps.provider || null;
   const { isMD } = useWindowSize();
   const rowData = useMemo(() => dataList.map(
-    (item) => mapProviderMainAgGridRows(item, orgState, orgReservedProps.provider),
+    (item) => mapProviderMainAgGridRows(item, orgState, providerProps),
   ),
   [dataList]);
 
@@ -31,10 +28,48 @@ function ProviderList({
   const columnDefs = useMemo(() => {
     console.log('calc columnDefs', { isMD });
     if (isMD) // full screen, filter nothing
-      return generateProviderMainAgGridColumns([], orgReservedProps.provider);
+      return generateProviderMainAgGridColumns([], providerProps);
       // if mobile, filter less important things
-    return generateProviderMainAgGridColumns(['ratingCount', 'phone'], orgReservedProps.provider);
+    return generateProviderMainAgGridColumns(['ratingCount', 'phone'], providerProps);
   }, [isMD]);
+
+  let form = [{
+    name: 'phone',
+    label: 'Phone Number',
+    type: 'tel',
+    bsClass: 'form-control',
+    placeholder: '503 123 1234',
+  }, {
+    name: 'labels',
+    label: 'Private Labels (period seperated)',
+    type: 'string',
+    placeholder: 'Grade 4. Reading. Yakima',
+  }, {
+    name: 'name',
+    label: 'User Full Name',
+    type: 'string',
+    placeholder: 'Robert Lewandowski',
+  }];
+
+  if (providerProps)
+    Object.entries(providerProps).forEach(([key, value]) => {
+      if (value.length > 5) {
+        form.push({
+          name: key,
+          label: key,
+          componentClass: 'select',
+          placeholder: 'select',
+          options: value && value.map((item) => ({ value: item, label: item })),
+        });
+      } else {
+        form.push({
+          name: key,
+          label: key,
+          checkboxes: true,
+          options: value && value.map((item) => ({ value: item, label: item })),
+        });
+      }
+    });
 
   return (
     <TemplateList
@@ -51,23 +86,7 @@ function ProviderList({
         upcomingSessions: 0,rating: 3.5,ratingCount: 2,properties: ['Math 2'],
         invite: false,phone: '+1 25688484862',}
       */
-      addForm={[{
-        name: 'phone',
-        label: 'Phone Number',
-        type: 'tel',
-        bsClass: 'form-control',
-        placeholder: '503 123 1234',
-      }, {
-        name: 'labels',
-        label: 'Private Labels (period seperated)',
-        type: 'string',
-        placeholder: 'Grade 4. Reading. Yakima',
-      }, {
-        name: 'providerType',
-        label: 'Type of Lesson Instructor',
-        checkboxes: true,
-        options: [{ label: 'Teacher', value: 'Teacher' }, { label: 'Tutor', value: 'Tutor' }],
-      }]}
+      addForm={form}
       processFile={(raw) => {
         const rows = raw.split('\n');
         return rows

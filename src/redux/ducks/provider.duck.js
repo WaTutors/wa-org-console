@@ -125,41 +125,45 @@ export function inviteProvidersThunk(payload) {
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
-    const draftLabels = newProviders[0].labels
-      ? newProviders.map((provider) => provider.labels.split('.')
+    const postedLabels = newProviders[0].labels
+      ? newProviders.map((provider) => provider.labels
+        .split('.')
         .map((str) => str.trim())
-        .filter((str) => str.length > 0)) : [];
+        .filter((str) => str.length > 0)) : [[]];
 
-    // set special labels (teacher/tutor) for file submission
-    if (payload.Teacher)
-      draftLabels.map((els) => { els.push('TEACHER'); });
-    if (payload.Tutor)
-      draftLabels.map((els) => { els.push('TUTOR'); });
-    // set special labels (teacher/tutor) for file submission
-    const postedLabels = draftLabels.map((els) => els.map((el) => {
-      if (el === 'Teacher')
-        return 'TEACHER';
-      if (el === 'Tutor')
-        return 'TUTOR';
-      return el;
-    }));
+    newProviders.forEach((provider, i) => {
+      const nameLabel = `NAME_${provider.name}`;
+      postedLabels[i].push(nameLabel);
+      Object.entries(provider).forEach(([key, val]) => {
+        if (!['phone', 'labels'].includes(key)) {
+          if (val === true) {
+            postedLabels[i].push(key);
+          }
+          if (Array.isArray(val)) {
+            val.map((v) => postedLabels[i].push(v.value));
+          }
+        }
+      });
+    });
+    console.log('ldld')
+    console.log(postedLabels)
 
-    //regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    //only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
+    // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
+    // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
     const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-    
+
     if (newProviders.map((provider) => {
       //check if phone # matches 
-      if (provider.phone){
-        return provider.phone.match(phoneno) ? true : false
+      if (provider.phone) {
+        return provider.phone.match(phoneno) ? true : false;
       }
-      return false
+      return false;
       //period split labels are free form, no need to validate
       //checkboxes can be empty, true, or false, no need to validate
-    }).includes(false)){
-      toast.error("-- Invalid phone number --")
-      dispatch(addProvidersFailure("-- Invalid phone number --"));
-      return false
+    }).includes(false)) {
+      toast.error('-- Invalid phone number --');
+      dispatch(addProvidersFailure('-- Invalid phone number --'));
+      return false;
     }
 
     await apiFetch({

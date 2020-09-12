@@ -124,12 +124,21 @@ export function inviteStudentsThunk(payload) {
       ? newStudents.map((student) => student.labels
         .split('.')
         .map((str) => str.trim())
-        .filter((str) => str.length > 0)) : [];
+        .filter((str) => str.length > 0)) : [[]];
 
-    // TODO fold into Louis' solution
     newStudents.forEach((student, i) => {
       const nameLabel = `NAME_${student.name}`;
       postedLabels[i].push(nameLabel);
+      Object.entries(student).forEach(([key, val]) => {
+        if (!['phone', 'labels'].includes(key)) {
+          if (val === true) {
+            postedLabels[i].push(key);
+          }
+          if (Array.isArray(val)) {
+            val.map((v) => postedLabels[i].push(v.value));
+          }
+        }
+      });
     });
 
     // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php

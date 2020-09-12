@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import {
-  mapStudentMainAgGridRows, generateStudentMainAgGridColumns,
+  mapStudentMainAgGridRows, generateStudentMainAgGridColumns, allCapsToText,
 } from 'services/parsers/student.parser';
 import { getStudentsThunk, inviteStudentsThunk, removeStudentThunk } from 'redux/ducks/student.duck';
 import TemplateList from './Template';
@@ -14,9 +14,56 @@ function StudentList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
+  const consumerProps = orgReservedProps.consumer || null;
   const rowData = useMemo(() => dataList
-    .map((item) => mapStudentMainAgGridRows(item, orgState, orgReservedProps.consumer)),
+    .map((item) => mapStudentMainAgGridRows(item, orgState, consumerProps)),
   [dataList]);
+
+  let form = [{
+    name: 'phone',
+    label: 'Phone Number',
+    type: 'tel',
+    bsClass: 'form-control',
+    placeholder: '503 123 1234',
+  }, {
+    name: 'labels',
+    label: 'Private Labels (period seperated)',
+    type: 'string',
+    placeholder: 'Grade 4. Reading. Yakima',
+  }, {
+    name: 'name',
+    label: 'User Full Name',
+    type: 'string',
+    placeholder: 'Robert Lewandowski',
+  }];
+
+  if (consumerProps)
+    Object.entries(consumerProps).sort().forEach(([key, value]) => {
+      // value.push("t1")
+      // value.push("t2")
+      // value.push("t3")
+      // value.push("t4")
+      // value.push("t5")
+      if (Array.isArray(value)) {
+        if (value.length > 5) {
+          form.push({
+            name: key,
+            label: key,
+            multi: true,
+            componentClass: 'select',
+            placeholder: 'select',
+            options: value && value.map((item) => ({ value: item, label: allCapsToText([item]) })),
+          });
+        } else {
+          form.push({
+            name: key,
+            label: key,
+            checkboxes: true,
+            options: value && value.map((item) => ({ value: item, label: allCapsToText([item]) })),
+          });
+        }
+      }
+    });
 
   return (
     <TemplateList
@@ -26,25 +73,9 @@ function StudentList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateStudentMainAgGridColumns([], orgReservedProps.consumer)}
+      columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
       rowData={rowData}
-      addForm={[{
-        name: 'phone',
-        label: 'Phone Number',
-        type: 'tel',
-        bsClass: 'form-control',
-        placeholder: '503 123 1234',
-      }, {
-        name: 'labels',
-        label: 'Private Labels (period seperated)',
-        type: 'string',
-        placeholder: 'Grade 4. Reading. Yakima',
-      }, {
-        name: 'name',
-        label: 'User Full Name',
-        type: 'string',
-        placeholder: 'Robert Lewandowski',
-      }]}
+      addForm={form}
       processFile={(raw) => {
         const rows = raw.split('\n');
         return rows

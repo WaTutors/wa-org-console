@@ -37,15 +37,19 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
  * @param {string} orgState name of organization
  * @returns {array} list of human readable session labels
  */
-function parseLabels(item, orgState, capsreduced) {
+function parseLabels(item, orgState, capsreduced, fieldName = 'NAME') {
   // if profile doc0.
   if (item.profile)
-    item.profile.org
+    return item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState && !Object.values(capsreduced).includes(str.replace(`${orgState}_`, ''))) // remove other org labels
-      .map((str) => str.replace(`${orgState}_`, ''));
+      .map((str) => str.replace(`${orgState}_`, ''))
+      .filter((orgStr) => !orgStr.startsWith(`${orgState}_${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${orgState}_${fieldName}_`, ''));
   // if invite doc
   if (item.labels)
-    item.labels.filter((str) => !Object.values(capsreduced).includes(str));
+    return item.labels.filter((str) => !Object.values(capsreduced).includes(str))
+      .filter((orgStr) => !orgStr.startsWith(`${fieldName}_`))
+      .map((orgStr) => orgStr.replace(`${fieldName}_`, ''));
   // else
   return '';
 }
@@ -74,8 +78,15 @@ function parseTextLabel(item, orgState, fieldName = 'NAME') {
   return '';
 }
 
+/**
+ * parses organization labels into normal text, removes all caps and underscores
+ *
+ *
+ * @param {array} stringArr array of label strings
+ * @returns {array} each label string but first letter capitalized and underscores are spaces
+ */
 const allCapsToText = (stringArr) => stringArr.map(
-  (s) => s.charAt(0) + s.substring(1).toLowerCase(),
+  (s) => s.charAt(0) + s.substring(1).toLowerCase().replace(/_/g, ' '),
 );
 
 /**
@@ -90,9 +101,9 @@ const allCapsToText = (stringArr) => stringArr.map(
  * @returns {object}
  */
 const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
-  let reserved = [];
-  let reduced = [];
-  const capsreduced = []; // LD-- maybe add some comments to make this explainable
+  let reserved = []; // All of the reserved labels
+  let reduced = []; // The reserved labels but only as a flat array
+  const capsreduced = []; // the reduced array run through to be user readable
 
   if (reservedLabels && Object.keys(reservedLabels).length > 0) {
     reserved = Object.keys(reservedLabels).map((p) => {
@@ -113,10 +124,9 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {});
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, val] of Object.entries(reduced))
-      val.map((v) => capsreduced.push(v.toUpperCase()));
+      val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
   }
   console.log('student caps', { capsreduced });
-
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
@@ -174,4 +184,5 @@ export {
   mapStudentMainAgGridRows,
   generateStudentMembersAgGridColumns,
   mapStudentMembersAgGridRows,
+  allCapsToText,
 };
