@@ -311,8 +311,8 @@ function ManageMembersModal({
     // parse and validate
     if (!form.first || !form.last)
       toast.error('-- Invalid Range: both must be specified --');
-    const first = parseInt(form.first, 10);
-    const last = parseInt(form.last, 10);
+    const first = parseInt(form.first, 10) - 1; // base 1-indexed for humans
+    const last = parseInt(form.last, 10) - 1;
     if (first >= last)
       toast.error('-- Invalid Range: first must be greater --');
     // execute logic
