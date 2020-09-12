@@ -6,6 +6,7 @@ import {
 } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 import {
   mapStudentMembersAgGridRows, generateStudentMembersAgGridColumns,
@@ -24,6 +25,7 @@ import { AgGridReact } from 'ag-grid-react';
 import Loader from 'components/Loader';
 import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
 import ButtonBar from 'components/Buttons/ButtonBar';
+import EditModal from 'components/Modals/EditModal';
 
 ManageMembersModal.propTypes = {
   header: PropTypes.string.isRequired,
@@ -63,6 +65,8 @@ function ManageMembersModal({
   const [tableDataSource, setTableDataSource] = useState(
     defaultMembersOf === 'Group' ? SOURCE.students : SOURCE.groups,
   );
+  const [isRangeModalOpen, setRangeModalOpen] = useState(false);
+  const toggleRangeModal = () => setRangeModalOpen(!isRangeModalOpen);
 
   const rowData = useMemo(() => {
     console.log('ManageMembersModalModal rowData memo', {
@@ -122,6 +126,7 @@ function ManageMembersModal({
     }, 100);
   }
 
+  // will also accept agGrid row as argument
   function toggleStudentIsMemberInGroup(cell) {
     let addMembers;
     let removeMembers;
@@ -140,6 +145,23 @@ function ManageMembersModal({
       });
   }
 
+  // will also accept agGrid row as argument
+  function toggleStudentIsMemberInGroupMulti(cells) {
+    let addMembers;
+    let removeMembers;
+    if (cells[0].value) // value true->false, remove
+      removeMembers = cells.map((cell) => cell.data.id);
+    else // false-> true, add
+      addMembers = cells.map((cell) => cell.data.id);
+
+    editMembersGroup({
+      id: itemData.gid,
+      addMembers,
+      removeMembers,
+    });
+  }
+
+  // will also accept agGrid row as argument
   function toggleTeacherIsMemberInSession(cell) {
     let addMembers;
     let removeMembers;
@@ -198,12 +220,21 @@ function ManageMembersModal({
 
     if (tableDataSource === SOURCE.tutors)
       toggleTutorIsMemberInSession(cell);
+  }
 
-    /* deprecated as it's handled by page refresh/redux
-    // toggle UI
-    const rowNode = cell.node;
-    rowNode.setDataValue('isIncluded', !cell.value);
-    */
+  function handleToggleIncludeMulti(cells) {
+    // handle backend call
+    if (tableDataSource === SOURCE.students)
+      toggleStudentIsMemberInGroupMulti(cells);
+
+    if (tableDataSource === SOURCE.groups)
+      toast.error('-- Limit of one group per session --');
+
+    if (tableDataSource === SOURCE.teachers)
+      toast.error('-- Multiple teachers cannot be added --');
+
+    if (tableDataSource === SOURCE.tutors)
+      toast.error('-- Multiple tutors cannot be added --');
   }
 
   /**
@@ -264,9 +295,36 @@ function ManageMembersModal({
   }
 
   function selectAllFiltered() {
+    const nodeRows = [];
     gridApi.forEachNodeAfterFilter((node, index) => {
       console.log('filtered row', { node, index });
+      nodeRows.push(node);
     });
+    handleToggleIncludeMulti(nodeRows);
+  }
+
+  function handleSelectRange() {
+    setRangeModalOpen(true);
+  }
+
+  function selectRange(form) {
+    // parse and validate
+    if (!form.first || !form.last)
+      toast.error('-- Invalid Range: both must be specified --');
+    const first = parseInt(form.first, 10);
+    const last = parseInt(form.last, 10);
+    if (first >= last)
+      toast.error('-- Invalid Range: first must be greater --');
+    // execute logic
+    setRangeModalOpen(false);
+    const nodeRows = [];
+    gridApi.forEachNodeAfterFilter((node, index) => {
+      if (index >= first && index <= last) {
+        console.log('filtered row', { node, index });
+        nodeRows.push(node);
+      }
+    });
+    handleToggleIncludeMulti(nodeRows);
   }
 
   const buttonGroups = (membersOf === 'Group') ? [[{
@@ -305,6 +363,12 @@ function ManageMembersModal({
               >
                 Select All Visible
               </Button>
+              <Button
+                style={{ float: 'right' }}
+                onClick={handleSelectRange}
+              >
+                Select Range
+              </Button>
             </div>
           )}
 
@@ -336,6 +400,29 @@ function ManageMembersModal({
       <Modal.Footer>
         <Button color="secondary" onClick={close}>Close</Button>
       </Modal.Footer>
+      <EditModal
+        onSubmit={selectRange}
+        isOpen={isRangeModalOpen}
+        toggleOpen={toggleRangeModal}
+        header="Select Range of Rows"
+        // infoText={'Start and end value'}
+        form={[
+          {
+            name: 'first',
+            label: 'First row to select',
+            type: 'number',
+            bsClass: 'form-control',
+            placeholder: '3',
+          },
+          {
+            name: 'last',
+            label: 'Last row to select',
+            type: 'number',
+            bsClass: 'form-control',
+            placeholder: '8',
+          },
+        ]}
+      />
     </Modal>
   );
 }
