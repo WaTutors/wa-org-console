@@ -36,19 +36,22 @@ function ProviderList({
   let form = [{
     name: 'phone',
     label: 'Phone Number',
+    csvlabel: 'Phone Number',
     type: 'tel',
     bsClass: 'form-control',
     placeholder: '503 123 1234',
   }, {
-    name: 'labels',
-    label: 'Private Labels (period seperated)',
-    type: 'string',
-    placeholder: 'Grade 4. Reading. Yakima',
-  }, {
     name: 'name',
+    csvlabel: 'Full Name',
     label: 'User Full Name',
     type: 'string',
     placeholder: 'Robert Lewandowski',
+  }, {
+    name: 'labels',
+    csvlabel: 'Additional Labels',
+    label: 'Private Labels (period seperated)',
+    type: 'string',
+    placeholder: 'Grade 4. Reading. Yakima',
   }];
 
   if (providerProps)
@@ -57,6 +60,7 @@ function ProviderList({
         form.push({
           name: key,
           label: key,
+          csvlabel: key,
           componentClass: 'select',
           placeholder: 'select',
           options: value && value.map((item) => ({ value: item, label: item })),
@@ -65,11 +69,15 @@ function ProviderList({
         form.push({
           name: key,
           label: key,
+          csvlabel: key,
           checkboxes: true,
           options: value && value.map((item) => ({ value: item, label: item })),
         });
       }
     });
+
+  const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
+  const encodedUri = encodeURI(csvContent);
 
   return (
     <TemplateList
@@ -80,6 +88,7 @@ function ProviderList({
       addData={addData}
       removeRow={removeData}
       columnDefs={columnDefs}
+      downloadName="provider_template.csv"
       rowData={rowData}
       /* example rowData
         {invite: true,name: 'Tom Ng',phone: '+1 59333384448',completedSessions: 1,
@@ -93,13 +102,15 @@ function ProviderList({
           .slice(1) // remove header
           .map((row) => {
             const arr = row.split(',');
+            const allLabels = arr.slice(2).join('.');
             return {
               phone: arr[0],
-              labels: arr[1],
+              name: arr[1],
+              labels: allLabels,
             };
           });
       }}
-      exampleFilePath="https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Forg_example_csvs%2Ftutors.csv?alt=media&token=5b55d6a4-ae48-461b-8ae9-ea43970f25a5"
+      exampleFilePath={encodedUri}
     />
   );
 }

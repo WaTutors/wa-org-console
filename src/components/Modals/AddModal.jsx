@@ -16,6 +16,7 @@ AddModal.propTypes = {
   infoText: PropTypes.string,
   onSubmit: PropTypes.func,
   processFile: PropTypes.func,
+  downloadName: PropTypes.string,
   hideFile: PropTypes.bool,
   exampleFilePath: PropTypes.oneOf(PropTypes.string, PropTypes.bool),
   onChangeSetFieldInvisibility: PropTypes.func,
@@ -35,6 +36,7 @@ AddModal.defaultProps = {
   onChangeSetFieldInvisibility: () => [],
   children: null,
   passInputData: null,
+  downloadName: 'template.csv',
 };
 
 const BODY_TYPES = { form: 'form', file: 'file' };
@@ -48,6 +50,7 @@ function AddModal({
   toggleOpen,
   hideFile,
   processFile,
+  downloadName,
   exampleFilePath,
   onChangeSetFieldInvisibility,
   children,
@@ -155,6 +158,7 @@ function AddModal({
           color="success"
           style={{ float: 'left' }}
           href={exampleFilePath}
+          download={downloadName}
         >
           Example File
         </Button>

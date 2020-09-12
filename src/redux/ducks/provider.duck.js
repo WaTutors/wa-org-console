@@ -145,8 +145,6 @@ export function inviteProvidersThunk(payload) {
         }
       });
     });
-    console.log('ldld')
-    console.log(postedLabels)
 
     // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
     // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats

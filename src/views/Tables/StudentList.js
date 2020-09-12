@@ -21,20 +21,23 @@ function StudentList({
 
   let form = [{
     name: 'phone',
+    csvlabel: 'Phone Number',
     label: 'Phone Number',
     type: 'tel',
     bsClass: 'form-control',
     placeholder: '503 123 1234',
   }, {
-    name: 'labels',
-    label: 'Private Labels (period seperated)',
-    type: 'string',
-    placeholder: 'Grade 4. Reading. Yakima',
-  }, {
     name: 'name',
+    csvlabel: 'Full Name',
     label: 'User Full Name',
     type: 'string',
     placeholder: 'Robert Lewandowski',
+  }, {
+    name: 'labels',
+    csvlabel: 'Additional Labels',
+    label: 'Private Labels (period seperated)',
+    type: 'string',
+    placeholder: 'Grade 4. Reading. Yakima',
   }];
 
   if (consumerProps)
@@ -49,6 +52,7 @@ function StudentList({
           form.push({
             name: key,
             label: key,
+            csvlabel: key,
             multi: true,
             componentClass: 'select',
             placeholder: 'select',
@@ -58,12 +62,16 @@ function StudentList({
           form.push({
             name: key,
             label: key,
+            csvlabel: key,
             checkboxes: true,
             options: value && value.map((item) => ({ value: item, label: allCapsToText([item]) })),
           });
         }
       }
     });
+
+  const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
+  const encodedUri = encodeURI(csvContent);
 
   return (
     <TemplateList
@@ -76,20 +84,22 @@ function StudentList({
       columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
       rowData={rowData}
       addForm={form}
+      downloadName="student_template.csv"
       processFile={(raw) => {
         const rows = raw.split('\n');
         return rows
           .slice(1) // remove header
           .map((row) => {
             const arr = row.split(',');
+            const allLabels = arr.slice(2).join('.');
             return {
               phone: arr[0],
-              labels: arr[1],
-              name: arr[2],
+              name: arr[1],
+              labels: allLabels,
             };
           });
       }}
-      exampleFilePath="https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Forg_example_csvs%2Fstudents.csv?alt=media&token=2e173dd2-4ad7-4591-b9f6-9ab031e99824"
+      exampleFilePath={encodedUri}
     />
   );
 }
