@@ -39,6 +39,11 @@ function StudentList({
         label: 'Private Labels (period seperated)',
         type: 'string',
         placeholder: 'Grade 4. Reading. Yakima',
+      }, {
+        name: 'name',
+        label: 'User Full Name',
+        type: 'string',
+        placeholder: 'Robert Lewandowski',
       }]}
       processFile={(raw) => {
         const rows = raw.split('\n');
@@ -49,6 +54,7 @@ function StudentList({
             return {
               phone: arr[0],
               labels: arr[1],
+              name: arr[2],
             };
           });
       }}

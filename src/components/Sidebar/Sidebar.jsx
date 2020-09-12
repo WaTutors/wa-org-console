@@ -136,7 +136,7 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = ({ userReducer }) => ({
-  orgState: userReducer.org,
+  orgState: userReducer.name,
 });
 
 export default connect(mapStateToProps, null)(Sidebar);

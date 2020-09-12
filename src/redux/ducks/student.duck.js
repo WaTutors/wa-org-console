@@ -121,9 +121,16 @@ export function inviteStudentsThunk(payload) {
     const { uid } = firebaseAuthService.getUser(true);
 
     const postedLabels = newStudents[0].labels
-      ? newStudents.map((student) => student.labels.split('.')
+      ? newStudents.map((student) => student.labels
+        .split('.')
         .map((str) => str.trim())
         .filter((str) => str.length > 0)) : [];
+
+    // TODO fold into Louis' solution
+    newStudents.forEach((student, i) => {
+      const nameLabel = `NAME_${student.name}`;
+      postedLabels[i].push(nameLabel);
+    });
 
     // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
     // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
