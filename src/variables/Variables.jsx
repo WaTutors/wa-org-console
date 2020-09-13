@@ -503,19 +503,19 @@ const legendPie = {
 // Data for Line Chart
 const dataSales = {
   labels: [
-    '9:00AM',
-    '12:00AM',
-    '3:00PM',
-    '6:00PM',
-    '9:00PM',
-    '12:00PM',
-    '3:00AM',
-    '6:00AM',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+    'Monday',
   ],
   series: [
-    [287, 385, 490, 492, 554, 586, 698, 695],
-    [67, 152, 143, 240, 287, 335, 435, 437],
-    [23, 113, 67, 108, 190, 239, 307, 308],
+    [157, 204, 260, 325, 340, 211, 143, 312],
+    [132, 147, 143, 240, 140, 75, 35, 237],
+    [23, 63, 107, 140, 190, 239, 207, 108],
   ],
 };
 const optionsSales = {

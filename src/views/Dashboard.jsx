@@ -132,7 +132,7 @@ function Dashboard({ props, alias }) {
           statsIcon="fa fa-history"
           id="chartHours"
           title="Activity"
-          category="Last 24 Hours (Mockup)"
+          category="Last Week (Mockup)"
           statsIconText={databaseUpdateString}
           content={(
             <div className="ct-chart">

@@ -160,7 +160,7 @@ function AddModal({
           href={exampleFilePath}
           download={downloadName}
         >
-          Example File
+          Download Template
         </Button>
         )}
         <Button color="primary" onClick={handleConfirm}>Continue</Button>
