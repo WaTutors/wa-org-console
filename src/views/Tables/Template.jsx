@@ -35,6 +35,7 @@ TemplateList.propTypes = {
   )),
   manageMembersFor: PropTypes.oneOf(['Session', 'Group']),
   exampleFilePath: PropTypes.string,
+  downloadName: PropTypes.string,
   formOnChangeSetFieldInvisibility: PropTypes.func,
 };
 
@@ -51,6 +52,7 @@ TemplateList.defaultProps = {
   }],
   hideAddFile: false,
   addInfo: 'Submitted profiles will be sent an invitation',
+  downloadName: 'template.csv',
   buttonBarExt: [],
   manageMembersFor: 'Session',
   exampleFilePath: false,
@@ -59,7 +61,7 @@ TemplateList.defaultProps = {
 
 function TemplateList({
   props, listName, columnDefs, rowData, isLoading, addInfo,
-  addForm, hideAddFile, buttonBarExt, manageMembersFor, exampleFilePath, // vars
+  addForm, hideAddFile, buttonBarExt, manageMembersFor, exampleFilePath, downloadName, // vars
   getData, addData, removeRow, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
   addChildren, passInputData, // custom AddModal children
@@ -230,6 +232,7 @@ function TemplateList({
         onChangeSetFieldInvisibility={formOnChangeSetFieldInvisibility}
         hideFile={hideAddFile}
         processFile={processFile}
+        downloadName={downloadName}
         exampleFilePath={exampleFilePath}
         passInputData={passInputData}
       >

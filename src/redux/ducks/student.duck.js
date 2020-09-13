@@ -121,26 +121,42 @@ export function inviteStudentsThunk(payload) {
     const { uid } = firebaseAuthService.getUser(true);
 
     const postedLabels = newStudents[0].labels
-      ? newStudents.map((student) => student.labels.split('.')
+      ? newStudents.map((student) => student.labels
+        .split('.')
         .map((str) => str.trim())
-        .filter((str) => str.length > 0)) : [];
+        .filter((str) => str.length > 0)) : [[]];
 
-    //regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    //only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
+    newStudents.forEach((student, i) => {
+      const nameLabel = `NAME_${student.name}`;
+      postedLabels[i].push(nameLabel);
+      Object.entries(student).forEach(([key, val]) => {
+        if (!['phone', 'labels'].includes(key)) {
+          if (val === true) {
+            postedLabels[i].push(key);
+          }
+          if (Array.isArray(val)) {
+            val.map((v) => postedLabels[i].push(v.value));
+          }
+        }
+      });
+    });
+
+    // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
+    // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
     const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-    
+
     if (newStudents.map((student) => {
-      //check if phone # matches 
-      if (student.phone){
-        //needed in case of null
-        return student.phone.match(phoneno) ? true : false
-      }
-      return false
-      //period split labels are free form, no need to validate
-    }).includes(false)){
-      toast.error("-- Invalid phone number --")
-      dispatch(addStudentsFailure("-- Invalid phone number --"));
-      return false
+      // check if phone # matches
+      if (student.phone)
+        // needed in case of null
+        return !!student.phone.match(phoneno);
+
+      return false;
+      // period split labels are free form, no need to validate
+    }).includes(false)) {
+      toast.error('-- Invalid phone number --');
+      dispatch(addStudentsFailure('-- Invalid phone number --'));
+      return false;
     }
 
     return apiFetch({

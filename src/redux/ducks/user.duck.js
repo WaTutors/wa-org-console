@@ -32,7 +32,7 @@ export default function userReducer(
         ...state,
         loading: true,
       };
-    case GET_ORG_SUMMARY_SUCCESS: // requires data to be refreshed
+    case GET_ORG_SUMMARY_SUCCESS:
       return {
         ...state,
         loading: false,
