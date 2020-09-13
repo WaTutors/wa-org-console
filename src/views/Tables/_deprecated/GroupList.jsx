@@ -117,8 +117,7 @@ function GroupList() {
         form={[
           {
             name: 'phone',
-            label: 'Phone Number',
-            type: 'tel',
+            label: 'Contact (Phone or Email)',
             bsClass: 'form-control',
             placeholder: '503 123 1234',
           },

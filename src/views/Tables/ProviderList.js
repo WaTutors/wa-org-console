@@ -33,47 +33,48 @@ function ProviderList({
     return generateProviderMainAgGridColumns(['ratingCount', 'phone'], providerProps);
   }, [isMD]);
 
-  let form = [{
+  const form = [{
     name: 'phone',
-    label: 'Phone Number',
-    csvlabel: 'Phone Number',
-    type: 'tel',
+    csvlabel: 'Contact (Phone or Email)',
+    label: 'Contact (Phone or Email)',
     bsClass: 'form-control',
     placeholder: '503 123 1234',
-  }, {
-    name: 'name',
-    csvlabel: 'Full Name',
-    label: 'User Full Name',
-    type: 'string',
-    placeholder: 'Robert Lewandowski',
-  }, {
+  }, /* {
     name: 'labels',
     csvlabel: 'Additional Labels',
     label: 'Private Labels (period seperated)',
     type: 'string',
     placeholder: 'Grade 4. Reading. Yakima',
-  }];
+  } */];
 
   if (providerProps)
     Object.entries(providerProps).forEach(([key, value]) => {
-      if (value.length > 5) {
+      if (Array.isArray(value))
+        if (value.length > 5)
+          form.push({
+            name: key,
+            label: key,
+            csvlabel: key,
+            componentClass: 'select',
+            placeholder: 'select',
+            options: value && value.map((item) => ({ value: item, label: item })),
+          });
+        else
+          form.push({
+            name: key,
+            label: key,
+            csvlabel: key,
+            checkboxes: true,
+            options: value && value.map((item) => ({ value: item, label: item })),
+          });
+      else if (value === 'TEXT')
         form.push({
           name: key,
           label: key,
           csvlabel: key,
-          componentClass: 'select',
-          placeholder: 'select',
-          options: value && value.map((item) => ({ value: item, label: item })),
+          type: 'string',
+          placeholder: 'Text here',
         });
-      } else {
-        form.push({
-          name: key,
-          label: key,
-          csvlabel: key,
-          checkboxes: true,
-          options: value && value.map((item) => ({ value: item, label: item })),
-        });
-      }
     });
 
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
@@ -98,16 +99,17 @@ function ProviderList({
       addForm={form}
       processFile={(raw) => {
         const rows = raw.split('\n');
-        return rows
+        const validRows = rows.filter((row) => row !== '');
+        return validRows
           .slice(1) // remove header
           .map((row) => {
             const arr = row.split(',');
-            const allLabels = arr.slice(2).join('.');
-            return {
-              phone: arr[0],
-              name: arr[1],
-              labels: allLabels,
-            };
+            const csvCols = form.map((item) => item.name);
+            // console.log('provider processFile', { csvCols, arr });
+            return csvCols
+              .reduce((obj, key, i) => ( //
+                { ...obj, [key]: arr[i] }
+              ), {});
           });
       }}
       exampleFilePath={encodedUri}
@@ -127,7 +129,7 @@ ProviderList.propTypes = {
 
 const mapStateToProps = ({ userReducer, providersReducer }) => ({
   orgState: userReducer.org,
-  orgReservedProps: userReducer.reservedProperties,
+  orgReservedProps: userReducer.reservedLabels,
   loading: providersReducer.loading,
   dataList: providersReducer.list,
 });

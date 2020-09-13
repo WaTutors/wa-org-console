@@ -125,42 +125,38 @@ export function inviteProvidersThunk(payload) {
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
 
-    const postedLabels = newProviders[0].labels
-      ? newProviders.map((provider) => provider.labels
-        .split('.')
-        .map((str) => str.trim())
-        .filter((str) => str.length > 0)) : [[]];
+    const postedLabels = newProviders.map((_) => []);
 
     newProviders.forEach((provider, i) => {
-      const nameLabel = `NAME_${provider.name}`;
-      postedLabels[i].push(nameLabel);
       Object.entries(provider).forEach(([key, val]) => {
         if (!['phone', 'labels'].includes(key)) {
-          if (val === true) {
+          if (val === true) // parse checkbox UI
             postedLabels[i].push(key);
-          }
-          if (Array.isArray(val)) {
+          if (Array.isArray(val)) // for select UI
             val.map((v) => postedLabels[i].push(v.value));
-          }
+          if (typeof val === 'string')
+            postedLabels[i].push(`${key}_${val}`);
         }
       });
     });
 
-    // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
-    const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+    // regex used to validate contact
+    // phone from https://www.w3resource.com/javascript/form/phone-no-validation.php
+    // email from https://stackoverflow.com/a/1373724
+    const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/; // 222-055-9034, 321.789.4512 or 123 256 4587 formats
+    const emailadd = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
     if (newProviders.map((provider) => {
-      //check if phone # matches 
-      if (provider.phone) {
-        return provider.phone.match(phoneno) ? true : false;
-      }
+      // validate phone field (could also be email)
+      if (provider.phone)
+        return !!provider.phone.match(phoneno) || !!provider.phone.match(emailadd);
+
       return false;
-      //period split labels are free form, no need to validate
-      //checkboxes can be empty, true, or false, no need to validate
+      // period split labels are free form, no need to validate
+      // checkboxes can be empty, true, or false, no need to validate
     }).includes(false)) {
-      toast.error('-- Invalid phone number --');
-      dispatch(addProvidersFailure('-- Invalid phone number --'));
+      toast.error('-- Invalid phone number or email --');
+      dispatch(addProvidersFailure('-- Invalid phone number or email --'));
       return false;
     }
 

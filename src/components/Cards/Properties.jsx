@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Col } from 'react-bootstrap';
 
@@ -10,7 +11,15 @@ import Properties from 'components/Lists/Properties';
 PropertiesCard.defaultProps = {
   alias: {
     property: 'Property',
+    properties: 'Properties',
   },
+  properties: [],
+};
+
+PropertiesCard.propTypes = {
+  alias: PropTypes.objectOf(PropTypes.string),
+  setProperties: PropTypes.func.isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string),
 };
 
 function PropertiesCard({ setProperties, properties, alias }) {
@@ -29,10 +38,10 @@ function PropertiesCard({ setProperties, properties, alias }) {
       isOpen={isAddOpen}
       toggleOpen={toggleAddOpen}
       processFile={(raw) => ({ property: raw.split(',') })}
-      header={`Add ${alias.property} to Organization`}
+      header={`Add ${alias.properties} to Organization`}
       infoText={`
-      ${alias.property} are central to providing context to the platform.
-      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
+      ${alias.properties} are central to providing context to the platform.
+      Groups, sessions, and providers can be labeled with ${alias.properties.toLowerCase()}.
       For example a ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
       A session with "Spanish 1" will be between users learning beginning spanish.
       `}
@@ -52,7 +61,7 @@ function PropertiesCard({ setProperties, properties, alias }) {
     <Col md={6}>
       <Card
         title={`${alias.property}`}
-        category={`Active ${alias.property.toLowerCase()} for your organization for sessions and groups`}
+        category={`Active ${alias.properties.toLowerCase()} in your organization for sessions and groups`}
         stats="Updated now"
         statsIcon="fa fa-history"
         button={{

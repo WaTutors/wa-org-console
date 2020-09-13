@@ -19,35 +19,25 @@ function StudentList({
     .map((item) => mapStudentMainAgGridRows(item, orgState, consumerProps)),
   [dataList]);
 
-  let form = [{
+  const form = [{
     name: 'phone',
-    csvlabel: 'Phone Number',
-    label: 'Phone Number',
+    csvlabel: 'Contact (Phone or Email)',
+    label: 'Contact (Phone or Email)',
     type: 'tel',
     bsClass: 'form-control',
     placeholder: '503 123 1234',
-  }, {
-    name: 'name',
-    csvlabel: 'Full Name',
-    label: 'User Full Name',
-    type: 'string',
-    placeholder: 'Robert Lewandowski',
-  }, {
+  }, /* {
     name: 'labels',
     csvlabel: 'Additional Labels',
     label: 'Private Labels (period seperated)',
     type: 'string',
     placeholder: 'Grade 4. Reading. Yakima',
-  }];
+  } */ ];
+  // console.log('studentlist props', { consumerProps });
 
   if (consumerProps)
     Object.entries(consumerProps).sort().forEach(([key, value]) => {
-      // value.push("t1")
-      // value.push("t2")
-      // value.push("t3")
-      // value.push("t4")
-      // value.push("t5")
-      if (Array.isArray(value)) {
+      if (Array.isArray(value))
         if (value.length > 5) {
           form.push({
             name: key,
@@ -67,7 +57,14 @@ function StudentList({
             options: value && value.map((item) => ({ value: item, label: allCapsToText([item]) })),
           });
         }
-      }
+      else if (value === 'TEXT')
+        form.push({
+          name: key,
+          label: key,
+          csvlabel: key,
+          type: 'string',
+          placeholder: 'Text here',
+        });
     });
 
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
@@ -87,16 +84,17 @@ function StudentList({
       downloadName="student_template.csv"
       processFile={(raw) => {
         const rows = raw.split('\n');
-        return rows
+        const validRows = rows.filter((row) => row !== '');
+        return validRows
           .slice(1) // remove header
           .map((row) => {
             const arr = row.split(',');
-            const allLabels = arr.slice(2).join('.');
-            return {
-              phone: arr[0],
-              name: arr[1],
-              labels: allLabels,
-            };
+            const csvCols = form.map((item) => item.name);
+            // console.log('provider processFile', { csvCols, arr });
+            return csvCols
+              .reduce((obj, key, i) => ( //
+                { ...obj, [key]: arr[i] }
+              ), {});
           });
       }}
       exampleFilePath={encodedUri}
@@ -111,14 +109,14 @@ StudentList.propTypes = {
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
-  orgReservedProps: PropTypes.array.isRequired,
+  orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 const mapStateToProps = ({ userReducer, studentsReducer }) => ({
   orgState: userReducer.org,
   loading: studentsReducer.loading,
   dataList: studentsReducer.list,
-  orgReservedProps: userReducer.reservedProperties,
+  orgReservedProps: userReducer.reservedLabels,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getStudentsThunk()),

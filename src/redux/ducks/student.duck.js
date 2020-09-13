@@ -116,74 +116,73 @@ export function getStudentsThunk() {
 export function inviteStudentsThunk(payload) {
   return async (dispatch, getState) => {
     dispatch(addStudentsBegin());
-    const newStudents = Array.isArray(payload) ? payload : [payload];
-    const { org } = getState().userReducer;
-    const { uid } = firebaseAuthService.getUser(true);
+    try {
+      const newStudents = Array.isArray(payload) ? payload : [payload];
+      const { org } = getState().userReducer;
+      const { uid } = firebaseAuthService.getUser(true);
 
-    const postedLabels = newStudents[0].labels
-      ? newStudents.map((student) => student.labels
-        .split('.')
-        .map((str) => str.trim())
-        .filter((str) => str.length > 0)) : [[]];
+      const postedLabels = newStudents.map((_) => []);
 
-    newStudents.forEach((student, i) => {
-      const nameLabel = `NAME_${student.name}`;
-      postedLabels[i].push(nameLabel);
-      Object.entries(student).forEach(([key, val]) => {
-        if (!['phone', 'labels'].includes(key)) {
-          if (val === true) {
-            postedLabels[i].push(key);
+      newStudents.forEach((student, i) => {
+        Object.entries(student).forEach(([key, val]) => {
+          if (!['phone', 'labels'].includes(key)) {
+            if (val === true) // parse checkbox UI
+              postedLabels[i].push(key);
+            if (Array.isArray(val)) // for select UI
+              val.map((v) => postedLabels[i].push(v.value));
+            if (typeof val === 'string')
+              postedLabels[i].push(`${key}_${val}`);
           }
-          if (Array.isArray(val)) {
-            val.map((v) => postedLabels[i].push(v.value));
-          }
-        }
+        });
       });
-    });
 
-    // regex from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    // only expecting numbers in 222-055-9034, 321.789.4512 or 123 256 4587 formats
-    const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+      // regex used to validate contact
+      // phone from https://www.w3resource.com/javascript/form/phone-no-validation.php
+      // email from https://stackoverflow.com/a/1373724
+      const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/; // 222-055-9034, 321.789.4512 or 123 256 4587 formats
+      const emailadd = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
-    if (newStudents.map((student) => {
-      // check if phone # matches
-      if (student.phone)
-        // needed in case of null
-        return !!student.phone.match(phoneno);
+      if (newStudents.map((student) => {
+      // validate phone field (could also be email)
+        if (student.phone)
+          return !!student.phone.match(phoneno) || !!student.phone.match(emailadd);
 
-      return false;
+        return false;
       // period split labels are free form, no need to validate
-    }).includes(false)) {
-      toast.error('-- Invalid phone number --');
-      dispatch(addStudentsFailure('-- Invalid phone number --'));
-      return false;
-    }
+      }).includes(false)) {
+        toast.error('-- Invalid phone number --');
+        dispatch(addStudentsFailure('-- Invalid phone number --'));
+        return false;
+      }
 
-    return apiFetch({
-      method: 'POST',
-      endpoint: '/admin/org/invitations',
-      body: {
-        type: 'org',
-        sender: uid,
-        itemId: org,
-        invitees: newStudents.map((item) => item.phone),
-        labels: postedLabels,
-        profileType: 'consumer',
+      return apiFetch({
+        method: 'POST',
+        endpoint: '/admin/org/invitations',
+        body: {
+          type: 'org',
+          sender: uid,
+          itemId: org,
+          invitees: newStudents.map((item) => item.phone),
+          labels: postedLabels,
+          profileType: 'consumer',
         // inviteMsg, // optional
-      },
-    })
-      .then((response) => {
-        const newStudentObjs = newStudents.map((item, i) => ({
-          to: item.phone,
-          labels: postedLabels[i],
-          iid: response.iids[i].iid,
-        }));
-        dispatch(addStudentsSuccess(newStudentObjs));
+        },
       })
-      .catch((error) => {
-        console.error('addStudents');
-        dispatch(addStudentsFailure(error.message));
-      });
+        .then((response) => {
+          const newStudentObjs = newStudents.map((item, i) => ({
+            to: item.phone,
+            labels: postedLabels[i],
+            iid: response.iids[i].iid,
+          }));
+          dispatch(addStudentsSuccess(newStudentObjs));
+        })
+        .catch((error) => {
+          console.error('addStudents');
+          dispatch(addStudentsFailure(error.message));
+        });
+    } catch (error) {
+      console.log('DANICCCCAA', error);
+    }
   };
 }
 

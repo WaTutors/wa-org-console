@@ -10,15 +10,13 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
     headerName: 'Invite', field: 'invite', flex: 0.5,
   }, {
     headerName: 'Preferred Name', field: 'name',
-  }, {
-    headerName: 'Full Name', field: 'nickname',
   },
   ...(reserved && reservedLabels ? reserved : []),
   {
-    headerName: 'Phone Number', field: 'phone',
-  }, {
+    headerName: 'Contact', field: 'phone',
+  }, /* {
     headerName: 'Labels', field: 'labels', flex: 1.25,
-  }, {
+  }, */ {
     headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
   }].filter((colObj) => {
     if (columnsToHide)
@@ -142,18 +140,23 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
   });
 };
 
-const generateStudentMembersAgGridColumns = () => [{
-  headerName: 'Preferred Name', field: 'name',
-}, {
-  headerName: 'Full Name', field: 'nickname',
-}, {
-  headerName: 'Phone Number', field: 'phone',
-}, {
-  headerName: 'Labels', field: 'labels', flex: 1.25,
-}, {
-  headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
-}];
+const generateStudentMembersAgGridColumns = (columnsToHide, reservedLabels) => {
+  let reserved = {};
+  if (reservedLabels && Object.keys(reservedLabels).length > 0)
+    reserved = Object.keys(reservedLabels).map((p) => ({
+      headerName: p, field: p,
+    }));
 
+  return [{
+    headerName: 'Preferred Name', field: 'name',
+  }, {
+    headerName: 'Contact', field: 'phone',
+  },
+  ...(reserved && reservedLabels ? reserved : []),
+  {
+    headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
+  }];
+};
 /**
  * parses database consumer object into something to be displayed for
  * the members list grid

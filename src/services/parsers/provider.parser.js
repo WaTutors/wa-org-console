@@ -1,8 +1,8 @@
 /* eslint-disable no-nested-ternary */
-const generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) => {
+const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
-  if (reservedProperties && Object.keys(reservedProperties).length > 0)
-    reserved = Object.keys(reservedProperties).map((p) => ({
+  if (reservedLabels && Object.keys(reservedLabels).length > 0)
+    reserved = Object.keys(reservedLabels).map((p) => ({
       headerName: p, field: p,
     }));
 
@@ -10,14 +10,12 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedProperties) =>
     headerName: 'Invite', field: 'invite', flex: 0.5,
   }, {
     headerName: 'Preferred Name', field: 'name',
-  }, {
-    headerName: 'Full Name', field: 'nickname',
   },
-  ...(reserved && reservedProperties ? reserved : []),
-  {
+  ...(reserved && reservedLabels ? reserved : []),
+  /* {
     headerName: 'Labels', field: 'labels', flex: 1.25,
-  }, {
-    headerName: 'Phone Number', field: 'phone',
+  }, */ {
+    headerName: 'Contact', field: 'phone',
   }, {
     headerName: 'Rating', field: 'rating', flex: 0.75, filter: 'agNumberColumnFilter',
   }, {
@@ -109,7 +107,7 @@ function parseLabels(item, orgState, capsreduced, fieldName = 'NAME') {
  *
  * @param {object} item session object
  * @param {string} orgState name of organization
- * @param {object} reservedProperties the reserved properties in the organization
+ * @param {object} reservedLabels the reserved properties in the organization
  * @returns {object}
  */
 const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
@@ -127,7 +125,7 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`)) || ''),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${p}_${r}`)) || ''),
         };
       console.error(`In mapProviderMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other
@@ -152,23 +150,27 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
     pid: item.pid,
   });
 };
+const generateProviderMembersAgGridColumns = (columnsToHide, reservedLabels) => {
+  let reserved = {};
+  if (reservedLabels && Object.keys(reservedLabels).length > 0)
+    reserved = Object.keys(reservedLabels).map((p) => ({
+      headerName: p, field: p,
+    }));
 
-const generateProviderMembersAgGridColumns = () => [{
-  headerName: 'Preferred Name', field: 'name',
-}, {
-  headerName: 'Full Name', field: 'nickname',
-}, {
-  headerName: 'Role', field: 'instructorType',
-}, {
-  headerName: 'Labels', field: 'labels', flex: 1.25,
-}, {
-  headerName: 'Rating', field: 'rating', flex: 0.75, filter: 'agNumberColumnFilter',
-}, {
-  headerName: 'Subjects', field: 'properties', sortable: true, flex: 1.25,
-}, {
-  headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
-}];
-
+  return [{
+    headerName: 'Preferred Name', field: 'name',
+  }, {
+    headerName: 'Full Name', field: 'nickname',
+  },
+  ...(reserved && reservedLabels ? reserved : []),
+  {
+    headerName: 'Rating', field: 'rating', flex: 0.75, filter: 'agNumberColumnFilter',
+  }, {
+    headerName: 'Subjects', field: 'properties', sortable: true, flex: 1.25,
+  }, {
+    headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
+  }];
+};
 /**
  * parses database Group object into something to be displayed for
  * the members list grid

@@ -32,7 +32,7 @@ function StudentList(props) {
     }, {
       headerName: 'Name', field: 'name',
     }, {
-      headerName: 'Phone Number', field: 'phone',
+      headerName: 'Contact (Phone or Email)', field: 'phone',
     }, {
       headerName: '# Groups', field: 'groupNum', sortable: true, flex: 0.75,
     }, {
@@ -160,7 +160,7 @@ function StudentList(props) {
         form={[
           {
             name: 'phone',
-            label: 'Phone Number',
+            label: 'Contact (Phone or Email)',
             type: 'tel',
             bsClass: 'form-control',
             placeholder: '503 123 1234',

@@ -31,7 +31,7 @@ function ProviderList(props) {
     }, {
       headerName: 'Name', field: 'name',
     }, {
-      headerName: 'Phone Number', field: 'phone',
+      headerName: 'Contact (Phone or Email)', field: 'phone',
     }, {
       headerName: 'Complete Sessions', field: 'completedSessions', sortable: true, flex: 0.75, filter: 'agNumberColumnFilter',
     }, {
@@ -202,8 +202,7 @@ function ProviderList(props) {
         form={[
           {
             name: 'phone',
-            label: 'Phone Number',
-            type: 'tel',
+            label: 'Contact (Phone or Email)',
             bsClass: 'form-control',
             placeholder: '503 123 1234',
           },

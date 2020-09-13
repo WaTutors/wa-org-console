@@ -65,13 +65,7 @@ function GroupList({
         label: 'Group Description',
         type: 'text',
         placeholder: 'This group is for ...',
-      }, /* deprecated bc of user manager {
-        name: 'invitees',
-        label: 'Invite Users By Phone Number (period seperated)',
-        type: 'tel',
-        bsClass: 'form-control',
-        placeholder: '+1 5031231234.+1 2141291288',
-      } */]}
+      }]}
       processFile={(raw) => {
         console.log('process file', raw);
         const rows = raw.split('\n');

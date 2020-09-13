@@ -42,8 +42,11 @@ import {
 Dashboard.defaultProps = {
   alias: {
     property: 'Property',
+    properties: 'Properties',
     provider: 'Tutor',
+    providers: 'Tutors',
     consumer: 'Student',
+    consumers: 'Students',
   },
 };
 
@@ -86,7 +89,7 @@ function Dashboard({ props, alias }) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-server text-warning" />}
-          statsText={`${alias.provider}`}
+          statsText={`${alias.providers}`}
           statsValue="3"
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
@@ -95,7 +98,7 @@ function Dashboard({ props, alias }) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-wallet text-success" />}
-          statsText={`${alias.consumer}`}
+          statsText={`${alias.consumers}`}
           statsValue="10"
           statsIcon={<i className="fa fa-calendar-o" />}
           statsIconText={databaseUpdateString}
@@ -128,8 +131,8 @@ function Dashboard({ props, alias }) {
         <Card
           statsIcon="fa fa-history"
           id="chartHours"
-          title="Users Behavior (Mockup)"
-          category="Last 24 Hours"
+          title="Activity"
+          category="Last 24 Hours (Mockup)"
           statsIconText={databaseUpdateString}
           content={(
             <div className="ct-chart">
@@ -181,7 +184,7 @@ function Dashboard({ props, alias }) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType={`${alias.consumer}`}
+          searchType={`${alias.consumers}`}
           onSearch={onSearchStudent}
           cols={['col-xs-6', 'col-xs-6']}
           searchProperties={[
@@ -192,7 +195,7 @@ function Dashboard({ props, alias }) {
               bsClass: 'form-control',
               placeholder: 'Dave Franco',
             }, {
-              label: 'Phone Number',
+              label: 'Contact (Phone or Email)',
               name: 'phone',
               type: 'text',
               bsClass: 'form-control',
@@ -203,7 +206,7 @@ function Dashboard({ props, alias }) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType={`${alias.provider}`}
+          searchType={`${alias.providers}`}
           cols={['col-xs-6', 'col-xs-6']}
           onSearch={onSearchProvider}
           searchProperties={[
@@ -215,7 +218,7 @@ function Dashboard({ props, alias }) {
               placeholder: 'Username',
             },
             {
-              label: 'Phone Number',
+              label: 'Contact (Phone or Email)',
               type: 'phone',
               name: 'phone',
               bsClass: 'form-control',

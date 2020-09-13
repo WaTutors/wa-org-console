@@ -114,7 +114,7 @@ function SessionList() {
         form={[
           {
             name: 'phone',
-            label: 'Phone Number',
+            label: 'Contact (Phone or Email)',
             type: 'tel',
             bsClass: 'form-control',
             placeholder: '503 123 1234',

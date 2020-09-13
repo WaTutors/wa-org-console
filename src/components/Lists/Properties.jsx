@@ -6,19 +6,6 @@ import { getOrgSummaryThunk, setOrgSummaryPropertiesThunk } from 'redux/ducks/us
 import EditModal from 'components/Modals/EditModal';
 import Button from '../Buttons/CustomButton';
 
-Properties.propTypes = {
-  getData: PropTypes.func.isRequired,
-  setProperties: PropTypes.func.isRequired,
-  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
-  loading: PropTypes.bool.isRequired,
-  alias: PropTypes.object,
-};
-Properties.defaultProps = {
-  alias: {
-    property: 'Properties',
-  },
-};
-
 function Properties({
   setProperties, getData, // redux thunks
   properties, loading, alias, // redux vars
@@ -98,10 +85,10 @@ function Properties({
         toggleOpen={toggleEditOpen}
         header={`Edit ${alias.property}`}
         infoText={`
-      ${alias.property} are central to providing context to the platform.
-      Groups, sessions, and providers operate with ${alias.property.toLowerCase()}.
-      For example, ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
-      A session with "Spanish 2" will be between users learning beginning spanish.
+        ${alias.properties} are central to providing context to the platform.
+        Groups, sessions, and providers can be labeled with ${alias.properties.toLowerCase()}.
+        For example a ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
+        A session with "Spanish 2" will be between users learning beginning spanish.
       `}
         form={[
           {
@@ -117,6 +104,20 @@ function Properties({
     </tbody>
   );
 }
+
+Properties.propTypes = {
+  getData: PropTypes.func.isRequired,
+  setProperties: PropTypes.func.isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
+  loading: PropTypes.bool.isRequired,
+  alias: PropTypes.objectOf(PropTypes.string),
+};
+Properties.defaultProps = {
+  alias: {
+    property: 'Property',
+    properties: 'Properties',
+  },
+};
 
 const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,

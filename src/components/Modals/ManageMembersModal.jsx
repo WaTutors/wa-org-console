@@ -44,6 +44,7 @@ ManageMembersModal.propTypes = {
   getProviderData: PropTypes.func.isRequired,
   editMembersGroup: PropTypes.func.isRequired,
   editMembersSession: PropTypes.func.isRequired,
+  orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 ManageMembersModal.defaultProps = {
@@ -58,6 +59,7 @@ function ManageMembersModal({
   itemData, isLoading, studentList, groupList, providerList,
   getStudentData, getGroupData, getProviderData,
   editMembersGroup, editMembersSession,
+  orgReservedProps,
 }) {
   const [gridApi, setGridApi] = useState(null);
   const [membersOf, setMembersOf] = useState(defaultMembersOf);
@@ -95,14 +97,14 @@ function ManageMembersModal({
 
   const columnDefs = useMemo(() => {
     if (tableDataSource === SOURCE.students)
-      return generateStudentMembersAgGridColumns();
+      return generateStudentMembersAgGridColumns([], orgReservedProps.consumer || null);
     // else group columns
     if (tableDataSource === SOURCE.groups)
       return generateGroupMembersAgGridColumns();
     if (tableDataSource === SOURCE.teachers)
-      return generateProviderMembersAgGridColumns();
+      return generateProviderMembersAgGridColumns([], orgReservedProps.provider || null);
     if (tableDataSource === SOURCE.tutors)
-      return generateProviderMembersAgGridColumns();
+      return generateProviderMembersAgGridColumns([], orgReservedProps.provider || null);
     throw new Error(`ManageMembersModal modal tableDataSource not recognized: ${tableDataSource}`);
   }, [tableDataSource]);
 
@@ -436,6 +438,7 @@ const mapStateToProps = ({
   groupList: groupsReducer.list,
   isLoading: groupsReducer.loading || studentsReducer.loading
     || providersReducer.loading || sessionsReducer.loading,
+  orgReservedProps: userReducer.reservedLabels,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getGroupData: () => dispatch(getGroupsThunk()),
