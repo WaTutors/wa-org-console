@@ -163,6 +163,7 @@ function TemplateList({
       minWidth: 100,
       filter: true,
       flex: 1,
+      sortable: true,
       autoHeight: true,
     },
     defaultRowData: {

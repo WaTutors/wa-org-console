@@ -1,4 +1,6 @@
 /* eslint-disable no-nested-ternary */
+import { formatContactForUI } from 'services/formatContactInfo';
+
 const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
   if (reservedLabels && Object.keys(reservedLabels).length > 0)
@@ -113,22 +115,23 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`)) || ''),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`))),
         };
       console.error(`In mapStudentMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other
     });
-    console.log({ reserved });
     reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {});
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
   }
-  console.log('student caps', { capsreduced });
+
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: item.profile && typeof item.phone === 'string' ? item.phone : item.to,
+    phone: formatContactForUI(
+      item.profile && typeof item.phone === 'string' ? item.phone : item.to,
+    ),
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
     ...reduced,
@@ -173,6 +176,9 @@ const generateStudentMembersAgGridColumns = (columnsToHide, reservedLabels) => {
 const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   invite: item.profile ? 'Accepted' : 'Sent',
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
+  phone: formatContactForUI(
+    item.profile && typeof item.phone === 'string' ? item.phone : item.to,
+  ),
   labels: item.profile
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState)

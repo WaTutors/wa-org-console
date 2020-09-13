@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
+import { formatContactForDb } from 'services/formatContactInfo';
 import firebaseAuthService from 'services/firebaseAuthService';
 import { toast } from 'react-toastify';
 
@@ -140,21 +141,9 @@ export function inviteProvidersThunk(payload) {
       });
     });
 
-    // regex used to validate contact
-    // phone from https://www.w3resource.com/javascript/form/phone-no-validation.php
-    // email from https://stackoverflow.com/a/1373724
-    const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/; // 222-055-9034, 321.789.4512 or 123 256 4587 formats
-    const emailadd = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-
-    if (newProviders.map((provider) => {
-      // validate phone field (could also be email)
-      if (provider.phone)
-        return !!provider.phone.match(phoneno) || !!provider.phone.match(emailadd);
-
-      return false;
-      // period split labels are free form, no need to validate
-      // checkboxes can be empty, true, or false, no need to validate
-    }).includes(false)) {
+    const contactInfoArr = newProviders
+      .map((provider) => formatContactForDb(provider.phone));
+    if (contactInfoArr.includes(false)) {
       toast.error('-- Invalid phone number or email --');
       dispatch(addProvidersFailure('-- Invalid phone number or email --'));
       return false;
@@ -167,7 +156,7 @@ export function inviteProvidersThunk(payload) {
         type: 'org',
         sender: uid,
         itemId: org,
-        invitees: newProviders.map((item) => item.phone),
+        invitees: contactInfoArr,
         labels: postedLabels,
         profileType: 'provider',
         // inviteMsg, // optional
@@ -175,7 +164,7 @@ export function inviteProvidersThunk(payload) {
     })
       .then((response) => {
         const newProviderObjs = newProviders.map((item, i) => ({
-          to: item.phone,
+          to: formatContactForDb(item.phone),
           labels: postedLabels[i],
           iid: response.iids[i].iid,
         }));

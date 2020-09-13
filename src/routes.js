@@ -71,13 +71,13 @@ const dashboardRoutes = [
     component: SessionList,
     layout: '/admin',
   },
-  {
+  /* {
     live: false,
     external: true,
     icon: 'pe-7s-piggy',
     name: 'Invoices',
     link: 'https://www.watutors.com',
-  },
+  }, */
   {
     path: '/dashboard',
     name: 'PREBUILT PAGES BELOW vvv',

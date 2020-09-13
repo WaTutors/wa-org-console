@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
+import { formatContactForDb } from 'services/formatContactInfo';
 import firebaseAuthService from 'services/firebaseAuthService';
 import { toast } from 'react-toastify';
 
@@ -136,22 +137,11 @@ export function inviteStudentsThunk(payload) {
         });
       });
 
-      // regex used to validate contact
-      // phone from https://www.w3resource.com/javascript/form/phone-no-validation.php
-      // email from https://stackoverflow.com/a/1373724
-      const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/; // 222-055-9034, 321.789.4512 or 123 256 4587 formats
-      const emailadd = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-
-      if (newStudents.map((student) => {
-      // validate phone field (could also be email)
-        if (student.phone)
-          return !!student.phone.match(phoneno) || !!student.phone.match(emailadd);
-
-        return false;
-      // period split labels are free form, no need to validate
-      }).includes(false)) {
-        toast.error('-- Invalid phone number --');
-        dispatch(addStudentsFailure('-- Invalid phone number --'));
+      const contactInfoArr = newStudents
+        .map((provider) => formatContactForDb(provider.phone));
+      if (contactInfoArr.includes(false)) {
+        toast.error('-- Invalid phone number or email --');
+        dispatch(addStudentsFailure('-- Invalid phone number or email --'));
         return false;
       }
 
@@ -162,7 +152,7 @@ export function inviteStudentsThunk(payload) {
           type: 'org',
           sender: uid,
           itemId: org,
-          invitees: newStudents.map((item) => item.phone),
+          invitees: contactInfoArr,
           labels: postedLabels,
           profileType: 'consumer',
         // inviteMsg, // optional
@@ -170,7 +160,7 @@ export function inviteStudentsThunk(payload) {
       })
         .then((response) => {
           const newStudentObjs = newStudents.map((item, i) => ({
-            to: item.phone,
+            to: formatContactForDb(item.phone),
             labels: postedLabels[i],
             iid: response.iids[i].iid,
           }));

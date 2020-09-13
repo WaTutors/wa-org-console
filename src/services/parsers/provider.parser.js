@@ -1,4 +1,6 @@
 /* eslint-disable no-nested-ternary */
+import { formatContactForUI } from 'services/formatContactInfo';
+
 const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
   if (reservedLabels && Object.keys(reservedLabels).length > 0)
@@ -125,12 +127,11 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${p}_${r}`)) || ''),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`)) || ''),
         };
       console.error(`In mapProviderMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other
     });
-    console.log({ reserved });
     reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {});
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, val] of Object.entries(reduced))
@@ -139,7 +140,7 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: item.profile ? item.phone : item.to,
+    phone: formatContactForUI(item.profile ? item.phone : item.to),
     rating: item.rating,
     ratingCount: item.numRating,
     properties: item.profile ? item.profile.properties : null,
@@ -188,7 +189,8 @@ const mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
   rating: item.rating,
   properties: item.profile ? item.profile.properties : null,
-  labels: item.profile
+  phone: formatContactForUI(item.profile ? item.phone : item.to),
+  labels: item.profile // TODO remove and use custom parser
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState
     && !str.includes('TEACHER') && !str.includes('TUTOR'))

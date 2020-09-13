@@ -85,8 +85,8 @@ function Properties({
         toggleOpen={toggleEditOpen}
         header={`Edit ${alias.property}`}
         infoText={`
-        ${alias.properties} are central to providing context to the platform.
-        Groups, sessions, and providers can be labeled with ${alias.properties.toLowerCase()}.
+        ${alias.properties || alias.property} are central to providing context to the platform.
+        Groups, sessions, and providers can be labeled with ${(alias.properties || alias.property).toLowerCase()}.
         For example a ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
         A session with "Spanish 2" will be between users learning beginning spanish.
       `}

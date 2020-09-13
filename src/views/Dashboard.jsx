@@ -37,7 +37,7 @@ import {
   optionsBar,
   responsiveBar,
   legendBar,
-} from 'variables/Variables.jsx';
+} from 'variables/Variables';
 
 Dashboard.defaultProps = {
   alias: {
@@ -89,7 +89,7 @@ function Dashboard({ props, alias }) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-server text-warning" />}
-          statsText={`${alias.providers}`}
+          statsText={`${alias.providers || alias.provider}`}
           statsValue="3"
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
@@ -98,7 +98,7 @@ function Dashboard({ props, alias }) {
       <Col lg={3} sm={6}>
         <StatsCard
           bigIcon={<i className="pe-7s-wallet text-success" />}
-          statsText={`${alias.consumers}`}
+          statsText={`${alias.consumers || alias.consumer}`}
           statsValue="10"
           statsIcon={<i className="fa fa-calendar-o" />}
           statsIconText={databaseUpdateString}
@@ -184,7 +184,7 @@ function Dashboard({ props, alias }) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType={`${alias.consumers}`}
+          searchType={`${alias.consumers || alias.consumer}`}
           onSearch={onSearchStudent}
           cols={['col-xs-6', 'col-xs-6']}
           searchProperties={[
@@ -206,7 +206,7 @@ function Dashboard({ props, alias }) {
       </Col>
       <Col md={6} sm={12}>
         <SearchForm
-          searchType={`${alias.providers}`}
+          searchType={`${alias.providers || alias.provider}`}
           cols={['col-xs-6', 'col-xs-6']}
           onSearch={onSearchProvider}
           searchProperties={[

@@ -14,7 +14,7 @@ function StudentList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
-  const consumerProps = orgReservedProps.consumer || null;
+  const consumerProps = (orgReservedProps && orgReservedProps.consumer) || null;
   const rowData = useMemo(() => dataList
     .map((item) => mapStudentMainAgGridRows(item, orgState, consumerProps)),
   [dataList]);
@@ -81,7 +81,7 @@ function StudentList({
       columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
       rowData={rowData}
       addForm={form}
-      downloadName="student_template.csv"
+      downloadName={`add_student_${orgState}.csv`}
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');

@@ -38,10 +38,10 @@ function PropertiesCard({ setProperties, properties, alias }) {
       isOpen={isAddOpen}
       toggleOpen={toggleAddOpen}
       processFile={(raw) => ({ property: raw.split(',') })}
-      header={`Add ${alias.properties} to Organization`}
+      header={`Add ${alias.properties || alias.property} to Organization`}
       infoText={`
-      ${alias.properties} are central to providing context to the platform.
-      Groups, sessions, and providers can be labeled with ${alias.properties.toLowerCase()}.
+      ${alias.properties || alias.property} are central to providing context to the platform.
+      Groups, sessions, and providers can be labeled with ${(alias.properties || alias.property).toLowerCase()}.
       For example a ${alias.property.toLowerCase()} of "Beginning Spanish" will be for early spanish learners.
       A session with "Spanish 1" will be between users learning beginning spanish.
       `}
@@ -61,7 +61,7 @@ function PropertiesCard({ setProperties, properties, alias }) {
     <Col md={6}>
       <Card
         title={`${alias.property}`}
-        category={`Active ${alias.properties.toLowerCase()} in your organization for sessions and groups`}
+        category={`Active ${(alias.properties || alias.property).toLowerCase()} in your organization for sessions and groups`}
         stats="Updated now"
         statsIcon="fa fa-history"
         button={{

@@ -44,11 +44,12 @@ ManageMembersModal.propTypes = {
   getProviderData: PropTypes.func.isRequired,
   editMembersGroup: PropTypes.func.isRequired,
   editMembersSession: PropTypes.func.isRequired,
-  orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
+  orgReservedProps: PropTypes.objectOf(PropTypes.any),
 };
 
 ManageMembersModal.defaultProps = {
   infoText: '',
+  orgReservedProps: {},
 };
 
 const SOURCE = { students: 'students', teachers: 'teachers', groups: 'groups' };

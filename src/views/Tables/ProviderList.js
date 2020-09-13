@@ -17,7 +17,7 @@ function ProviderList({
   dataList, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
-  const providerProps = orgReservedProps.provider || null;
+  const providerProps = (orgReservedProps && orgReservedProps.provider) || null;
   const { isMD } = useWindowSize();
   const rowData = useMemo(() => dataList.map(
     (item) => mapProviderMainAgGridRows(item, orgState, providerProps),
@@ -89,7 +89,7 @@ function ProviderList({
       addData={addData}
       removeRow={removeData}
       columnDefs={columnDefs}
-      downloadName="provider_template.csv"
+      downloadName={`add_instructor_${orgState}.csv`}
       rowData={rowData}
       /* example rowData
         {invite: true,name: 'Tom Ng',phone: '+1 59333384448',completedSessions: 1,
