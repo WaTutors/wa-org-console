@@ -46,10 +46,10 @@ function PrivateRoute({
     />
   );
 
-  if (Boolean(user) && !user.emailVerified) {
+  if (false) { // (user && !user.emailVerified) {
     console.log('email verification redirect triggered');
-    FirebaseAuthService.setScreen('Email Verification Redirect', '/email-verification');
-    return <Redirect to="/email-verification" />;
+    FirebaseAuthService.setScreen('Email Verification Redirect', 'ext/verify');
+    return <Redirect to="ext/verify" />;
   }
 
   if (Boolean(user) || process.env.REACT_APP_OFFLINE === 'true')

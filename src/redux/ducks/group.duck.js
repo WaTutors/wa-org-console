@@ -139,35 +139,40 @@ export function createGroupsThunk(inputData) {
       newGroups = [inputData];
 
     dispatch(addGroupsBegin());
-    const { org } = getState().userReducer;
-    const { uid } = firebaseAuthService.getUser(true);
-    console.log({ newGroups });
-    // format body
-    const body = newGroups.map((data) => ({
-      org,
-      sender: uid,
-      type: 'private',
-      name: data.name,
-      info: data.info,
-      properties: [data.subject.trim()],
+    try {
+      const { org } = getState().userReducer;
+      const { uid } = firebaseAuthService.getUser(true);
+      console.log({ newGroups });
+      // format body
+      const body = newGroups.map((data) => ({
+        org,
+        sender: uid,
+        type: 'private',
+        name: data.name,
+        info: data.info,
+        properties: [data.subject],
       // invitees: data.invitees.split('.'), deprecated bc of manager
-    }));
+      }));
 
-    // shouldn't need front end validation, it's a select and a freeform text field
+      // shouldn't need front end validation, it's a select and a freeform text field
 
-    await apiFetch({
-      method: 'POST',
-      endpoint: 'group/multi',
-      body: { groups: body },
-    })
-      .then(() => {
-        dispatch(addGroupsSuccess(newGroups));
-        dispatch(getGroupsThunk());
+      await apiFetch({
+        method: 'POST',
+        endpoint: 'group/multi',
+        body: { groups: body },
       })
-      .catch((error) => {
-        console.error('addGroups');
-        dispatch(addGroupsFailure(error.message));
-      });
+        .then(() => {
+          dispatch(addGroupsSuccess(newGroups));
+          dispatch(getGroupsThunk());
+        })
+        .catch((error) => {
+          console.error('addGroups');
+          dispatch(addGroupsFailure(error.message));
+        });
+    } catch (error) {
+      dispatch(addGroupsFailure(error.message));
+      console.log('Error in group creation thunk', error);
+    }
   };
 }
 

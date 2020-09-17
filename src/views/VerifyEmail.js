@@ -43,7 +43,7 @@ function EmailValid({ history }) {
     FirebaseAuthService.logEvent('click', { button: 'email_verification_check_passed' });
 
     console.log('EmailValid check', user);
-    if (user && user.emailVerified) {
+    if (user) { // && user.emailVerified) {
       history.push('/profile');
       return true;
     }

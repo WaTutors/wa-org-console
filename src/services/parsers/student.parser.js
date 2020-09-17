@@ -5,7 +5,7 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
   if (reservedLabels && Object.keys(reservedLabels).length > 0)
     reserved = Object.keys(reservedLabels).map((p) => ({
-      headerName: p, field: p,
+      headerName: p, field: p, reservedLabelData: reservedLabels[p],
     }));
 
   return [{
@@ -86,7 +86,11 @@ function parseTextLabel(item, orgState, fieldName = 'NAME') {
  * @returns {array} each label string but first letter capitalized and underscores are spaces
  */
 const allCapsToText = (stringArr) => stringArr.map(
-  (s) => s.charAt(0) + s.substring(1).toLowerCase().replace(/_/g, ' '),
+  (fullstr) => {
+    const unds = fullstr.split('_');
+    const s = unds[unds.length - 1];
+    return s.charAt(0) + s.substring(1).toLowerCase().replace(/_/g, ' ');
+  },
 );
 
 /**
@@ -123,8 +127,9 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     reduced = reserved.reduce(((r, c) => Object.assign(r, c)), {});
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, val] of Object.entries(reduced))
-      val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
+      val.map((v) => capsreduced.push(v.replace(/ /g, '_')));
   }
+  console.log({ reserved });
 
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
@@ -182,7 +187,7 @@ const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   labels: item.profile
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState)
-      .map((str) => str.replace(`${orgState}_`, ''))
+      .map((str) => str.split('_')[-1])
     : item.labels,
   isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
   id: item.pid || item.iid,

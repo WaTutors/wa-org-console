@@ -8,8 +8,6 @@ import { FormInputs } from 'components/FormInputs/FormInputs.jsx';
 import Button from 'components/Buttons/CustomButton.jsx';
 import bg from 'assets/img/blur-classroom.png';
 
-const BACKGROUND_LINK = 'https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Fassets%2Fblur-classroom-min%20(1).png?alt=media&token=42fe721a-2d9a-4f70-9310-2205fc15590e';
-
 function Login({
   history, setOrganizationStore, clearStore,
 }) {
@@ -17,15 +15,17 @@ function Login({
   const [errorText, setErrorText] = useState('');
 
   useEffect(() => {
+    console.log('ressetting app');
     clearStore(); // reset on logout to avoid stale data between users
   }, []);
 
   function onLogin(username, password) {
     FirebaseAuthService.signInUser({ username, password })
       .then(() => {
+        console.log('login success');
         history.push('/admin/console');
       }).catch((err) => {
-        window.alert('Login Failed');
+        setErrorText('Login failed. Is something misspelled?');
         console.error('fb login error', err, { username, password });
       });
   }
@@ -37,7 +37,7 @@ function Login({
     if (!formData.org
       || !formData.email
       || !formData.password)
-      setErrorText('Looks like a field is empty... Please try again');
+      setErrorText('Looks like a field is empty. Please try again');
     else
       onLogin(formData.email, formData.password);
   }

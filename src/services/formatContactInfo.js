@@ -48,7 +48,7 @@ function formatContactForUI(str) {
  */
 function formatContactForDb(str) {
   if (isPhoneNumberUI(str)) {
-    const strippedStr = str.replace(/[^0-9(). ]/g, ''); // replace everything but digits
+    const strippedStr = str.replace(/[^0-9(). \s]/g, '').replace(' ', ''); // replace everything but digits
     const usPrefixStr = `+1${strippedStr}`;
     return usPrefixStr;
   }

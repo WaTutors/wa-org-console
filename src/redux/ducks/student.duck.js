@@ -101,12 +101,13 @@ export function getStudentsThunk() {
       });
       // get phone numbers
       const { profiles, invites } = studentsObj;
+      const openInvites = invites.filter((inv) => inv.state !== 'accept');
       const uuids = profiles.map((profile) => profile.uuid);
       const profilePhoneNumbers = await getProfileFromPhoneNumber({ uuids });
       console.log({ profilePhoneNumbers });
       profilePhoneNumbers.data.forEach((phone, i) => { profiles[i].phone = phone; });
       // dispatch bullshit
-      dispatch(getStudentsSuccess([...profiles, ...invites]));
+      dispatch(getStudentsSuccess([...profiles, ...openInvites]));
     } catch (error) {
       console.error('getStudents thunk threw', error);
       dispatch(getStudentsFailure(error.message));
@@ -125,20 +126,30 @@ export function inviteStudentsThunk(payload) {
       const postedLabels = newStudents.map((_) => []);
 
       newStudents.forEach((student, i) => {
-        Object.entries(student).forEach(([key, val]) => {
-          if (!['phone', 'labels'].includes(key)) {
-            if (val === true) // parse checkbox UI
-              postedLabels[i].push(key);
-            if (Array.isArray(val)) // for select UI
-              val.map((v) => postedLabels[i].push(v.value));
-            if (typeof val === 'string')
-              postedLabels[i].push(`${key}_${val}`);
-          }
-        });
+        if (student.fromParseFile)
+          Object.entries(student).forEach(([key, val]) => {
+            if (!['phone', 'labels'].includes(key))
+              if (val === true) // parse checkbox UI
+                postedLabels[i].push(`${val}`.trim());
+              else if (Array.isArray(val)) // for select UI
+                val.map((v) => postedLabels[i].push(`${v.value}`.trim()));
+              else if (typeof val === 'string')
+                val.split('.').forEach((v) => v && postedLabels[i].push(`${v.trim()}`));
+          });
+        else
+          Object.entries(student).forEach(([key, val]) => {
+            if (!['phone', 'labels'].includes(key))
+              if (val === true) // parse checkbox UI
+                postedLabels[i].push(`${val}`.trim());
+              else if (Array.isArray(val)) // for select UI
+                val.map((v) => postedLabels[i].push(`${v.value}`));
+              else if (typeof val === 'string')
+                postedLabels[i].push(`${key}_${val.trim()}`);
+          });
       });
 
       const contactInfoArr = newStudents
-        .map((provider) => formatContactForDb(provider.phone));
+        .map((student) => formatContactForDb(student.phone));
       if (contactInfoArr.includes(false)) {
         toast.error('-- Invalid phone number or email --');
         dispatch(addStudentsFailure('-- Invalid phone number or email --'));

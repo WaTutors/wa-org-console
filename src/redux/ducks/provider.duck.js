@@ -129,6 +129,27 @@ export function inviteProvidersThunk(payload) {
     const postedLabels = newProviders.map((_) => []);
 
     newProviders.forEach((provider, i) => {
+      if (provider.fromParseFile)
+        Object.entries(provider).forEach(([key, val]) => {
+          if (!['phone', 'labels'].includes(key))
+            if (val === true) // parse checkbox UI
+              postedLabels[i].push(`${val}`.trim());
+            else if (Array.isArray(val)) // for select UI
+              val.map((v) => postedLabels[i].push(`${v.value}`.trim()));
+            else if (typeof val === 'string')
+              val.split('.').forEach((v) => v && postedLabels[i].push(`${v.trim()}`));
+        });
+      else
+        Object.entries(provider).forEach(([key, val]) => {
+          if (!['phone', 'labels'].includes(key))
+            if (val === true) // parse checkbox UI
+              postedLabels[i].push(`${val}`.trim());
+            else if (Array.isArray(val)) // for select UI
+              val.map((v) => postedLabels[i].push(`${v.value}`));
+            else if (typeof val === 'string')
+              postedLabels[i].push(`${key}_${val.trim()}`);
+        });
+      /*
       Object.entries(provider).forEach(([key, val]) => {
         if (!['phone', 'labels'].includes(key)) {
           if (val === true) // parse checkbox UI
@@ -138,7 +159,7 @@ export function inviteProvidersThunk(payload) {
           if (typeof val === 'string')
             postedLabels[i].push(`${key}_${val}`);
         }
-      });
+      }); */
     });
 
     const contactInfoArr = newProviders

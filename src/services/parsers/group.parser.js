@@ -20,6 +20,16 @@ exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
   return true;
 });
 
+// remove any prefix before last underscore
+function stripUndPrefixArr(arr) {
+  if (arr)
+    return arr.map((str) => {
+      const undArr = str.split('_');
+      return undArr[undArr.length - 1];
+    });
+  return '';
+}
+
 /**
  * parses database group object into something to be displayed
  *
@@ -30,7 +40,7 @@ exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
  */
 exports.mapGroupMainAgGridRows = (item) => ({
   name: item.name || 'Not Found',
-  subjects: item.properties,
+  subjects: stripUndPrefixArr(item.properties),
   info: item.info,
   members: item.activeMembers
     ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])

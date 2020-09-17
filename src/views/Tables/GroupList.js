@@ -69,7 +69,8 @@ function GroupList({
       processFile={(raw) => {
         console.log('process file', raw);
         const rows = raw.split('\n');
-        return rows
+        const validRows = rows.filter((row) => row !== '');
+        return validRows
           .slice(1) // remove header
           .map((row) => {
             const arr = row.split(',');

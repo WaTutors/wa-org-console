@@ -38,7 +38,7 @@ function StudentList({
   if (consumerProps)
     Object.entries(consumerProps).sort().forEach(([key, value]) => {
       if (Array.isArray(value))
-        if (value.length > 5) {
+        if (value.length > 0) {
           form.push({
             name: key,
             label: key,
@@ -92,9 +92,13 @@ function StudentList({
             const csvCols = form.map((item) => item.name);
             // console.log('provider processFile', { csvCols, arr });
             return csvCols
-              .reduce((obj, key, i) => ( //
-                { ...obj, [key]: arr[i] }
-              ), {});
+              .reduce((obj, key, i) => { //
+                console.log({ res: form[i] });
+                const freeTextPrefix = form[i].type === 'string'
+                  ? `${key}_`
+                  : ''; // for freeform'
+                return { ...obj, [key]: freeTextPrefix + arr[i] };
+              }, { fromParseFile: true });
           });
       }}
       exampleFilePath={encodedUri}

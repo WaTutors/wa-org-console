@@ -159,121 +159,126 @@ export function getSessionsThunk() {
 
 export function createSessionsThunk(inputData, selectedSession) {
   return async (dispatch, getState) => {
-    let newSessions;
-    if (Array.isArray(inputData))
-      newSessions = inputData;
-    else
-      newSessions = [inputData];
+    try {
+      console.log({ inputData });
+      let newSessions;
+      if (Array.isArray(inputData))
+        newSessions = inputData;
+      else
+        newSessions = [inputData];
 
-    // input validation
-    if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
+      // input validation
+      if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
       // inputData is an array for csv inputs
-      const inputTypes = ['Classroom', 'Study Session'];
-      let inputError = false;
-      const inputErrors = [];
+        const inputTypes = ['Classroom', 'Study Session'];
+        let inputError = false;
+        const inputErrors = [];
 
-      if (!inputData.type || !inputTypes.includes(inputData.type)) {
-        inputError = true;
-        inputErrors.push('-- Invalid session type --');
-      }
-      if (!inputData.startDate) {
-        inputError = true;
-        inputErrors.push('-- No start date --');
-      }
-      if (!inputData.startTime) {
-        inputError = true;
-        inputErrors.push('-- No start time --');
-      }
-      const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
-      if (isNaN(timestamp)) {
-        inputError = true;
-        inputErrors.push('-- Invalid date and time --');
-      }
-      if (!inputData.name) {
-        inputError = true;
-        inputErrors.push('-- Invalid name --');
-      }
-      if (!inputData.about) {
-        inputError = true;
-        inputErrors.push('-- Invalid description --');
-      }
-      if (!inputData.subject) {
-        inputError = true;
-        inputErrors.push('-- Invalid subject --');
-      }
-      if (inputData.type == 'Classroom' && !inputData.provider) {
-        inputError = true;
-        inputErrors.push('-- Invalid provider --');
+        if (!inputData.type || !inputTypes.includes(inputData.type)) {
+          inputError = true;
+          inputErrors.push('-- Invalid session type --');
+        }
+        if (!inputData.startDate) {
+          inputError = true;
+          inputErrors.push('-- No start date --');
+        }
+        if (!inputData.startTime) {
+          inputError = true;
+          inputErrors.push('-- No start time --');
+        }
+        const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
+        if (isNaN(timestamp)) {
+          inputError = true;
+          inputErrors.push('-- Invalid date and time --');
+        }
+        if (!inputData.name) {
+          inputError = true;
+          inputErrors.push('-- Invalid name --');
+        }
+        if (!inputData.about) {
+          inputError = true;
+          inputErrors.push('-- Invalid description --');
+        }
+        if (!inputData.subject) {
+          inputError = true;
+          inputErrors.push('-- Invalid subject --');
+        }
+        if (inputData.type === 'Classroom' && !inputData.provider) {
+          inputError = true;
+          inputErrors.push('-- Invalid provider --');
+        }
+
+        if (inputError) {
+          toast.error(
+            <div>
+              {inputErrors.map((error) => <div>{error}</div>)}
+            </div>,
+          );
+          dispatch(addSessionsFailure(inputErrors.toString()));
+          return false;
+        }
       }
 
-      if (inputError) {
-        toast.error(
-          <div>
-            {inputErrors.map((error) => <div>{error}</div>)}
-          </div>,
-        );
-        dispatch(addSessionsFailure(inputErrors.toString()));
-        return false;
-      }
-    }
+      dispatch(addSessionsBegin());
 
-    dispatch(addSessionsBegin());
+      const { org } = getState().userReducer;
+      const { uid } = firebaseAuthService.getUser(true);
 
-    const { org } = getState().userReducer;
-    const { uid } = firebaseAuthService.getUser(true);
+      console.log({ newSessions });
 
-    console.log({ newSessions });
-
-    // format body
-    const body = selectedSession
-      ? {
-        sid: selectedSession.id,
-        sender: uid,
-        property: newSessions[0].subject,
-        transaction_stripe: 'placeholder',
-      }
-      : newSessions.map((data) => {
-        const start = selectedSession
-          ? new Date(selectedSession.info.start._seconds * 1000)
-          : new Date(`${data.startDate} ${data.startTime}`);
-
-        const typeInputToDbMap = {
-          Classroom: 'free_private_timed',
-          'Study Session': 'free_private',
-          'Tutoring Session': 'paid_available_timed',
-        };
-
-        const addProfilePresenters = data.provider
-          ? [data.provider.pid]
-          : undefined;
-
-        return {
+      // format body
+      const body = selectedSession
+        ? {
+          sid: selectedSession.id,
           sender: uid,
-          type: typeInputToDbMap[data.type],
-          info: {
-            org,
-            start,
-            name: data.name,
-            about: data.about,
-            properties: [data.subject],
-          },
-          addProfilePresenters,
-        };
-      });
+          property: newSessions[0].subject,
+          transaction_stripe: 'placeholder',
+        }
+        : newSessions.map((data) => {
+          const start = selectedSession
+            ? new Date(selectedSession.info.start._seconds * 1000)
+            : new Date(`${data.startDate} ${data.startTime}`);
 
-    await apiFetch({
-      method: 'POST',
-      endpoint: selectedSession ? 'session/paid/scheduled/book' : 'session/multi',
-      body: selectedSession ? body : { sessions: body },
-    })
-      .then(() => {
-        dispatch(addSessionsSuccess([]));
-        dispatch(getSessionsThunk());
+          const typeInputToDbMap = {
+            Classroom: 'free_private_timed',
+            'Study Session': 'free_private',
+            'Tutoring Session': 'paid_available_timed',
+          };
+
+          const addProfilePresenters = data.provider
+            ? [data.provider.pid]
+            : undefined;
+
+          return {
+            sender: uid,
+            type: typeInputToDbMap[data.type],
+            docBody: {
+              org,
+              start,
+              name: data.name,
+              about: data.about,
+              properties: [data.subject],
+            },
+            addProfilePresenters,
+          };
+        });
+
+      return apiFetch({
+        method: 'POST',
+        endpoint: selectedSession ? 'session/paid/scheduled/book' : 'session/multi',
+        body: selectedSession ? body : { sessions: body },
       })
-      .catch((error) => {
-        console.error('addSessions');
-        dispatch(addSessionsFailure(error.message));
-      });
+        .then(() => {
+          dispatch(addSessionsSuccess([]));
+          dispatch(getSessionsThunk());
+        })
+        .catch((error) => {
+          console.error('addSessions');
+          dispatch(addSessionsFailure(error.message));
+        });
+    } catch (error) {
+      console.log('DANICCCCAA', error);
+    }
   };
 }
 

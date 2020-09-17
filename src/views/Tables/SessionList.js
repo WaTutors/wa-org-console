@@ -68,9 +68,9 @@ function SessionList({
           || (item.labels.includes('TUTOR') && 'Tutor') || '',
         pid: item.pid,
       }))
-        .filter((user) => user.invite === 'Accepted'
-          && user.instructorType === 'Teacher'
-          && (user.properties.includes(subjectAddFormFilter) || user.properties.includes(`${orgState}_${subjectAddFormFilter}`)));
+        .filter((user) => user.invite === 'Accepted');
+    // && user.instructorType === 'Teacher');
+    // && (user.properties.includes(subjectAddFormFilter) || user.properties.includes(`${orgState}_${subjectAddFormFilter}`)));
     return [];
   }, [providerList, subjectAddFormFilter]);
 
@@ -253,14 +253,12 @@ function SessionList({
         props={props}
         isLoading={loading}
         getData={getData}
-        addData={(data) => {
-          addData(
-            data,
-            selectedSession
-              ? availableSessions.find((session) => session.id === selectedSession)
-              : null,
-          );
-        }}
+        addData={(data) => addData(
+          data,
+          selectedSession
+            ? availableSessions.find((session) => session.id === selectedSession)
+            : null,
+        )}
         removeRow={removeData}
         columnDefs={generateSessionMainAgGridColumns()}
         rowData={rowData}
@@ -349,7 +347,8 @@ function SessionList({
         passInputData={setFormData}
         processFile={(raw) => {
           const rows = raw.split('\n');
-          return rows
+          const validRows = rows.filter((row) => row !== '');
+          return validRows
             .slice(1) // remove header
             .map((row) => {
               const arr = row.split(',')

@@ -23,9 +23,9 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: '# Ratings', field: 'ratingCount', flex: 0.75, filter: 'agNumberColumnFilter',
   }, {
-    headerName: 'Subjects', field: 'properties', sortable: true, flex: 1.25,
+    headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
-    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64,
+    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, sortable: false,
   },
     /* removed columns
     {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true,
@@ -127,7 +127,7 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`)) || ''),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`))),
         };
       console.error(`In mapProviderMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other

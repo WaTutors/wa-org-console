@@ -67,6 +67,14 @@ function getProviderInfo(item, type) {
   };
 }
 
+// remove any prefix before last underscore
+function stripUndPrefixArr(arr) {
+  return arr.map((str) => {
+    const undArr = str.split('_');
+    return undArr[undArr.length - 1];
+  });
+}
+
 /**
  * parses database session object into something to be displayed
  *
@@ -108,7 +116,7 @@ export const mapSessionMainAgGridRows = (item) => {
     type,
     providerId,
     active: true,
-    subjects: type === 'Tutoring' ? [item.info.property] : item.info.properties,
+    subjects: stripUndPrefixArr(type === 'Tutoring' ? [item.info.property] : item.info.properties),
     name: item.info.name,
     about: item.info.about,
     startTime: new Date(item.info.start._seconds * 1000),

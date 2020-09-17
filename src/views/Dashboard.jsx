@@ -50,7 +50,7 @@ Dashboard.defaultProps = {
   },
 };
 
-function Dashboard({ props, alias }) {
+function Dashboard({ alias, ...props }) {
   function createLegend(json) {
     const legend = [];
     for (let i = 0; i < json.names.length; i++) {
@@ -90,7 +90,7 @@ function Dashboard({ props, alias }) {
         <StatsCard
           bigIcon={<i className="pe-7s-server text-warning" />}
           statsText={`${alias.providers || alias.provider}`}
-          statsValue="3"
+          statsValue="30"
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
         />
@@ -99,7 +99,7 @@ function Dashboard({ props, alias }) {
         <StatsCard
           bigIcon={<i className="pe-7s-wallet text-success" />}
           statsText={`${alias.consumers || alias.consumer}`}
-          statsValue="10"
+          statsValue="27"
           statsIcon={<i className="fa fa-calendar-o" />}
           statsIconText={databaseUpdateString}
         />
