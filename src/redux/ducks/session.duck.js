@@ -170,40 +170,38 @@ export function createSessionsThunk(inputData, selectedSession) {
       // input validation
       if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
       // inputData is an array for csv inputs
-        const inputTypes = ['Classroom', 'Study Session'];
+        const inputTypes = ['Classroom', 'Study Session', 'Tutoring Session'];
         let inputError = false;
         const inputErrors = [];
+        const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
 
-        if (!inputData.type || !inputTypes.includes(inputData.type)) {
+        if (!(Array.isArray(inputData.type)
+          && inputData.type[0]
+          && inputTypes.includes(inputData.type[0].value)
+        )) {
           inputError = true;
           inputErrors.push('-- Invalid session type --');
-        }
-        if (!inputData.startDate) {
+        } else if (!inputData.startDate) {
           inputError = true;
           inputErrors.push('-- No start date --');
-        }
-        if (!inputData.startTime) {
+        } else if (!inputData.startTime) {
           inputError = true;
           inputErrors.push('-- No start time --');
-        }
-        const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
-        if (isNaN(timestamp)) {
+        } else if (isNaN(timestamp)) {
           inputError = true;
           inputErrors.push('-- Invalid date and time --');
-        }
-        if (!inputData.name) {
+        } else if (!inputData.name) {
           inputError = true;
           inputErrors.push('-- Invalid name --');
-        }
-        if (!inputData.about) {
+        } else if (!inputData.about) {
           inputError = true;
           inputErrors.push('-- Invalid description --');
-        }
-        if (!inputData.subject) {
+        } else if ((!(Array.isArray(inputData.subject)
+          && inputData.subject[0].value)
+        )) {
           inputError = true;
           inputErrors.push('-- Invalid subject --');
-        }
-        if (inputData.type === 'Classroom' && !inputData.provider) {
+        } else if (inputData.type[0].value === 'Classroom' && !inputData.provider) {
           inputError = true;
           inputErrors.push('-- Invalid provider --');
         }
@@ -231,7 +229,7 @@ export function createSessionsThunk(inputData, selectedSession) {
         ? {
           sid: selectedSession.id,
           sender: uid,
-          property: newSessions[0].subject,
+          property: newSessions[0].subject[0].value,
           transaction_stripe: 'placeholder',
         }
         : newSessions.map((data) => {
@@ -251,13 +249,13 @@ export function createSessionsThunk(inputData, selectedSession) {
 
           return {
             sender: uid,
-            type: typeInputToDbMap[data.type],
+            type: typeInputToDbMap[data.type[0].value],
             docBody: {
               org,
               start,
               name: data.name,
               about: data.about,
-              properties: [data.subject],
+              properties: [data.subject[0].value],
             },
             addProfilePresenters,
           };

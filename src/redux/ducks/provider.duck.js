@@ -120,6 +120,7 @@ export function getProvidersThunk() {
 }
 
 export function inviteProvidersThunk(payload) {
+  console.log({ payload });
   return async (dispatch, getState) => {
     dispatch(addProvidersBegin());
     const newProviders = Array.isArray(payload) ? payload : [payload];
@@ -169,6 +170,7 @@ export function inviteProvidersThunk(payload) {
       dispatch(addProvidersFailure('-- Invalid phone number or email --'));
       return false;
     }
+    console.log('inviteProvidersThunk', { payload, postedLabels });
 
     await apiFetch({
       method: 'POST',

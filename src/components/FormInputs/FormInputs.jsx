@@ -45,7 +45,7 @@ function FieldGroup({
       </FormGroup>
     );
   }
-  if (options) {
+  if (options)
     if (multi) {
       return (
         <FormGroup>
@@ -78,12 +78,11 @@ function FieldGroup({
             classNamePrefix="select"
             name={name}
             options={options}
-            onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
+            onChange={(e) => e && handleChange({ target: { value: [e] } }, name)}
           />
         </FormGroup>
       );
     }
-  }
 
   return (
     <FormGroup>

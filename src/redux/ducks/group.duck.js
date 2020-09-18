@@ -139,6 +139,7 @@ export function createGroupsThunk(inputData) {
       newGroups = [inputData];
 
     dispatch(addGroupsBegin());
+
     try {
       const { org } = getState().userReducer;
       const { uid } = firebaseAuthService.getUser(true);
@@ -150,7 +151,7 @@ export function createGroupsThunk(inputData) {
         type: 'private',
         name: data.name,
         info: data.info,
-        properties: [data.subject],
+        properties: [data.subject[0].value],
       // invitees: data.invitees.split('.'), deprecated bc of manager
       }));
 

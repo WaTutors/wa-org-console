@@ -195,6 +195,13 @@ function SessionList({
     return dates;
   }
 
+  function handleAddData(input) {
+    const selectedSessionData = selectedSession
+      ? availableSessions.find((session) => session.id === selectedSession)
+      : null;
+    return addData(input, selectedSessionData);
+  }
+
   /**
    * process array of sessions based on time fields
    * then pass to thunk for creating sessions
@@ -253,12 +260,7 @@ function SessionList({
         props={props}
         isLoading={loading}
         getData={getData}
-        addData={(data) => addData(
-          data,
-          selectedSession
-            ? availableSessions.find((session) => session.id === selectedSession)
-            : null,
-        )}
+        addData={handleAddData}
         removeRow={removeData}
         columnDefs={generateSessionMainAgGridColumns()}
         rowData={rowData}
