@@ -38,15 +38,13 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
  * @returns {array} list of human readable session labels
  */
 function parseLabels(item, orgState, capsreduced, fieldName = 'NAME') {
-  // if profile doc0.
-  if (item.profile)
+  if (item.profile) // if profile doc
     return item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState && !Object.values(capsreduced).includes(str.replace(`${orgState}_`, ''))) // remove other org labels
       .map((str) => str.replace(`${orgState}_`, ''))
       .filter((orgStr) => !orgStr.startsWith(`${orgState}_${fieldName}_`))
       .map((orgStr) => orgStr.replace(`${orgState}_${fieldName}_`, ''));
-  // if invite doc
-  if (item.labels)
+  if (item.labels) // if invite doc
     return item.labels.filter((str) => !Object.values(capsreduced).includes(str))
       .filter((orgStr) => !orgStr.startsWith(`${fieldName}_`))
       .map((orgStr) => orgStr.replace(`${fieldName}_`, ''));
@@ -193,10 +191,57 @@ const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   id: item.pid || item.iid,
 });
 
+/**
+ * parses a student document into a name field
+ * uses "full name" label, if not found will use name
+ * this is used to display a student where they need to be represented
+ *
+ * @param {object} studentDoc consumer object from the database document
+ * @returns {string} parsed name
+ */
+function parseNameFromStudent(studentDoc) {
+  if (!studentDoc.profile)
+    return 'Invite';
+
+  const fullNameLabel = studentDoc.profile.org.filter((str) => str.includes('Full Name'));
+  if (fullNameLabel && Array.isArray(fullNameLabel) && fullNameLabel[0])
+    return fullNameLabel[0].split('Full Name_')[1];
+  return studentDoc.profile.name.split('~')[0];
+}
+
+/**
+ * finds a users pid based on their name
+ * this is a difficult task because names could be located in labels or in profile
+ */
+function findPidByName(nameString, studentList, org) {
+  if (!nameString)
+    return false;
+
+  const activeStudents = studentList.filter((doc) => doc.profile);
+
+  for (let i = 0; i < activeStudents.length; i++) {
+    const doc = activeStudents[i];
+    // activeStudents.forEach((doc) => {
+    if (doc.profile) {
+      // first check "Full Name" field
+      const foundLabels = doc.profile.org.filter((label) => label === (`${org}_Full Name_${nameString}`));
+      if (foundLabels.length > 0)
+        return doc.pid;
+      if (doc.profile.name === `${nameString}~c`)
+        return doc.pid;
+      // else loop on
+    }
+  }
+  // if not found and returned above, generate failure
+  return `-- Unrecognized name: ${nameString} --`;
+}
+
 export {
   generateStudentMainAgGridColumns,
   mapStudentMainAgGridRows,
   generateStudentMembersAgGridColumns,
   mapStudentMembersAgGridRows,
   allCapsToText,
+  parseNameFromStudent,
+  findPidByName,
 };

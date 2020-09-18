@@ -20,7 +20,7 @@ import TemplateList from './Template';
 function SessionList({
   // redux props go brrrrr
   getData, getProperties, addData, removeData, getProviders, getAvailableSessions, // functions
-  dataList, loading, properties, providerList, orgState, availableSessions, // variables
+  dataList, loading, properties, providerList, orgState, availableSessions, groupList, // variables
   ...props
 }) {
   const [subjectAddFormFilter, setSubjectAddFormFilter] = useState('');
@@ -77,6 +77,7 @@ function SessionList({
   const addForm = useMemo(() => [{
     name: 'type',
     label: 'Session Type',
+    csvlabel: 'Session Type ("Study Session" or "Classroom")',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
@@ -88,30 +89,43 @@ function SessionList({
   }, {
     name: 'startTime',
     label: 'Start Time',
+    csvlabel: 'Start Time (HH:MM AA)',
     type: 'time',
     placeholder: 'HH:MM AA',
   }, {
     name: 'startDate',
     label: 'Start Date',
+    csvlabel: 'Start Date (YYYY-MM-DD)',
     type: 'date',
     placeholder: 'YYYY-MM-DD',
   }, {
     name: 'name',
     label: 'Session Name',
+    csvlabel: 'Session Name',
     type: 'text',
     placeholder: 'Study Session 34b',
   }, {
     name: 'about',
     label: 'Session Description (about)',
+    csvlabel: 'Session Description (about)',
     type: 'text',
     placeholder: 'This session will cover...',
   }, {
     name: 'subject',
     label: 'Session Subject',
+    csvlabel: 'Session Subject',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
     options: properties.map((item) => ({ value: item, label: item })),
+  }, {
+    name: 'group',
+    label: 'Enroll Group (optional)',
+    csvlabel: 'Enroll Group (optional)',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
   }, {
     name: 'tutor',
     label: 'Select Tutor',
@@ -119,6 +133,7 @@ function SessionList({
   }, {
     name: 'provider',
     label: 'Select Teacher',
+    csvlabel: 'Select Teacher ("Classroom" type only)',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
@@ -174,6 +189,13 @@ function SessionList({
     placeholder: 'select',
     options: properties.map((item) => ({ value: item, label: item })),
   }, {
+    name: 'group',
+    label: 'Enroll Group',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
+  }, {
     name: 'tutor',
     label: 'Select Tutor',
     type: 'search',
@@ -182,6 +204,11 @@ function SessionList({
     label: 'Select Teacher',
     options: teacherList.map((item) => ({ value: item, label: item.name })),
   }], [properties, teacherList]);
+
+  const csvContent = `data:text/csv;charset=utf-8, ${
+    addForm.map((item) => item.csvlabel).join(',')
+  }\n`;
+  const encodedUri = encodeURI(csvContent);
 
   // returns array of moments of days between days
   function enumerateDaysBetweenDates(startDate, endDate) {
@@ -235,18 +262,22 @@ function SessionList({
    * @returns {array} array of field names to hide
    */
   function handleFormChangeAndSetFieldInvisibility(inputData) {
+    // console.log('handleFormChangeAndSetFieldInvisibility', { inputData });
     if (inputData.subject) // side-effect to filter provider by subject
-      setSubjectAddFormFilter(inputData.subject);
+      setSubjectAddFormFilter(inputData.subject[0]);
 
+    let type;
+    if (inputData.type)
+      type = inputData.type[0].value;
     const hideFieldsArray = [];
 
-    if (inputData.type !== 'Classroom')
+    if (type !== 'Classroom')
       hideFieldsArray.push('provider');
 
-    if (inputData.type !== 'Tutoring Session')
+    if (type !== 'Tutoring Session')
       hideFieldsArray.push('tutor');
 
-    if (inputData.type === 'Tutoring Session')
+    if (type === 'Tutoring Session')
       hideFieldsArray.push('name', 'about', 'startTime', 'startDate');
 
     return hideFieldsArray;
@@ -396,20 +427,21 @@ SessionList.propTypes = {
   loading: PropTypes.bool.isRequired,
   getProviders: PropTypes.func.isRequired,
   providerList: PropTypes.objectOf(PropTypes.any).isRequired,
+  groupList: PropTypes.objectOf(PropTypes.any).isRequired,
   getProperties: PropTypes.func.isRequired,
   getAvailableSessions: PropTypes.func.isRequired,
   availableSessions: PropTypes.arrayOf(PropTypes.shape({
-
   })).isRequired,
 };
 
 const mapStateToProps = ({
-  userReducer, sessionsReducer, providersReducer,
+  userReducer, sessionsReducer, providersReducer, groupsReducer,
 }) => ({
   orgState: userReducer.org,
   dataList: sessionsReducer.list,
   properties: userReducer.properties,
   providerList: providersReducer.list,
+  groupList: groupsReducer.list,
   loading: sessionsReducer.loading && providersReducer.loading,
   availableSessions: sessionsReducer.availableSessions,
 });

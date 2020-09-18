@@ -1,11 +1,12 @@
 /* eslint-disable no-use-before-define */
 import React from 'react';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
-import { toast } from 'react-toastify';
+import { findGroupByName } from 'services/parsers/group.parser';
 
 const TIME_STRING = 'HH:mm-MM-DD-YY ZZ';
 
@@ -167,6 +168,8 @@ export function createSessionsThunk(inputData, selectedSession) {
       else
         newSessions = [inputData];
 
+      dispatch(addSessionsBegin());
+
       // input validation
       if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
       // inputData is an array for csv inputs
@@ -217,8 +220,6 @@ export function createSessionsThunk(inputData, selectedSession) {
         }
       }
 
-      dispatch(addSessionsBegin());
-
       const { org } = getState().userReducer;
       const { uid } = firebaseAuthService.getUser(true);
 
@@ -226,12 +227,12 @@ export function createSessionsThunk(inputData, selectedSession) {
 
       // format body
       const body = selectedSession
-        ? {
+        ? { // if tutor session
           sid: selectedSession.id,
           sender: uid,
           property: newSessions[0].subject[0].value,
           transaction_stripe: 'placeholder',
-        }
+        } // for other sessions
         : newSessions.map((data) => {
           const start = selectedSession
             ? new Date(selectedSession.info.start._seconds * 1000)
@@ -240,12 +241,19 @@ export function createSessionsThunk(inputData, selectedSession) {
           const typeInputToDbMap = {
             Classroom: 'free_private_timed',
             'Study Session': 'free_private',
-            'Tutoring Session': 'paid_available_timed',
+            // tutoring case handled above 'Tutoring Session': 'paid_available_timed',
           };
 
           const addProfilePresenters = data.provider
             ? [data.provider.pid]
             : undefined;
+
+          let groupObj; // get group differently if file or form
+          if (data.group) // if declared
+            if (Array.isArray(data.group)) // if form
+              groupObj = data.group[0].value;
+            else // if file
+              groupObj = findGroupByName(data.group);
 
           const sessionType = Array.isArray(data.type) ? data.type[0].value : data.type;
           const sessionProperty = Array.isArray(data.subject)
@@ -262,6 +270,8 @@ export function createSessionsThunk(inputData, selectedSession) {
               about: data.about,
               properties: [sessionProperty],
             },
+            gid: groupObj.gid,
+            addProfiles: groupObj.activeMembers,
             addProfilePresenters,
           };
         });
@@ -280,7 +290,7 @@ export function createSessionsThunk(inputData, selectedSession) {
           dispatch(addSessionsFailure(error.message));
         });
     } catch (error) {
-      console.log('DANICCCCAA', error);
+      console.log('Error in createSessionsThunk', error);
     }
   };
 }
