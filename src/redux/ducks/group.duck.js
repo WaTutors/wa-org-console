@@ -151,7 +151,7 @@ export function createGroupsThunk(inputData) {
         type: 'private',
         name: data.name,
         info: data.info,
-        properties: [data.subject[0].value],
+        properties: Array.isArray(data.subject) ? [data.subject[0].value] : [data.subject],
       // invitees: data.invitees.split('.'), deprecated bc of manager
       }));
 

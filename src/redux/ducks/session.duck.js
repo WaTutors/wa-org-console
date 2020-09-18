@@ -247,15 +247,20 @@ export function createSessionsThunk(inputData, selectedSession) {
             ? [data.provider.pid]
             : undefined;
 
+          const sessionType = Array.isArray(data.type) ? data.type[0].value : data.type;
+          const sessionProperty = Array.isArray(data.subject)
+            ? data.subject[0].value
+            : data.subject;
+
           return {
             sender: uid,
-            type: typeInputToDbMap[data.type[0].value],
+            type: typeInputToDbMap[sessionType],
             docBody: {
               org,
               start,
               name: data.name,
               about: data.about,
-              properties: [data.subject[0].value],
+              properties: [sessionProperty],
             },
             addProfilePresenters,
           };
