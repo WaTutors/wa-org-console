@@ -55,8 +55,8 @@ function SessionList({
 
   const teacherList = useMemo(() => {
     console.log('SessionList subject filter', { subjectAddFormFilter });
-    if (providerList)
-      return providerList.map((item) => ({
+    if (providerList) {
+      const filteredProviders = providerList.map((item) => ({
         invite: item.profile ? 'Accepted' : 'Sent',
         name: item.profile ? item.profile.name.split('~')[0] : undefined,
         properties: item.profile ? item.profile.properties : null,
@@ -69,6 +69,8 @@ function SessionList({
         pid: item.pid,
       }))
         .filter((user) => user.invite === 'Accepted');
+      return filteredProviders;
+    }
     // && user.instructorType === 'Teacher');
     // && (user.properties.includes(subjectAddFormFilter) || user.properties.includes(`${orgState}_${subjectAddFormFilter}`)));
     return [];
