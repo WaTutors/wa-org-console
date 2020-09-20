@@ -97,7 +97,7 @@ exports.mapGroupMembersAgGridRows = (item, itemData, orgState) => ({
 });
 
 /**
- * finds a users pid based on their name
+ * finds a groups pid based on its name
  * this is a difficult task because names could be located in labels or in profile
  */
 exports.findGroupByName = (nameString, groupList) => {
