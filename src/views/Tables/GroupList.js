@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {
   mapGroupMainAgGridRows, generateGroupMainAgGridColumns,
 } from 'services/parsers/group.parser';
+import { parseNameFromStudent } from 'services/parsers/student.parser';
 import {
   getGroupsThunk, createGroupsThunk, removeGroupThunk, editMembersGroupThunk,
 } from 'redux/ducks/group.duck';
@@ -14,7 +15,7 @@ import TemplateList from './Template';
 function GroupList({
   // redux props go brrrrr
   getData, getProperties, addData, removeData, editMembers, // functions
-  dataList, loading, properties, // variables
+  dataList, loading, properties, studentList, orgState, // variables
   ...props
 }) {
   useEffect(() => {
@@ -27,6 +28,47 @@ function GroupList({
       return dataList.map(mapGroupMainAgGridRows);
     return [];
   }, [dataList]);
+
+  const activeStudents = useMemo(() => {
+    if (studentList)
+      return studentList.filter((doc) => doc.profile); // if accepted invite
+    return [];
+  }, [studentList]);
+
+  const groupForm = useMemo(() => [{
+    name: 'name',
+    label: 'Group Name (this will note be visible by users)',
+    csvlabel: 'Group Name',
+    type: 'text',
+    placeholder: 'Spring Cohort 52',
+  }, {
+    name: 'subject',
+    label: 'Group Subject',
+    csvlabel: 'Group Subject',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: properties && properties.map((item) => ({ value: item, label: item })),
+  }, {
+    name: 'info',
+    label: 'Group Description',
+    csvlabel: 'Group Description',
+    type: 'text',
+    placeholder: 'This group is for ...',
+  }, {
+    name: 'students',
+    label: 'Add Students',
+    csvlabel: 'Add Students (period seperated)',
+    multi: true,
+    componentClass: 'select',
+    placeholder: 'select',
+    options: activeStudents.map((item) => ({ value: item, label: parseNameFromStudent(item) })),
+  }], [activeStudents, properties]);
+
+  const csvContent = `data:text/csv;charset=utf-8, ${
+    groupForm.map((item) => item.csvlabel).join(',')
+  }\n`;
+  const encodedUri = encodeURI(csvContent);
 
   return (
     <TemplateList
@@ -41,31 +83,7 @@ function GroupList({
       rowData={rowData}
       // hideAddFile
       addInfo="Groups are required to create sessions"
-      addForm={[{
-        name: 'name',
-        label: 'Group Name (this will note be visible by users)',
-        type: 'text',
-        placeholder: 'Spring Cohort 52',
-      }, {
-        name: 'subject',
-        label: 'Group Subject',
-        type: 'select',
-        componentClass: 'select',
-        placeholder: 'select',
-        options: properties && properties.map((item) => ({ value: item, label: item })),
-      }, /* deprecated bc only one option {
-        name: 'type',
-        label: 'Group Type',
-        type: 'select',
-        componentClass: 'select',
-        placeholder: 'select',
-        options: ['private'],
-      }, */ {
-        name: 'info',
-        label: 'Group Description',
-        type: 'text',
-        placeholder: 'This group is for ...',
-      }]}
+      addForm={groupForm}
       processFile={(raw) => {
         console.log('process file', raw);
         const rows = raw.split('\n');
@@ -75,12 +93,15 @@ function GroupList({
           .map((row) => {
             const arr = row.split(',');
             return {
-              info: arr[0],
-              subject: arr[1],
+              name: arr[0],
+              info: arr[1],
+              subject: arr[2],
+              students: arr[3],
             };
           });
       }}
-      exampleFilePath="https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Forg_example_csvs%2Fgroups.csv?alt=media&token=12a97b65-4d09-4c6e-854c-0ea5329d53f8"
+      downloadName={`add_groups_${orgState}.csv`}
+      exampleFilePath={encodedUri}
     />
   );
 }
@@ -94,13 +115,16 @@ GroupList.propTypes = {
   properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
   getProperties: PropTypes.func.isRequired,
+  studentList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  orgState: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = ({ userReducer, groupsReducer }) => ({
+const mapStateToProps = ({ userReducer, groupsReducer, studentsReducer }) => ({
   orgState: userReducer.org,
   loading: groupsReducer.loading,
   dataList: groupsReducer.list,
   properties: userReducer.properties,
+  studentList: studentsReducer.list,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getGroupsThunk()),

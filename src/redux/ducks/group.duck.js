@@ -1,8 +1,11 @@
 /* eslint-disable no-use-before-define */
+import React from 'react';
+import { toast } from 'react-toastify';
+
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
-import { toast } from 'react-toastify';
+import { findPidByName } from 'services/parsers/student.parser';
 
 const GET_GROUPS_BEGIN = 'GET_GROUPS_BEGIN';
 const GET_GROUPS_SUCCESS = 'GET_GROUPS_SUCCESS';
@@ -132,6 +135,7 @@ export function getGroupsThunk() {
 
 export function createGroupsThunk(inputData) {
   return async (dispatch, getState) => {
+    console.log('createGroupThunk', { inputData });
     let newGroups;
     if (Array.isArray(inputData))
       newGroups = inputData;
@@ -141,21 +145,74 @@ export function createGroupsThunk(inputData) {
     dispatch(addGroupsBegin());
 
     try {
-      const { org } = getState().userReducer;
+      const { userReducer, studentsReducer } = getState();
+      const { org } = userReducer;
+      const { list: studentList } = studentsReducer;
       const { uid } = firebaseAuthService.getUser(true);
       console.log({ newGroups });
       // format body
-      const body = newGroups.map((data) => ({
-        org,
-        sender: uid,
-        type: 'private',
-        name: data.name,
-        info: data.info,
-        properties: Array.isArray(data.subject) ? [data.subject[0].value] : [data.subject],
-      // invitees: data.invitees.split('.'), deprecated bc of manager
-      }));
+      const body = newGroups.map((data) => {
+        let addProfiles = [];
+        if (data.students)
+          if (Array.isArray(data.students)) // from form input
+            addProfiles = data.students
+              .map((formInput) => formInput.value.pid);
+          else // from csv upload
+            addProfiles = data.students
+              .split('.') // file specifies period seperation
+              .filter((strField) => strField && strField.length > 1) // remove empty items
+              .map((strField) => findPidByName(strField.trim(), studentList, org));
+
+        return {
+          org,
+          addProfiles,
+          sender: uid,
+          type: 'private',
+          name: data.name,
+          info: data.info,
+          properties: Array.isArray(data.subject) ? [data.subject[0].value] : [data.subject],
+        };
+      });
 
       // shouldn't need front end validation, it's a select and a freeform text field
+      // validate
+      let inputError = false;
+      const inputErrors = [];
+      console.log('group duck parsed body', { body });
+      body.forEach((groupBody) => {
+        if (!groupBody.name) {
+          inputError = true;
+          inputErrors.push('-- Missing Group Name --');
+        } else if (!(groupBody.properties
+          && Array.isArray(groupBody.properties)
+          && groupBody.properties.length > 0)) {
+          inputError = true;
+          inputErrors.push('-- Missing Group Subject --');
+        } else if (!(groupBody.properties
+          && Array.isArray(groupBody.properties)
+          && groupBody.properties.length > 0)) {
+          inputError = true;
+          inputErrors.push('-- Missing Group Subject --');
+        } else if (!groupBody.info) {
+          inputError = true;
+          inputErrors.push('-- Missing Group Description --');
+        } else if (groupBody.addProfiles && groupBody.addProfiles.some((pid) => pid.includes('--'))) {
+          inputError = true;
+          console.log('found err studd', groupBody.addProfiles);
+          const nameErrorStrings = groupBody.addProfiles.filter((pid) => pid.includes('--'));
+          inputErrors.push(...nameErrorStrings);
+        }
+        console.log(!groupBody.name, !groupBody.info, groupBody.addProfiles.filter((pid) => pid.includes('--')));
+      });
+      if (inputError) {
+        toast.error(
+          <div>
+            {inputErrors.map((error, i) => <div key={i}>{error}</div>)}
+          </div>,
+        );
+        dispatch(addGroupsFailure(inputErrors.toString()));
+        return false;
+      }
 
       await apiFetch({
         method: 'POST',

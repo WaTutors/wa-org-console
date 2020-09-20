@@ -95,3 +95,19 @@ exports.mapGroupMembersAgGridRows = (item, itemData, orgState) => ({
   activeMembers: item.activeMembers,
   id: item.gid,
 });
+
+/**
+ * finds a groups pid based on its name
+ * this is a difficult task because names could be located in labels or in profile
+ */
+exports.findGroupByName = (nameString, groupList) => {
+  if (!nameString)
+    return false;
+
+  for (let i = 0; i < groupList.length; i++) {
+    const doc = groupList[i];
+    if (doc.name === nameString)
+      return doc;
+  }
+  return `-- Unrecognized group: ${nameString} --`;
+};
