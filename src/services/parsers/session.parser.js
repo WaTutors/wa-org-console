@@ -112,7 +112,7 @@ export const mapSessionMainAgGridRows = (item) => {
 
   return {
     status,
-    provider: providerName,
+    provider: providerName ? providerName.split('~')[0] : providerName,
     type,
     providerId,
     active: true,
