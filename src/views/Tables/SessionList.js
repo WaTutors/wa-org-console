@@ -55,8 +55,8 @@ function SessionList({
 
   const teacherList = useMemo(() => {
     console.log('SessionList subject filter', { subjectAddFormFilter });
-    if (providerList)
-      return providerList.map((item) => ({
+    if (providerList) {
+      const filteredProviders = providerList.map((item) => ({
         invite: item.profile ? 'Accepted' : 'Sent',
         name: item.profile ? item.profile.name.split('~')[0] : undefined,
         properties: item.profile ? item.profile.properties : null,
@@ -69,6 +69,8 @@ function SessionList({
         pid: item.pid,
       }))
         .filter((user) => user.invite === 'Accepted');
+      return filteredProviders;
+    }
     // && user.instructorType === 'Teacher');
     // && (user.properties.includes(subjectAddFormFilter) || user.properties.includes(`${orgState}_${subjectAddFormFilter}`)));
     return [];
@@ -77,10 +79,11 @@ function SessionList({
   const addForm = useMemo(() => [{
     name: 'type',
     label: 'Session Type',
-    csvlabel: 'Session Type ("Study Session" or "Classroom")',
+    csvlabel: 'Session Type',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: 'Study Session | Classroom',
     options: [
       { label: 'Study Session', value: 'Study Session' },
       { label: 'Tutoring Session', value: 'Tutoring Session' },
@@ -89,27 +92,31 @@ function SessionList({
   }, {
     name: 'startTime',
     label: 'Start Time',
-    csvlabel: 'Start Time (HH:MM AA)',
+    csvlabel: 'Start Time',
     type: 'time',
     placeholder: 'HH:MM AA',
+    csvPlaceholder: 'HH:MM AA',
   }, {
     name: 'startDate',
     label: 'Start Date',
-    csvlabel: 'Start Date (YYYY-MM-DD)',
+    csvlabel: 'Start Date',
     type: 'date',
     placeholder: 'YYYY-MM-DD',
+    csvPlaceholder: 'YYYY-MM-DD',
   }, {
     name: 'name',
     label: 'Session Name',
     csvlabel: 'Session Name',
     type: 'text',
     placeholder: 'Study Session 34b',
+    csvPlaceholder: 'freeform',
   }, {
     name: 'about',
     label: 'Session Description (about)',
     csvlabel: 'Session Description (about)',
     type: 'text',
     placeholder: 'This session will cover...',
+    csvPlaceholder: 'freeform',
   }, {
     name: 'subject',
     label: 'Session Subject',
@@ -117,6 +124,7 @@ function SessionList({
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: properties.map((item) => (item)).join('.'),
     options: properties.map((item) => ({ value: item, label: item })),
   }, {
     name: 'group',
@@ -125,11 +133,17 @@ function SessionList({
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: groupList.map((item) => (item.name)).join('.'),
     options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
   }, {
     name: 'tutor',
     label: 'Select Tutor',
-    type: 'search',
+    csvlabel: 'Tutor Name ("Tutoring Session" type only)',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    csvPlaceholder: 'John Appleseed',
+    options: teacherList.map((item) => ({ value: item, label: item.name })),
   }, {
     name: 'provider',
     label: 'Select Teacher',
@@ -137,15 +151,18 @@ function SessionList({
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: 'John Appleseed',
     options: teacherList.map((item) => ({ value: item, label: item.name })),
   }], [properties, teacherList]);
 
   const addFormMulti = useMemo(() => [{
     name: 'type',
     label: 'Session Type',
+    csvlabel: 'Session Type ("Study Session" or "Classroom")',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: 'Study Session | Classroom',
     options: [
       { label: 'Study Session', value: 'Study Session' },
       { label: 'Classroom', value: 'Classroom' },
@@ -153,62 +170,71 @@ function SessionList({
   }, {
     name: 'startTime',
     label: 'Start Time',
+    csvlabel: 'Start Time',
+    csvPlaceholder: 'HH:MM AA',
     type: 'time',
   // placeholder: 'Study Session 34b',
   }, {
     name: 'dotw',
     label: 'Select days of the week',
+    csvlabel: 'Days of the week',
+    csvPlaceholder: '1-Monday 2-Tuesday ... 7-Sunday',
     checkboxes: true,
     options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       .map((dotw) => ({ label: dotw, value: dotw })),
   }, {
     name: 'startDay',
     label: 'First Possible Start Date',
+    csvlabel: 'Start Date',
     type: 'date',
+    csvPlaceholder: 'YYYY-MM-DD',
   // placeholder: 'Study Session 34b',
   }, {
     name: 'endDay',
     label: 'Last Possible End Date',
+    csvlabel: 'End Date',
     type: 'date',
+    csvPlaceholder: 'YYYY-MM-DD',
   // placeholder: 'Study Session 34b',
   }, {
     name: 'name',
     label: 'Session Name',
+    csvlabel: 'Session Name',
     type: 'text',
     placeholder: 'Study Session 34b',
+    csvPlaceholder: 'freeform',
   }, {
     name: 'about',
     label: 'Session Description (about)',
+    csvlabel: 'Session Description (about)',
     type: 'text',
     placeholder: 'This session will cover...',
+    csvPlaceholder: 'freeform',
   }, {
     name: 'subject',
     label: 'Session Subject',
+    csvlabel: 'Session Subject',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: properties.map((item) => (item)).join('.'),
     options: properties.map((item) => ({ value: item, label: item })),
   }, {
     name: 'group',
     label: 'Enroll Group',
+    csvlabel: 'Enroll Group (optional)',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
+    csvPlaceholder: groupList.map((item) => (item.name)).join('.'),
     options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
-  }, {
-    name: 'tutor',
-    label: 'Select Tutor',
-    type: 'search',
   }, {
     name: 'provider',
     label: 'Select Teacher',
+    csvlabel: 'Select Teacher ("Classroom" type only)',
+    csvPlaceholder: 'John Appleseed',
     options: teacherList.map((item) => ({ value: item, label: item.name })),
   }], [properties, teacherList]);
-
-  const csvContent = `data:text/csv;charset=utf-8, ${
-    addForm.map((item) => item.csvlabel).join(',')
-  }\n`;
-  const encodedUri = encodeURI(csvContent);
 
   // returns array of moments of days between days
   function enumerateDaysBetweenDates(startDate, endDate) {
@@ -282,6 +308,19 @@ function SessionList({
 
     return hideFieldsArray;
   }
+
+  const csvFormContent = `data:text/csv;charset=utf-8, ${
+    addForm.map((item) => item.csvlabel).join(',')
+  }\n${
+    addForm.map((item) => item.csvPlaceholder).join(',')
+  }\n`;
+  const encodedFormUri = encodeURI(csvFormContent);
+  const csvFormMultiContent = `data:text/csv;charset=utf-8, ${
+    addFormMulti.map((item) => item.csvlabel).join(',')
+  }\n${
+    addFormMulti.map((item) => item.csvPlaceholder).join(',')
+  }\n`;
+  const encodedFormMultiUri = encodeURI(csvFormMultiContent);
 
   return (
     <>
@@ -382,17 +421,19 @@ function SessionList({
           const rows = raw.split('\n');
           const validRows = rows.filter((row) => row !== '');
           return validRows
-            .slice(1) // remove header
+            .slice(2) // remove header
             .map((row) => {
               const arr = row.split(',')
                 .map((str) => str.trim());
               return {
-                name: arr[0],
-                about: arr[1],
-                subject: arr[2],
-                type: arr[3],
-                startTime: arr[4],
-                startDate: arr[5],
+                type: arr[0],
+                startTime: arr[1],
+                startDate: arr[2],
+                name: arr[3],
+                about: arr[4],
+                subject: arr[5].split('.'),
+                group: arr[6],
+                provider: arr[7] || arr[8],
               };
             });
         }}
@@ -402,7 +443,8 @@ function SessionList({
           onClick: () => setAddMultiOpen(true),
           icon: 'pe-7s-photo-gallery',
         }]]}
-        exampleFilePath="https://firebasestorage.googleapis.com/v0/b/watutors-1.appspot.com/o/public%2Forg_example_csvs%2Fsessions.csv?alt=media&token=6dae5126-0ac9-4ef8-b8c9-43e50801c32a"
+        exampleFilePath={encodedFormUri}
+        downloadName={`add_session_${orgState}.csv`}
       />
       <AddModal
         hideFile // if enabled: processFile={(raw) => window.alert('raw data: '+raw)}
@@ -411,7 +453,31 @@ function SessionList({
         toggleOpen={toggleMulti}
         header="Create Multiple Sessions within Organization"
         form={addFormMulti}
+        exampleFilePath={encodedFormMultiUri}
         onChangeSetFieldInvisibility={handleFormChangeAndSetFieldInvisibility}
+        downloadName={`add_session_multi_${orgState}.csv`}
+        processFile={(raw) => {
+          const rows = raw.split('\n');
+          const validRows = rows.filter((row) => row !== '');
+          return validRows
+            .slice(2) // remove header
+            .map((row) => {
+              const arr = row.split(',')
+                .map((str) => str.trim());
+              return {
+                type: arr[0],
+                startTime: arr[1],
+                days: arr[2],
+                startDate: arr[3],
+                endDate: arr[4],
+                name: arr[5],
+                about: arr[6],
+                subject: arr[7],
+                group: arr[8],
+                provider: arr[9],
+              };
+            });
+        }}
       />
     </>
   );

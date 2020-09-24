@@ -15,6 +15,8 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'Start Time', field: 'startTime', sortable: true, filter: 'agDateColumnFilter',
 }, {
+  headerName: 'Start Date', field: 'startDate', sortable: true, filter: 'agDateColumnFilter',
+}, {
   headerName: 'Created', field: 'created', sortable: true,
 }, {
   headerName: '# Members', field: 'numMembers', filter: 'agNumberColumnFilter', sortable: true,
@@ -109,22 +111,27 @@ export const mapSessionMainAgGridRows = (item) => {
   }
 
   const { name: providerName, pid: providerId } = getProviderInfo(item, item.type);
+  const startDateTime = new Date(item.info.start._seconds * 1000);
+  const createdDateTime = item.created ? new Date(item.created._seconds * 1000) : new Date();
+  const TimeOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+  const DateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
   return {
     status,
-    provider: providerName,
+    provider: providerName ? providerName.split('~')[0] : providerName,
     type,
     providerId,
     active: true,
     subjects: stripUndPrefixArr(type === 'Tutoring' ? [item.info.property] : item.info.properties),
     name: item.info.name,
     about: item.info.about,
-    startTime: new Date(item.info.start._seconds * 1000),
+    startTime: startDateTime.toLocaleDateString('en-US', TimeOptions).split(',')[1],
+    startDate: startDateTime.toLocaleDateString('en-US', DateOptions),
     providerEmail: item.provider ? item.provider.email : null,
     members: item.members ? Object.values(item.members).map((member) => member.name.split('~')[0]) : [],
     numMembers: item.activeMembers ? Object.values(item.activeMembers).length : 0,
     activeMembers: item.activeMembers,
-    created: item.created ? new Date(item.created._seconds * 1000) : new Date(),
+    created: createdDateTime.toLocaleDateString('en-US', TimeOptions),
     sid: item.sid,
     id: `s~${item.sid}`,
   };
