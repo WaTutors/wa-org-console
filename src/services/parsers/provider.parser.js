@@ -202,9 +202,38 @@ const mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
   id: item.pid,
 });
 
+/**
+ * finds a users pid based on their name
+ * this is a difficult task because names could be located in labels or in profile
+ */
+function findProviderPidByName(nameString, providerList, org) {
+  if (!nameString)
+    return false;
+
+  const activeProviders = providerList.filter((doc) => doc.profile);
+  console.log(activeProviders)
+
+  for (let i = 0; i < activeProviders.length; i++) {
+    const doc = activeProviders[i];
+    // activeproviders.forEach((doc) => {
+    if (doc.profile) {
+      // first check "Full Name" field
+      const foundLabels = doc.profile.org.filter((label) => label === (`${org}_Full Name_${nameString}`));
+      if (foundLabels.length > 0)
+        return doc.pid;
+      if (doc.profile.name === `${nameString}~p`)
+        return doc.pid;
+      // else loop on
+    }
+  }
+  // if not found and returned above, generate failure
+  return `-- Unrecognized name: ${nameString} --`;
+}
+
 export {
   mapProviderMembersAgGridRows,
   generateProviderMembersAgGridColumns,
   mapProviderMainAgGridRows,
   generateProviderMainAgGridColumns,
+  findProviderPidByName,
 };
