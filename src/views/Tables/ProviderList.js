@@ -128,7 +128,7 @@ ProviderList.propTypes = {
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
-  orgReservedProps: PropTypes.array.isRequired,
+  orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
 };
 
 const mapStateToProps = ({ userReducer, providersReducer }) => ({

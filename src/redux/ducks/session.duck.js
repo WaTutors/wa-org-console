@@ -1,11 +1,13 @@
 /* eslint-disable no-use-before-define */
 import React from 'react';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import firebaseAuthService from 'services/firebaseAuthService';
-import { toast } from 'react-toastify';
+import { findGroupByName } from 'services/parsers/group.parser';
+import { findProviderPidByName } from 'services/parsers/provider.parser';
 
 const TIME_STRING = 'HH:mm-MM-DD-YY ZZ';
 
@@ -157,9 +159,45 @@ export function getSessionsThunk() {
   };
 }
 
+function isItemValid(item, providerList, properties) {
+
+  const inputTypes = ['Classroom', 'Study Session', 'Tutoring Session'];
+  const inputErrors = [];
+  const timestamp = Date.parse(`${item.startDate} ${item.startTime}`);
+  const subjectArr = item.subject.map((subject) => properties.includes(subject));
+
+  // console.log('ld item', item);
+  if (inputTypes.includes(item.type[0].value)) {
+    inputErrors.push('-- Invalid session type --');
+  } else if (!item.startDate) {
+    inputErrors.push('-- No start date --');
+  } else if (!item.startTime) {
+    inputErrors.push('-- No start time --');
+  } else if (isNaN(timestamp)) {
+    inputErrors.push('-- Invalid date and time --');
+  } else if (!item.about) {
+    inputErrors.push('-- Invalid description --');
+  } else if (subjectArr.includes(false)) {
+    inputErrors.push('-- Invalid subject --');
+  } else if (item.type[0].value === 'Classroom') {
+    if (!item.provider) {
+      inputErrors.push('-- Invalid provider --');
+    } else if (typeof item.provider === 'string' && findProviderPidByName(item.provider, providerList, org).includes('Unrecognized name')) {
+      inputErrors.push(`-- Invalid provider ${item.provider} --`);
+    }
+  }
+  return inputErrors;
+}
+
 export function createSessionsThunk(inputData, selectedSession) {
   return async (dispatch, getState) => {
     try {
+      const { userReducer, providersReducer, groupsReducer } = getState();
+      const { org, properties } = userReducer;
+      const { list: providerList } = providersReducer;
+      const { list: groupList } = groupsReducer;
+      const { uid } = firebaseAuthService.getUser(true);
+
       console.log({ inputData });
       let newSessions;
       if (Array.isArray(inputData))
@@ -167,71 +205,31 @@ export function createSessionsThunk(inputData, selectedSession) {
       else
         newSessions = [inputData];
 
-      // input validation
-      if (!(Array.isArray(inputData) || Object.keys(inputData).length === 0)) {
-      // inputData is an array for csv inputs
-        const inputTypes = ['Classroom', 'Study Session', 'Tutoring Session'];
-        let inputError = false;
-        const inputErrors = [];
-        const timestamp = Date.parse(`${inputData.startDate} ${inputData.startTime}`);
-
-        if (!(Array.isArray(inputData.type)
-          && inputData.type[0]
-          && inputTypes.includes(inputData.type[0].value)
-        )) {
-          inputError = true;
-          inputErrors.push('-- Invalid session type --');
-        } else if (!inputData.startDate) {
-          inputError = true;
-          inputErrors.push('-- No start date --');
-        } else if (!inputData.startTime) {
-          inputError = true;
-          inputErrors.push('-- No start time --');
-        } else if (isNaN(timestamp)) {
-          inputError = true;
-          inputErrors.push('-- Invalid date and time --');
-        } else if (!inputData.name) {
-          inputError = true;
-          inputErrors.push('-- Invalid name --');
-        } else if (!inputData.about) {
-          inputError = true;
-          inputErrors.push('-- Invalid description --');
-        } else if ((!(Array.isArray(inputData.subject)
-          && inputData.subject[0].value)
-        )) {
-          inputError = true;
-          inputErrors.push('-- Invalid subject --');
-        } else if (inputData.type[0].value === 'Classroom' && !inputData.provider) {
-          inputError = true;
-          inputErrors.push('-- Invalid provider --');
-        }
-
-        if (inputError) {
-          toast.error(
-            <div>
-              {inputErrors.map((error) => <div>{error}</div>)}
-            </div>,
-          );
-          dispatch(addSessionsFailure(inputErrors.toString()));
-          return false;
-        }
-      }
-
       dispatch(addSessionsBegin());
 
-      const { org } = getState().userReducer;
-      const { uid } = firebaseAuthService.getUser(true);
+      // input validation
+      const inputErrors = inputData.map((item) => isItemValid(item, providerList, properties)).flat();
+      console.log('inputerrors', inputErrors);
+      if (inputErrors.length > 0) {
+        toast.error(
+          <div>
+            {inputErrors.map((error) => <div>{error}</div>)}
+          </div>,
+        );
+        dispatch(addSessionsFailure(inputErrors.toString()));
+        return false;
+      }
 
       console.log({ newSessions });
 
       // format body
       const body = selectedSession
-        ? {
+        ? { // if tutor session
           sid: selectedSession.id,
           sender: uid,
           property: newSessions[0].subject[0].value,
           transaction_stripe: 'placeholder',
-        }
+        } // for other sessions
         : newSessions.map((data) => {
           const start = selectedSession
             ? new Date(selectedSession.info.start._seconds * 1000)
@@ -240,18 +238,34 @@ export function createSessionsThunk(inputData, selectedSession) {
           const typeInputToDbMap = {
             Classroom: 'free_private_timed',
             'Study Session': 'free_private',
-            'Tutoring Session': 'paid_available_timed',
+            // tutoring case handled above 'Tutoring Session': 'paid_available_timed',
           };
 
-          const addProfilePresenters = data.provider
-            ? [data.provider.pid]
-            : undefined;
+          let addProfilePresenters; // get provider differently if file or form
+          // console.log("ldldld", data)
+          if (data.provider)
+            if (Array.isArray(data.provider)) // if form
+              addProfilePresenters = [data.provider[0].value.pid];
+            else // if file
+              addProfilePresenters = [findProviderPidByName(data.provider, providerList, org)];
+          else
+            addProfilePresenters = undefined;
+
+          let groupObj; // get group differently if file or form
+          if (data.group) // if declared
+            if (Array.isArray(data.group)) // if form
+              groupObj = data.group[0].value;
+            else // if file
+              groupObj = findGroupByName(data.group, groupList);
+          else
+            groupObj = undefined;
+          // console.log("ldld", addProfilePresenters, groupObj);
 
           const sessionType = Array.isArray(data.type) ? data.type[0].value : data.type;
           const sessionProperty = Array.isArray(data.subject)
             ? data.subject[0].value
             : data.subject;
-
+          // console.log('ldprop', data.subject, sessionProperty);
           return {
             sender: uid,
             type: typeInputToDbMap[sessionType],
@@ -260,8 +274,10 @@ export function createSessionsThunk(inputData, selectedSession) {
               start,
               name: data.name,
               about: data.about,
-              properties: [sessionProperty],
+              properties: data.subject,
             },
+            gid: groupObj ? groupObj.gid : undefined,
+            addProfiles: groupObj ? groupObj.activeMembers : undefined,
             addProfilePresenters,
           };
         });
@@ -280,7 +296,7 @@ export function createSessionsThunk(inputData, selectedSession) {
           dispatch(addSessionsFailure(error.message));
         });
     } catch (error) {
-      console.log('DANICCCCAA', error);
+      console.log('Error in createSessionsThunk', error);
     }
   };
 }
