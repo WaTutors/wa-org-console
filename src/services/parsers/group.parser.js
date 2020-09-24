@@ -38,19 +38,24 @@ function stripUndPrefixArr(arr) {
  * @param {object} item session object
  * @returns {object}
  */
-exports.mapGroupMainAgGridRows = (item) => ({
-  name: item.name || 'Not Found',
-  subjects: stripUndPrefixArr(item.properties),
-  info: item.info,
-  members: item.activeMembers
-    ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])
-    : [],
-  activeMembers: item.activeMembers,
-  numMembers: item.activeMembers ? item.activeMembers.length : 0,
-  created: item.created ? new Date(item.created._seconds * 1000) : new Date(),
-  gid: item.gid,
-  id: `g~${item.gid}`,
-});
+exports.mapGroupMainAgGridRows = (item) => {
+  const createdDateTime = item.created ? new Date(item.created._seconds * 1000) : new Date();
+  const TimeOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+
+  return {
+    name: item.name || 'Not Found',
+    subjects: stripUndPrefixArr(item.properties),
+    info: item.info,
+    members: item.activeMembers
+      ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])
+      : [],
+    activeMembers: item.activeMembers,
+    numMembers: item.activeMembers ? item.activeMembers.length : 0,
+    created: createdDateTime.toLocaleDateString('en-US', TimeOptions),
+    gid: item.gid,
+    id: `g~${item.gid}`,
+  };
+};
 
 exports.generateGroupMembersAgGridColumns = () => [{
   headerName: 'Name', field: 'name', sortable: true,

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { getOrgSummaryThunk, setOrgSummaryPropertiesThunk } from 'redux/ducks/user.duck';
 import EditModal from 'components/Modals/EditModal';
+import ConfirmModal from 'components/Modals/ConfirmModal';
 import Button from '../Buttons/CustomButton';
 
 function Properties({
@@ -13,16 +14,29 @@ function Properties({
   const [editProperty, setEditProperty] = useState();
   const [isEditOpen, setEditOpen] = useState();
   const toggleEditOpen = () => setEditOpen(!isEditOpen);
+  const [storedToRemove, setToRemove] = useState();
+  const [confirmText, setConfirmText] = useState('Delete');
+  const [isConfirmOpen, setConfirmOpen] = useState();
+  const toggleConfirmOpen = () => setConfirmOpen(!isConfirmOpen);
 
   useEffect(() => {
     if (!properties || properties.includes('Loading...'))
       getData();
   }, []);
 
-  function handleRemove(toRemove) {
+  function handleRemoveConfirm() {
     setProperties(
-      properties.filter((el) => el !== toRemove),
+      properties.filter((el) => el !== storedToRemove),
     );
+  }
+  // function handleRemoveConfirm() {
+  //   removeAutoGroupLabels(storedToRemove);
+  // }
+
+  function handleRemove(toRemove) {
+    setConfirmText(`Are you sure you want to remove this ${alias.property}?`);
+    setToRemove(toRemove);
+    setConfirmOpen(true);
   }
 
   function handleStartEdit(toEdit) {
@@ -100,6 +114,13 @@ function Properties({
             defaultValue: editProperty,
           },
         ]}
+      />
+      <ConfirmModal
+        onConfirm={handleRemoveConfirm}
+        isOpen={isConfirmOpen}
+        toggleOpen={toggleConfirmOpen}
+        text={confirmText}
+        confirmTextCheck={false}
       />
     </tbody>
   );
