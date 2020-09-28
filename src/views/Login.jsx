@@ -101,7 +101,7 @@ function Login({
                 ]}
               />
 
-              <Button bsStyle="primary" pullRight fill type="submit">
+              <Button bsStyle="info" pullRight fill type="submit">
                 Login
                 {' '}
                 <i className="pe-7s-lock" />

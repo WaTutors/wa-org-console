@@ -45,7 +45,7 @@ function GroupLabels({
   }
 
   function handleRemove(toRemove) {
-    setConfirmText('Are you sure you want to cancel this session?');
+    setConfirmText('Are you sure you want to cancel this Auto-Group?');
     setToRemove(toRemove);
     setConfirmOpen(true);
   }

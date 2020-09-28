@@ -88,6 +88,7 @@ function SessionList({
       { label: 'Study Session', value: 'Study Session' },
       { label: 'Tutoring Session', value: 'Tutoring Session' },
       { label: 'Classroom', value: 'Classroom' },
+      { label: 'Link (No video)', value: 'Links' },
     ],
   }, {
     name: 'startTime',
@@ -118,13 +119,20 @@ function SessionList({
     placeholder: 'This session will cover...',
     csvPlaceholder: 'freeform',
   }, {
+    name: 'link',
+    label: 'Link URL',
+    csvlabel: 'Link URLs ()',
+    type: 'text',
+    placeholder: 'www.watutors.com',
+    csvPlaceholder: 'freeform',
+  }, {
     name: 'subject',
     label: 'Session Subject',
     csvlabel: 'Session Subject',
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
-    csvPlaceholder: properties.map((item) => (item)).join('.'),
+    csvPlaceholder: properties.map((item) => (item)).join(' | '),
     options: properties.map((item) => ({ value: item, label: item })),
   }, {
     name: 'group',
@@ -133,7 +141,7 @@ function SessionList({
     type: 'select',
     componentClass: 'select',
     placeholder: 'select',
-    csvPlaceholder: groupList.map((item) => (item.name)).join('.'),
+    csvPlaceholder: groupList.map((item) => (item.name)).join(' | '),
     options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
   }, {
     name: 'tutor',
@@ -144,6 +152,15 @@ function SessionList({
     placeholder: 'select',
     csvPlaceholder: 'John Appleseed',
     options: teacherList.map((item) => ({ value: item, label: item.name })),
+  }, {
+    name: 'isOptional',
+    label: 'Is Optional? If optional, users will recieve an invite',
+    csvlabel: 'Is Optional?',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    csvPlaceholder: ['true', 'false'].join(' | '),
+    options: ['true', 'false'].map((item) => ({ value: item, label: item })),
   }, {
     name: 'provider',
     label: 'Select Teacher',
@@ -229,6 +246,15 @@ function SessionList({
     csvPlaceholder: groupList.map((item) => (item.name)).join('.'),
     options: groupList.map((item) => ({ value: item, label: item.name || 'No Name' })),
   }, {
+    name: 'isOptional',
+    label: 'Is Optional? If optional, users will recieve an invite',
+    csvlabel: 'is Optional',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    csvPlaceholder: ['true', 'false'].map((item) => (item.name)).join('.'),
+    options: ['true', 'false'].map((item) => ({ value: item, label: item })),
+  }, {
     name: 'provider',
     label: 'Select Teacher',
     csvlabel: 'Select Teacher ("Classroom" type only)',
@@ -296,6 +322,11 @@ function SessionList({
     if (inputData.type)
       type = inputData.type[0].value;
     const hideFieldsArray = [];
+
+    if (type === 'Link')
+      hideFieldsArray.push('provider');
+    else
+      hideFieldsArray.push('links');
 
     if (type !== 'Classroom')
       hideFieldsArray.push('provider');
@@ -421,7 +452,7 @@ function SessionList({
           const rows = raw.split('\n');
           const validRows = rows.filter((row) => row !== '');
           return validRows
-            .slice(2) // remove header
+            .slice(2) // remove headers
             .map((row) => {
               const arr = row.split(',')
                 .map((str) => str.trim());
@@ -433,7 +464,8 @@ function SessionList({
                 about: arr[4],
                 subject: arr[5].split('.'),
                 group: arr[6],
-                provider: arr[7] || arr[8],
+                isOptional: arr[8],
+                provider: arr[7] || arr[9], // tutor or teacher
               };
             });
         }}

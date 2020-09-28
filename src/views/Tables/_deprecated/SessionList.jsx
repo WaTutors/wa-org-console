@@ -88,6 +88,7 @@ function SessionList() {
       <div className="ag-theme-alpine" style={{ height: '80vh', width: '100%', maxWidth: '1200px' }}>
         <AgGridReact
           animateRows
+          enableCellTextSelection
           onCellClicked={handleCellClick}
           frameworkComponents={rowState.frameworkComponents}
           columnDefs={rowState.columnDefs.map(

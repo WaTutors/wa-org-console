@@ -170,6 +170,7 @@ export function createGroupsThunk(inputData) {
           type: 'private',
           name: data.name,
           info: data.info,
+          hidden: !data.notHidden,
           properties: Array.isArray(data.subject) ? [data.subject[0].value] : [data.subject],
         };
       });

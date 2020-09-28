@@ -9,7 +9,7 @@ function DeleteButton() {
       borderRadius: '100%',
       justifyContent: 'center',
       textAlign: 'center',
-      maxWidth: '40px',
+      width: '40px',
     }}
     >
       <i className="pe-7s-delete-user" />

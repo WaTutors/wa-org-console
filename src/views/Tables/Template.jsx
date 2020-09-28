@@ -4,15 +4,18 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DeleteUserButton from 'components/Buttons/DeleteUserButton';
 import DeleteItemButton from 'components/Buttons/DeleteItemButton';
+import EditButton from 'components/Buttons/EditButton';
 import AddUserButton from 'components/Buttons/AddUserButton';
 import ConfirmModal from 'components/Modals/ConfirmModal';
 import AddModal from 'components/Modals/AddModal';
 import ManageMembersModal from 'components/Modals/ManageMembersModal';
+import EditModal from 'components/Modals/EditModal';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import ButtonBar from 'components/Buttons/ButtonBar';
 import Loader from 'components/Loader';
+import populateFormInitialValues from 'services/parsers/editForm';
 
 TemplateList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
@@ -28,6 +31,9 @@ TemplateList.propTypes = {
   addForm: PropTypes.arrayOf(
     PropTypes.objectOf(PropTypes.string),
   ),
+  editForm: PropTypes.arrayOf(
+    PropTypes.objectOf(PropTypes.string),
+  ),
   hideAddFile: PropTypes.bool,
   addInfo: PropTypes.string,
   buttonBarExt: PropTypes.arrayOf(PropTypes.arrayOf(
@@ -37,6 +43,7 @@ TemplateList.propTypes = {
   exampleFilePath: PropTypes.string,
   downloadName: PropTypes.string,
   formOnChangeSetFieldInvisibility: PropTypes.func,
+  onEditSubmit: PropTypes.func,
 };
 
 TemplateList.defaultProps = {
@@ -50,6 +57,8 @@ TemplateList.defaultProps = {
     bsClass: 'form-control',
     placeholder: '503 123 1234',
   }],
+  editForm: false,
+  onEditSubmit: (e) => console.log('onEditSubmit default', e),
   hideAddFile: false,
   addInfo: 'Submitted profiles will be sent an invitation',
   downloadName: 'template.csv',
@@ -61,8 +70,9 @@ TemplateList.defaultProps = {
 
 function TemplateList({
   props, listName, columnDefs, rowData, isLoading, addInfo,
-  addForm, hideAddFile, buttonBarExt, manageMembersFor, exampleFilePath, downloadName, // vars
-  getData, addData, removeRow, // callback functions
+  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, // vars
+  exampleFilePath, downloadName, // vars cont
+  getData, addData, removeRow, onEditSubmit, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
   addChildren, passInputData, // custom AddModal children
 }) {
@@ -73,6 +83,9 @@ function TemplateList({
   const toggleAddOpen = () => setAddOpen(!isAddOpen);
   const [isManageOpen, setManageOpen] = useState();
   const toggleManageOpen = () => setManageOpen(!isManageOpen);
+  const [isEditOpen, setEditOpen] = useState();
+  const toggleEditOpen = () => setEditOpen(!isEditOpen);
+  const [editFormParsed, setEditFormParsed] = useState(editForm);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const toggleConfirmOpen = () => {
     console.log('confirm toggle');
@@ -86,6 +99,13 @@ function TemplateList({
       getData();
     }
   }, []);
+
+  // update EditForm
+  useEffect(() => {
+    const parsedForm = populateFormInitialValues(editForm, selectedRow);
+    console.log({ parsedForm });
+    setEditFormParsed(parsedForm);
+  }, [editForm, selectedRow]);
 
   // update selected row ui on data change
   useEffect(() => {
@@ -122,6 +142,10 @@ function TemplateList({
     // this.gridColumnApi = params.columnApi;
   }
 
+  function handleEditSubmit(data) {
+    onEditSubmit({ pid: selectedRow.pid, ...data });
+  }
+
   function handleConfirmRemove() { // confirm remove user
     console.log('onRemove', selectedRow);
     removeRow(selectedRow);
@@ -149,6 +173,9 @@ function TemplateList({
     } else if (cell.colDef.headerName === 'Manage') {
       selectRow(cell.data);
       setManageOpen(true);
+    } else if (cell.colDef.headerName === 'Edit') {
+      selectRow(cell.data);
+      setEditOpen(true);
     }
   }
 
@@ -157,6 +184,7 @@ function TemplateList({
       deleteButton: DeleteUserButton,
       deleteItem: DeleteItemButton,
       addUserButton: AddUserButton,
+      editButton: EditButton,
     },
     defaultColumnDefs: {
       resizable: true,
@@ -204,6 +232,7 @@ function TemplateList({
           : (
             <AgGridReact
               animateRows
+              enableCellTextSelection
               onGridReady={handleGridReady}
               onCellClicked={handleCellClick}
               frameworkComponents={rowConstants.frameworkComponents}
@@ -247,6 +276,17 @@ function TemplateList({
         defaultMembersOf={manageMembersFor}
         rowData
       />
+      {editForm
+      && (
+      <EditModal
+        header="Edit User"
+        info="Edit user information"
+        isOpen={isEditOpen}
+        toggleOpen={toggleEditOpen}
+        onSubmit={handleEditSubmit}
+        form={editFormParsed}
+      />
+      )}
     </div>
   );
 }

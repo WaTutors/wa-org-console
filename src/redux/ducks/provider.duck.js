@@ -1,4 +1,5 @@
 /* eslint-disable no-use-before-define */
+import React from 'react';
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import { formatContactForDb } from 'services/formatContactInfo';
@@ -16,6 +17,10 @@ const ADD_PROVIDERS_FAILURE = 'ADD_PROVIDERS_FAILURE';
 const REMOVE_PROVIDER_BEGIN = 'REMOVE_PROVIDER_BEGIN';
 const REMOVE_PROVIDER_SUCCESS = 'REMOVE_PROVIDER_SUCCESS';
 const REMOVE_PROVIDER_FAILURE = 'REMOVE_PROVIDER_FAILURE';
+
+const EDIT_PROVIDER_BEGIN = 'EDIT_PROVIDER_BEGIN';
+const EDIT_PROVIDER_SUCCESS = 'EDIT_PROVIDER_SUCCESS';
+const EDIT_PROVIDER_FAILURE = 'EDIT_PROVIDER_FAILURE';
 // REDUCER
 
 export default function providersReducer(
@@ -52,6 +57,28 @@ export default function providersReducer(
         list: [...state.list, ...action.payload],
       };
     case ADD_PROVIDERS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case EDIT_PROVIDER_BEGIN:
+      return {
+        ...state,
+        loading: true,
+      };
+    case EDIT_PROVIDER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        list: state.list.map((el) => {
+          if (el.pid === action.payload.pid)
+            return action.payload;
+          return el;
+        }),
+      };
+    case EDIT_PROVIDER_FAILURE:
       return {
         ...state,
         loading: false,
@@ -200,6 +227,81 @@ export function inviteProvidersThunk(payload) {
   };
 }
 
+/**
+ *
+ * @param {*} payload
+ */
+export function editProviderThunk(payload) {
+  return async (dispatch, getState) => {
+    dispatch(editProviderBegin());
+    console.log({ payload });
+    try {
+      console.log('getState', getState());
+      const { org, uuid } = getState().userReducer;
+      const { list } = getState().providersReducer;
+
+      let request;
+      // validate and format payload
+      const inputErrors = [];
+      const { pid, properties } = payload;
+      let providerObj;
+      if (pid)
+        providerObj = list.find((el) => el.pid === pid);
+      if (!providerObj)
+        inputErrors.push('-- Provider not found from id --');
+      // abort if validation errors
+      if (inputErrors.length > 0) {
+        toast.error(
+          <div>
+            {inputErrors.map((error) => <div>{error}</div>)}
+          </div>,
+        );
+        dispatch(editProviderFailure(inputErrors.toString()));
+        return false;
+      }
+      // format
+      const pArr = properties ? properties.map((el) => `${org}_${el.value}`) : []; // new properties array from form
+      const pArrPrev = providerObj.properties
+        ? providerObj.profile.properties.filter((property) => property.includes(`${org}_`))
+        : [];
+      const addProperties = pArr.filter((el) => !pArrPrev.includes(el)); // properties added
+      const removeProperties = pArrPrev.filter((el) => !pArr.includes(el)); // properties removed
+      console.log('provider filter', {
+        properties, pid, providerObj, pArrPrev, pArr, addProperties, removeProperties,
+      });
+      const body = {
+        pid,
+        ...(properties && addProperties.length > 0
+          ? { addProperties } // new items
+          : {}), // nothing
+        ...(properties && removeProperties.length > 0
+          ? { removeProperties }
+          : {}), // nothing
+        // addLabels: ,
+        // removeLabels: ,
+      };
+
+      await apiFetch({
+        method: 'PATCH',
+        endpoint: `admin/profiles/provider/${org}`,
+        body,
+      });
+      await Promise.all([request]);
+      const newProfile = {
+        ...providerObj,
+        profile: {
+          ...providerObj.profile,
+          properties: pArr,
+        },
+      };
+      dispatch(editProviderSuccess(newProfile));
+    } catch (error) {
+      console.error('editProviderThunk threw', error);
+      dispatch(editProviderFailure(error.message));
+    }
+  };
+}
+
 export function removeProviderThunk({ pid, iid }) {
   return async (dispatch, getState) => {
     dispatch(getProvidersBegin());
@@ -264,5 +366,17 @@ export const removeProviderSuccess = (newProviders) => ({
 });
 export const removeProviderFailure = (error) => ({
   type: REMOVE_PROVIDER_FAILURE,
+  payload: { error },
+});
+
+export const editProviderBegin = () => ({
+  type: EDIT_PROVIDER_BEGIN,
+});
+export const editProviderSuccess = (newProviders) => ({
+  type: EDIT_PROVIDER_SUCCESS,
+  payload: newProviders,
+});
+export const editProviderFailure = (error) => ({
+  type: EDIT_PROVIDER_FAILURE,
   payload: { error },
 });

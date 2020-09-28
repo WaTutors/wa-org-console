@@ -7,14 +7,14 @@ import {
   mapProviderMainAgGridRows, generateProviderMainAgGridColumns,
 } from 'services/parsers/provider.parser';
 import {
-  getProvidersThunk, inviteProvidersThunk, removeProviderThunk,
+  getProvidersThunk, inviteProvidersThunk, removeProviderThunk, editProviderThunk,
 } from 'redux/ducks/provider.duck';
 import TemplateList from './Template';
 
 function ProviderList({
   // redux props go brrrrr
-  getData, addData, removeData, // functions
-  dataList, loading, orgState, orgReservedProps, // variables
+  getData, addData, removeData, editData, // functions
+  dataList, properties, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
   const providerProps = (orgReservedProps && orgReservedProps.provider) || null;
@@ -77,6 +77,21 @@ function ProviderList({
         });
     });
 
+  const editForm = [{
+    name: 'properties',
+    label: 'Assigned Subjects (for tutoring)',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    multi: true,
+    options: properties && properties.map((item) => ({ value: item, label: item })),
+  }];
+
+  function handleEditSubmit(e) {
+    console.log('ProviderList handleEditSubmit', e);
+    editData(e);
+  }
+
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
   const encodedUri = encodeURI(csvContent);
 
@@ -97,6 +112,8 @@ function ProviderList({
         invite: false,phone: '+1 25688484862',}
       */
       addForm={form}
+      editForm={editForm}
+      onEditSubmit={handleEditSubmit}
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');
@@ -124,8 +141,10 @@ function ProviderList({
 ProviderList.propTypes = {
   getData: PropTypes.func.isRequired,
   addData: PropTypes.func.isRequired,
+  editData: PropTypes.func.isRequired,
   removeData: PropTypes.func.isRequired,
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
   orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -136,11 +155,13 @@ const mapStateToProps = ({ userReducer, providersReducer }) => ({
   orgReservedProps: userReducer.reservedLabels,
   loading: providersReducer.loading,
   dataList: providersReducer.list,
+  properties: userReducer.properties,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getProvidersThunk()),
   addData: (inputData) => dispatch(inviteProvidersThunk(inputData)),
   removeData: (data) => dispatch(removeProviderThunk(data)),
+  editData: (payload) => dispatch(editProviderThunk(payload)),
 });
 
 export default connect(

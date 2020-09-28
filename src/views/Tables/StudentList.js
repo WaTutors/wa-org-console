@@ -5,13 +5,15 @@ import PropTypes from 'prop-types';
 import {
   mapStudentMainAgGridRows, generateStudentMainAgGridColumns, allCapsToText,
 } from 'services/parsers/student.parser';
-import { getStudentsThunk, inviteStudentsThunk, removeStudentThunk } from 'redux/ducks/student.duck';
+import {
+  getStudentsThunk, inviteStudentsThunk, removeStudentThunk, editStudentThunk,
+} from 'redux/ducks/student.duck';
 import TemplateList from './Template';
 
 function StudentList({
   // redux props go brrrrr
-  getData, addData, removeData, // functions
-  dataList, loading, orgState, orgReservedProps, // variables
+  getData, addData, removeData, editData, // functions
+  dataList, properties, loading, orgState, orgReservedProps, // variables
   ...props
 }) {
   const consumerProps = (orgReservedProps && orgReservedProps.consumer) || null;
@@ -67,6 +69,21 @@ function StudentList({
         });
     });
 
+  const editForm = [{
+    name: 'properties',
+    label: 'Assigned Subjects (for tutoring)',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    multi: true,
+    options: properties && properties.map((item) => ({ value: item, label: item })),
+  }];
+
+  function handleEditSubmit(e) {
+    console.log('StudentList handleEditSubmit', e);
+    editData(e);
+  }
+
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
   const encodedUri = encodeURI(csvContent);
 
@@ -81,6 +98,8 @@ function StudentList({
       columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
       rowData={rowData}
       addForm={form}
+      editForm={editForm}
+      onEditSubmit={handleEditSubmit}
       downloadName={`add_student_${orgState}.csv`}
       processFile={(raw) => {
         const rows = raw.split('\n');
@@ -109,8 +128,10 @@ function StudentList({
 StudentList.propTypes = {
   getData: PropTypes.func.isRequired,
   addData: PropTypes.func.isRequired,
+  editData: PropTypes.func.isRequired,
   removeData: PropTypes.func.isRequired,
   dataList: PropTypes.objectOf(PropTypes.any).isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
   orgState: PropTypes.string.isRequired,
   orgReservedProps: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -120,12 +141,14 @@ const mapStateToProps = ({ userReducer, studentsReducer }) => ({
   orgState: userReducer.org,
   loading: studentsReducer.loading,
   dataList: studentsReducer.list,
+  properties: userReducer.properties,
   orgReservedProps: userReducer.reservedLabels,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
   getData: () => dispatch(getStudentsThunk()),
   addData: (inputData) => dispatch(inviteStudentsThunk(inputData)),
   removeData: (data) => dispatch(removeStudentThunk(data)),
+  editData: (payload) => dispatch(editStudentThunk(payload)),
 });
 
 export default connect(

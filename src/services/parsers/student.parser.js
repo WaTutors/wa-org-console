@@ -16,9 +16,11 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   ...(reserved && reservedLabels ? reserved : []),
   {
     headerName: 'Contact', field: 'phone',
-  }, /* {
-    headerName: 'Labels', field: 'labels', flex: 1.25,
-  }, */ {
+  }, {
+    headerName: 'Subjects', field: 'properties', flex: 1.25,
+  }, {
+    headerName: 'Edit', cellRenderer: 'editButton', width: 64, flex: 0.5,
+  }, {
     headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
   }].filter((colObj) => {
     if (columnsToHide)
@@ -77,6 +79,22 @@ function parseTextLabel(item, orgState, fieldName = 'NAME') {
 }
 
 /**
+ * filter and format properties
+ * @param {object} item consumer object
+ * @param {object} itemData related group or session object
+ * @param {string} orgState name of organization
+ */
+function parsePropertiesFromItem(item, orgState) {
+  const orgPrefix = `${orgState}_`;
+  if (item.profile && item.profile.properties)
+    return item.profile.properties
+      .filter((property) => property.includes(orgPrefix))
+      .map((property) => property.replace(orgPrefix, ''));
+  // else
+  return null;
+}
+
+/**
  * parses organization labels into normal text, removes all caps and underscores
  *
  *
@@ -127,7 +145,7 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.replace(/ /g, '_')));
   }
-  console.log({ reserved });
+  // console.log({ reserved });
 
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
@@ -137,6 +155,7 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     ),
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
+    properties: parsePropertiesFromItem(item, orgState),
     ...reduced,
     iid: item.iid,
     pid: item.pid,

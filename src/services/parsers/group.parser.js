@@ -1,6 +1,10 @@
 exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Name', field: 'name', sortable: true,
 }, {
+  headerName: 'Manage', cellRenderer: 'addUserButton', flex: 0.5, width: 64,
+}, {
+  headerName: 'Delete', cellRenderer: 'deleteItem', flex: 0.5,
+}, {
   headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
 }, {
   headerName: 'Subjects', field: 'subjects', sortable: true,
@@ -11,9 +15,7 @@ exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'Members', field: 'members', sortable: true,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', width: 64, flex: 0.5,
-}, {
-  headerName: 'Delete', cellRenderer: 'deleteItem', width: 64, flex: 0.5,
+  headerName: 'Visible', field: 'visible', sortable: true,
 }].filter((colObj) => {
   if (columnsToHide)
     return !columnsToHide.includes(colObj.field);
@@ -53,6 +55,7 @@ exports.mapGroupMainAgGridRows = (item) => {
     numMembers: item.activeMembers ? item.activeMembers.length : 0,
     created: createdDateTime.toLocaleDateString('en-US', TimeOptions),
     gid: item.gid,
+    visible: item.hidden ? 'No' : 'Yes',
     id: `g~${item.gid}`,
   };
 };
@@ -85,20 +88,22 @@ exports.generateGroupMembersAgGridColumns = () => [{
  * @returns {object}
  */
 exports.mapGroupMembersAgGridRows = (item, itemData, orgState) => ({
-  name: item.name || 'Not Found',
   subjects: item.labels,
   info: item.info,
+  activeMembers: item.activeMembers,
+  id: item.gid,
+  name: item.name || 'Not Found',
+  visible: item.hidden ? 'No' : 'Yes',
+  numMembers: item.activeMembers ? item.activeMembers.length : 0,
   members: item.activeMembers
     ? item.activeMembers.map((pid) => item.members[pid] && item.members[pid].name.split('~')[0])
     : [],
-  numMembers: item.activeMembers ? item.activeMembers.length : 0,
-  isIncluded: item.activeMembers && itemData.activeMembers
+  isIncluded: item.activeMembers
+    && itemData.activeMembers
     && item.activeMembers.length > 0 // only show if group has members
-  // && item.activeMembers.length === itemData.activeMembers.length // filter subsets
+    // && item.activeMembers.length === itemData.activeMembers.length // filter subsets
     && item.activeMembers
       .every((pid) => itemData.activeMembers.includes(pid)), // evey user is included
-  activeMembers: item.activeMembers,
-  id: item.gid,
 });
 
 /**

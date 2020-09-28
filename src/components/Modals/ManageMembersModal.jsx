@@ -386,6 +386,7 @@ function ManageMembersModal({
               : (
                 <AgGridReact
                   animateRows
+                  enableCellTextSelection
                   onGridReady={handleGridReady}
                   onCellClicked={handleCellClick}
                   frameworkComponents={rowConstants.frameworkComponents}

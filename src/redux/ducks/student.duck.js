@@ -1,4 +1,5 @@
 /* eslint-disable no-use-before-define */
+import React from 'react';
 import initialState from 'redux/initialState';
 import apiFetch from 'redux/helpers/apiFetch';
 import { formatContactForDb } from 'services/formatContactInfo';
@@ -12,6 +13,10 @@ const GET_STUDENTS_FAILURE = 'GET_STUDENTS_FAILURE';
 const ADD_STUDENTS_BEGIN = 'ADD_STUDENTS_BEGIN';
 const ADD_STUDENTS_SUCCESS = 'ADD_STUDENTS_SUCCESS';
 const ADD_STUDENTS_FAILURE = 'ADD_STUDENTS_FAILURE';
+
+const EDIT_STUDENT_BEGIN = 'EDIT_STUDENT_BEGIN';
+const EDIT_STUDENT_SUCCESS = 'EDIT_STUDENT_SUCCESS';
+const EDIT_STUDENT_FAILURE = 'EDIT_STUDENT_FAILURE';
 
 const REMOVE_STUDENT_BEGIN = 'REMOVE_STUDENT_BEGIN';
 const REMOVE_STUDENT_SUCCESS = 'REMOVE_STUDENT_SUCCESS';
@@ -53,6 +58,28 @@ export default function studentsReducer(
         list: [...state.list, ...action.payload],
       };
     case ADD_STUDENTS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case EDIT_STUDENT_BEGIN:
+      return {
+        ...state,
+        loading: true,
+      };
+    case EDIT_STUDENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        list: state.list.map((el) => {
+          if (el.pid === action.payload.pid)
+            return action.payload;
+          return el;
+        }),
+      };
+    case EDIT_STUDENT_FAILURE:
       return {
         ...state,
         loading: false,
@@ -182,7 +209,82 @@ export function inviteStudentsThunk(payload) {
           dispatch(addStudentsFailure(error.message));
         });
     } catch (error) {
-      console.log('DANICCCCAA', error);
+      console.log('Error with ', error);
+    }
+  };
+}
+
+/**
+ *
+ * @param {*} payload
+ */
+export function editStudentThunk(payload) {
+  return async (dispatch, getState) => {
+    dispatch(editStudentBegin());
+    console.log({ payload });
+    try {
+      console.log('getState', getState());
+      const { org, uuid } = getState().userReducer;
+      const { list } = getState().studentsReducer;
+
+      let request;
+      // validate and format payload
+      const inputErrors = [];
+      const { pid, properties } = payload;
+      let studentObj;
+      if (pid)
+        studentObj = list.find((el) => el.pid === pid);
+      if (!studentObj)
+        inputErrors.push('-- Provider not found from id --');
+      // abort if validation errors
+      if (inputErrors.length > 0) {
+        toast.error(
+          <div>
+            {inputErrors.map((error) => <div>{error}</div>)}
+          </div>,
+        );
+        dispatch(editStudentFailure(inputErrors.toString()));
+        return false;
+      }
+      // format
+      const pArr = properties ? properties.map((el) => `${org}_${el.value}`) : []; // new properties array from form
+      const pArrPrev = studentObj.profile.properties
+        ? studentObj.profile.properties.filter((property) => property.includes(`${org}_`))
+        : [];
+      const addProperties = pArr.filter((el) => !pArrPrev.includes(el)); // properties added
+      const removeProperties = pArrPrev.filter((el) => !pArr.includes(el)); // properties removed
+      console.log('consumer filter', {
+        properties, pid, studentObj, pArrPrev, pArr, addProperties, removeProperties,
+      });
+      const body = {
+        pid,
+        ...(properties && addProperties.length > 0
+          ? { addProperties } // new items
+          : {}), // nothing
+        ...(properties && removeProperties.length > 0
+          ? { removeProperties }
+          : {}), // nothing
+        // addLabels: ,
+        // removeLabels: ,
+      };
+
+      await apiFetch({
+        method: 'PATCH',
+        endpoint: `admin/profiles/consumer/${org}`,
+        body,
+      });
+      await Promise.all([request]);
+      const newProfile = {
+        ...studentObj,
+        profile: {
+          ...studentObj.profile,
+          properties: pArr,
+        },
+      };
+      dispatch(editStudentSuccess(newProfile));
+    } catch (error) {
+      console.error('editStudentThunk threw', error);
+      dispatch(editStudentFailure(error.message));
     }
   };
 }
@@ -239,6 +341,18 @@ export const addStudentsSuccess = (newStudents) => ({
 });
 export const addStudentsFailure = (error) => ({
   type: ADD_STUDENTS_FAILURE,
+  payload: { error },
+});
+
+export const editStudentBegin = () => ({
+  type: EDIT_STUDENT_BEGIN,
+});
+export const editStudentSuccess = (newStudents) => ({
+  type: EDIT_STUDENT_SUCCESS,
+  payload: newStudents,
+});
+export const editStudentFailure = (error) => ({
+  type: EDIT_STUDENT_FAILURE,
   payload: { error },
 });
 
