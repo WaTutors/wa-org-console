@@ -7,6 +7,10 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
 }, {
+  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
+}, {
+  headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
+}, {
   headerName: 'Session Type', field: 'type', sortable: true,
 }, {
   headerName: 'Subject', field: 'subjects', sortable: true, minWidth: 150,
@@ -25,9 +29,7 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'Status', field: 'status', sortable: true,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
-}, {
-  headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
+  headerName: 'Links', field: 'links', sortable: true,
 }].filter((colObj) => {
   if (columnsToHide)
     return !columnsToHide.includes(colObj.field);
@@ -111,10 +113,12 @@ export const mapSessionMainAgGridRows = (item) => {
   }
 
   const { name: providerName, pid: providerId } = getProviderInfo(item, item.type);
-  const startDateTime = new Date(item.info.start._seconds * 1000);
+  const startDateTime = moment(new Date(item.info.start._seconds * 1000));
   const createdDateTime = item.created ? new Date(item.created._seconds * 1000) : new Date();
   const TimeOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
-  const DateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const DateOptions = {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  };
 
   return {
     status,
@@ -125,8 +129,9 @@ export const mapSessionMainAgGridRows = (item) => {
     subjects: stripUndPrefixArr(type === 'Tutoring' ? [item.info.property] : item.info.properties),
     name: item.info.name,
     about: item.info.about,
-    startTime: startDateTime.toLocaleDateString('en-US', TimeOptions).split(',')[1],
-    startDate: startDateTime.toLocaleDateString('en-US', DateOptions),
+    links: item.info.links,
+    startTime: startDateTime.format('h:m A'),
+    startDate: startDateTime.format('ddd D/M/YY'),
     providerEmail: item.provider ? item.provider.email : null,
     members: item.members ? Object.values(item.members).map((member) => member.name.split('~')[0]) : [],
     numMembers: item.activeMembers ? Object.values(item.activeMembers).length : 0,

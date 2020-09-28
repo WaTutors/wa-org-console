@@ -56,6 +56,13 @@ function GroupList({
     type: 'text',
     placeholder: 'This group is for ...',
   }, {
+    name: 'notHidden',
+    label: 'Is visible to users?',
+    csvlabel: 'Is visible to users?',
+    componentClass: 'select',
+    placeholder: 'select',
+    options: [true, false].map((item) => ({ value: item, label: item ? 'Yes' : 'No' })),
+  }, {
     name: 'students',
     label: 'Add Students',
     csvlabel: 'Add Students (period seperated)',

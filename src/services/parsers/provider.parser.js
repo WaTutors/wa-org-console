@@ -25,6 +25,8 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
+    headerName: 'Edit', cellRenderer: 'editButton', width: 64, sortable: false,
+  }, {
     headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, sortable: false,
   },
     /* removed columns
@@ -103,6 +105,22 @@ function parseLabels(item, orgState, capsreduced, fieldName = 'NAME') {
 }
 
 /**
+ * filter and format properties
+ * @param {object} item consumer object
+ * @param {object} itemData related group or session object
+ * @param {string} orgState name of organization
+ */
+function parsePropertiesFromItem(item, orgState) {
+  const orgPrefix = `${orgState}_`;
+  if (item.profile && item.profile.properties)
+    return item.profile.properties
+      .filter((property) => property.includes(orgPrefix))
+      .map((property) => property.replace(orgPrefix, ''));
+  // else
+  return null;
+}
+
+/**
  * parses database provider object into something to be displayed
  *
  * @see generateProviderMainAgGridColumns associated columns
@@ -143,7 +161,7 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
     phone: formatContactForUI(item.profile ? item.phone : item.to),
     rating: item.rating,
     ratingCount: item.numRating,
-    properties: item.profile ? item.profile.properties : null,
+    properties: parsePropertiesFromItem(item, orgState),
     ...reduced,
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
@@ -172,6 +190,20 @@ const generateProviderMembersAgGridColumns = (columnsToHide, reservedLabels) => 
     headerName: 'Enrolled', field: 'isIncluded', cellRenderer: 'checkbox', width: 100,
   }];
 };
+
+function parseLabelsFromItem(item, itemData, orgState) {
+  return item.profile
+    ? item.profile.org
+      .filter(
+        (str) => str.includes(orgState) && str !== orgState
+      && !str.includes('TEACHER') && !str.includes('TUTOR'),
+      )
+      .map((str) => str.replace(`${orgState}_`, ''))
+    // if invitation
+    : item.labels
+      .filter((str) => str !== 'TEACHER' && str !== 'TUTOR');
+}
+
 /**
  * parses database Group object into something to be displayed for
  * the members list grid
@@ -188,16 +220,9 @@ const generateProviderMembersAgGridColumns = (columnsToHide, reservedLabels) => 
 const mapProviderMembersAgGridRows = (item, itemData, orgState) => ({
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
   rating: item.rating,
-  properties: item.profile ? item.profile.properties : null,
+  properties: parsePropertiesFromItem(item, orgState),
   phone: formatContactForUI(item.profile ? item.phone : item.to),
-  labels: item.profile // TODO remove and use custom parser
-    ? item.profile.org
-      .filter((str) => str.includes(orgState) && str !== orgState
-    && !str.includes('TEACHER') && !str.includes('TUTOR'))
-      .map((str) => str.replace(`${orgState}_`, ''))
-  // if invitation
-    : item.labels
-      .filter((str) => str !== 'TEACHER' && str !== 'TUTOR'),
+  labels: parseLabelsFromItem(item, itemData, orgState),
   isIncluded: itemData.providerId && itemData.providerId === item.pid,
   id: item.pid,
 });
@@ -211,7 +236,7 @@ function findProviderPidByName(nameString, providerList, org) {
     return false;
 
   const activeProviders = providerList.filter((doc) => doc.profile);
-  console.log(activeProviders)
+  console.log(activeProviders);
 
   for (let i = 0; i < activeProviders.length; i++) {
     const doc = activeProviders[i];

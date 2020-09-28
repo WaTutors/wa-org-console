@@ -3,6 +3,9 @@ import {
   FormGroup, ControlLabel, FormControl, Row, HelpBlock,
 } from 'react-bootstrap';
 import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
+
+const animatedComponents = makeAnimated();
 
 function FieldGroup({
   label, name, options = false, handleChange, checkboxes, multi = false, type, help, ...props
@@ -56,6 +59,7 @@ function FieldGroup({
             isMulti
             className="basic-single"
             classNamePrefix="select"
+            components={animatedComponents}
             name={name}
             options={options}
             // onChange={(e) => e && handleChange({ target: { value: e.value } }, name)}
@@ -63,6 +67,7 @@ function FieldGroup({
               console.log(e);
               handleChange({ target: { value: e } }, name);
             }}
+            {...props}
           />
         </FormGroup>
       );
@@ -76,9 +81,11 @@ function FieldGroup({
             isSearchable
             className="basic-single"
             classNamePrefix="select"
+            components={animatedComponents}
             name={name}
             options={options}
             onChange={(e) => e && handleChange({ target: { value: [e] } }, name)}
+            {...props}
           />
         </FormGroup>
       );
