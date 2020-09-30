@@ -108,6 +108,18 @@ export const mapSessionMainAgGridRows = (item) => {
     case 'free_private':
       type = 'Study Session';
       break;
+    case 'free_link':
+      type = 'Link (no video)';
+      break;
+    case 'paid_private_timed':
+      type = 'Paid Timed';
+      break;
+    case 'paid':
+      type = 'Paid';
+      break;
+    case 'paid_on_demand':
+      type = 'Paid On Demand';
+      break;
     default:
       console.log('Session type not recognized', item);
   }
