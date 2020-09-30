@@ -1,0 +1,22 @@
+[debug] [2020-09-30T03:43:38.942Z] ----------------------------------------------------------------------
+[debug] [2020-09-30T03:43:38.944Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Brett\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2020-09-30T03:43:38.944Z] CLI Version:   8.6.0
+[debug] [2020-09-30T03:43:38.944Z] Platform:      win32
+[debug] [2020-09-30T03:43:38.944Z] Node Version:  v10.15.3
+[debug] [2020-09-30T03:43:38.946Z] Time:          Tue Sep 29 2020 20:43:38 GMT-0700 (Pacific Daylight Time)
+[debug] [2020-09-30T03:43:38.946Z] ----------------------------------------------------------------------
+[debug] [2020-09-30T03:43:38.946Z] 
+[debug] [2020-09-30T03:43:38.956Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-09-30T03:43:38.956Z] > authorizing via signed-in user
+[debug] [2020-09-30T03:43:38.957Z] [iam] checking project watutor-console for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2020-09-30T03:43:38.960Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/watutor-console:testIamPermissions  
+ {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2020-09-30T03:43:39.141Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 30 Sep 2020 03:43:37 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=52","alt-svc":"h3-Q050=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-30T03:43:39.146Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/watutor-console  
+ 
+[debug] [2020-09-30T03:43:39.335Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 30 Sep 2020 03:43:37 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-Q050=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'watutor-console'...
+[info] 
+[info] i  deploying hosting 
+[info] Running command: npm run build
