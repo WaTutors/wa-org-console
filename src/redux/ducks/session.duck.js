@@ -238,7 +238,7 @@ export function createSessionsThunk(inputData, selectedSession) {
             groupObj = findGroupByName(data.group, groupList);
         else
           groupObj = undefined;
-        const memberType = data.isOptional ? 'invitees' : 'addProfiles';
+        const memberType = data.isOptional === 'false' ? 'addProfiles' : 'invitees';
         body = { // if tutor session
           sid: selectedSession.id,
           sender: uid,
