@@ -150,11 +150,12 @@ export function removeOrgGroupLabelsThunk(toRemove) {
   };
 }
 
-export function addOrgGroupLabelsThunk(toAdd) {
+export function addOrgGroupLabelsThunk(fieldData) {
   return async (dispatch, getState) => {
     dispatch(updateOrgSummaryBegin());
     const { org, groupLabels } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
+    const toAdd = typeof fieldData === 'string' ? fieldData : fieldData[0].value;
     const newGroupLabels = [
       ...(groupLabels || []),
       toAdd,

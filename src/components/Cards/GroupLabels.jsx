@@ -11,6 +11,7 @@ import Labels from 'components/Lists/GroupLabels';
 GroupLabelCard.propTypes = {
   alias: PropTypes.objectOf(PropTypes.string),
   addAutoGroupLabels: PropTypes.func.isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
   mdCol: PropTypes.number,
 };
 GroupLabelCard.defaultProps = {
@@ -21,7 +22,7 @@ GroupLabelCard.defaultProps = {
 };
 
 function GroupLabelCard({
-  addAutoGroupLabels, alias, mdCol,
+  addAutoGroupLabels, alias, mdCol, properties,
 }) {
   const [isAddOpen, setAddOpen] = useState();
   const toggleAddOpen = () => setAddOpen(!isAddOpen);
@@ -36,8 +37,9 @@ function GroupLabelCard({
       onSubmit={handleAddGroupLabel}
       isOpen={isAddOpen}
       toggleOpen={toggleAddOpen}
-      header="Add Auto-Group Label to Organization"
+      header="Add Auto-Grouping within Organization"
       infoText={`
+      !!!!!!!!!!!!!!PELHAM OR SANJAY YOU SHOULD REWRITE THIS!!!!!!!!!!!!!!
       Auto-Group Labels are a way to automatically generate groups from labels. 
       When a new ${alias.consumer} is added with any of these "Auto-Group Labels" then they will be added to a group. 
       These Groups can then be managed like any other.
@@ -45,10 +47,12 @@ function GroupLabelCard({
       form={[
         {
           name: 'label',
-          label: 'New Auto-Group Label',
-          type: 'text',
-          bsClass: 'form-control',
-          placeholder: 'Grade 4',
+          label: 'Auto-Group by Subject',
+          csvlabel: 'Group Subject',
+          type: 'select',
+          componentClass: 'select',
+          placeholder: 'select',
+          options: properties && properties.map((item) => ({ value: item, label: item })),
         },
       ]}
     />
@@ -57,8 +61,8 @@ function GroupLabelCard({
   return (
     <Col md={mdCol}>
       <Card
-        title="Auto-Group Labels"
-        category="Currently active Auto-Group Labels"
+        title="Auto-Grouping"
+        category="Currently active Groups automatically organized by subjects"
         stats="Updated now"
         statsIcon="fa fa-history"
         button={{
@@ -83,6 +87,7 @@ function GroupLabelCard({
 const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
   loading: userReducer.loading,
+  properties: userReducer.properties,
   alias: userReducer.alias,
 });
 const mapDispatchToProps = (dispatch, componentProps) => ({
