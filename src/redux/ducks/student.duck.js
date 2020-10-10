@@ -55,7 +55,7 @@ export default function studentsReducer(
       return {
         ...state,
         loading: false,
-        list: [...state.list, ...action.payload],
+        list: [...action.payload, ...state.list],
       };
     case ADD_STUDENTS_FAILURE:
       return {
@@ -155,7 +155,7 @@ export function inviteStudentsThunk(payload) {
       newStudents.forEach((student, i) => {
         if (student.fromParseFile)
           Object.entries(student).forEach(([key, val]) => {
-            if (!['phone', 'labels'].includes(key))
+            if (!['phone', 'labels', 'orgProperties'].includes(key))
               if (val === true) // parse checkbox UI
                 postedLabels[i].push(`${val}`.trim());
               else if (Array.isArray(val)) // for select UI
@@ -165,7 +165,7 @@ export function inviteStudentsThunk(payload) {
           });
         else
           Object.entries(student).forEach(([key, val]) => {
-            if (!['phone', 'labels'].includes(key))
+            if (!['phone', 'labels', 'orgProperties'].includes(key))
               if (val === true) // parse checkbox UI
                 postedLabels[i].push(`${val}`.trim());
               else if (Array.isArray(val)) // for select UI
@@ -183,6 +183,10 @@ export function inviteStudentsThunk(payload) {
         return false;
       }
 
+      const orgProperties = typeof payload.orgProperties === 'string' 
+        ? [payload.orgProperties]
+        : payload.orgProperties.map((el) => el.value);
+
       return apiFetch({
         method: 'POST',
         endpoint: '/admin/org/invitations',
@@ -193,7 +197,10 @@ export function inviteStudentsThunk(payload) {
           invitees: contactInfoArr,
           labels: postedLabels,
           profileType: 'consumer',
-        // inviteMsg, // optional
+          data: {
+            orgProperties,
+          },
+          // inviteMsg, // optional
         },
       })
         .then((response) => {
@@ -201,6 +208,7 @@ export function inviteStudentsThunk(payload) {
             to: formatContactForDb(item.phone),
             labels: postedLabels[i],
             iid: response.iids[i].iid,
+            data: { orgProperties },
           }));
           dispatch(addStudentsSuccess(newStudentObjs));
         })

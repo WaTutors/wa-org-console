@@ -39,13 +39,15 @@ function ProviderList({
     label: 'Contact (Phone or Email)',
     bsClass: 'form-control',
     placeholder: '503 123 1234',
-  }, /* {
-    name: 'labels',
-    csvlabel: 'Additional Labels',
-    label: 'Private Labels (period seperated)',
-    type: 'string',
-    placeholder: 'Grade 4. Reading. Yakima',
-  } */];
+  }, {
+    name: 'orgProperties',
+    label: 'Assigned Subjects (for tutoring)',
+    type: 'select',
+    componentClass: 'select',
+    placeholder: 'select',
+    multi: true,
+    options: properties && properties.map((item) => ({ value: item, label: item })),
+  }];
 
   if (providerProps)
     Object.entries(providerProps).forEach(([key, value]) => {

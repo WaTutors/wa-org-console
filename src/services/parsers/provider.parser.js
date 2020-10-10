@@ -116,7 +116,8 @@ function parsePropertiesFromItem(item, orgState) {
     return item.profile.properties
       .filter((property) => property.includes(orgPrefix))
       .map((property) => property.replace(orgPrefix, ''));
-  // else
+  if (item.data) // if invite
+    return item.data.orgProperties;
   return null;
 }
 

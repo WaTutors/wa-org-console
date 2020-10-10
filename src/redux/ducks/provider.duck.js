@@ -54,7 +54,7 @@ export default function providersReducer(
       return {
         ...state,
         loading: false,
-        list: [...state.list, ...action.payload],
+        list: [...action.payload, ...state.list],
       };
     case ADD_PROVIDERS_FAILURE:
       return {
@@ -155,11 +155,12 @@ export function inviteProvidersThunk(payload) {
     const { uid } = firebaseAuthService.getUser(true);
 
     const postedLabels = newProviders.map((_) => []);
+    console.log('inviteProvidersThunk', { payload, postedLabels });
 
     newProviders.forEach((provider, i) => {
       if (provider.fromParseFile)
         Object.entries(provider).forEach(([key, val]) => {
-          if (!['phone', 'labels'].includes(key))
+          if (!['phone', 'labels', 'orgProperties'].includes(key))
             if (val === true) // parse checkbox UI
               postedLabels[i].push(`${val}`.trim());
             else if (Array.isArray(val)) // for select UI
@@ -169,7 +170,7 @@ export function inviteProvidersThunk(payload) {
         });
       else
         Object.entries(provider).forEach(([key, val]) => {
-          if (!['phone', 'labels'].includes(key))
+          if (!['phone', 'labels', 'orgProperties'].includes(key))
             if (val === true) // parse checkbox UI
               postedLabels[i].push(`${val}`.trim());
             else if (Array.isArray(val)) // for select UI
@@ -197,7 +198,10 @@ export function inviteProvidersThunk(payload) {
       dispatch(addProvidersFailure('-- Invalid phone number or email --'));
       return false;
     }
-    console.log('inviteProvidersThunk', { payload, postedLabels });
+
+    const orgProperties = typeof payload.orgProperties === 'string'
+      ? [payload.orgProperties]
+      : payload.orgProperties.map((el) => el.value);
 
     await apiFetch({
       method: 'POST',
@@ -209,6 +213,9 @@ export function inviteProvidersThunk(payload) {
         invitees: contactInfoArr,
         labels: postedLabels,
         profileType: 'provider',
+        data: {
+          orgProperties,
+        },
         // inviteMsg, // optional
       },
     })
@@ -217,6 +224,7 @@ export function inviteProvidersThunk(payload) {
           to: formatContactForDb(item.phone),
           labels: postedLabels[i],
           iid: response.iids[i].iid,
+          data: { orgProperties },
         }));
         dispatch(addProvidersSuccess(newProviderObjs));
       })
