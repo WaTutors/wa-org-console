@@ -228,7 +228,7 @@ export function createSessionsThunk(inputData, selectedSession) {
 
       // format body
       let body;
-      if (selectedSession) {
+      if (selectedSession) { // if tutor session
         const data = newSessions[0];
         let groupObj; // get group differently if file or form
         if (data.group) // if declared
@@ -238,15 +238,18 @@ export function createSessionsThunk(inputData, selectedSession) {
             groupObj = findGroupByName(data.group, groupList);
         else
           groupObj = undefined;
-        const memberType = data.isOptional ? 'invitees' : 'addProfiles';
-        body = { // if tutor session
+        const isOptional = data.isOptional && (Array.isArray(data.isOptional)
+          ? data.isOptional[0].value === 'false'
+          : data.isOptional === 'false');
+        const memberType = isOptional ? 'addProfiles' : 'invitees';
+        body = {
           sid: selectedSession.id,
           sender: uid,
           property: newSessions[0].subject[0].value,
           transaction_stripe: 'placeholder',
           [memberType]: groupObj ? groupObj.activeMembers : undefined,
-        }; // for other sessions
-      } else {
+        };
+      } else { // for other sessions
         body = newSessions.map((data) => {
           const start = selectedSession
             ? new Date(selectedSession.info.start._seconds * 1000)
@@ -279,7 +282,10 @@ export function createSessionsThunk(inputData, selectedSession) {
             groupObj = undefined;
           // console.log("ldld", addProfilePresenters, groupObj);
 
-          const memberType = data.isOptional ? 'invitees' : 'addProfiles';
+          const isOptional = data.isOptional && (Array.isArray(data.isOptional)
+            ? data.isOptional[0].value === 'false'
+            : data.isOptional === 'false');
+          const memberType = isOptional ? 'addProfiles' : 'invitees';
           const sessionType = Array.isArray(data.type) ? data.type[0].value : data.type;
           const sessionProperty = Array.isArray(data.subject)
             ? data.subject[0].value
