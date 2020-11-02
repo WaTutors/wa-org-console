@@ -7,7 +7,7 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
+  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75, field: 'manage',
 }, {
   headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
 }, {
@@ -48,9 +48,11 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
  * @returns {object} name, and pid fields
  */
 function getProviderInfo(item, type) {
-  const providerNameClassroom = item.members && Object.keys(item.members)
-    .filter((pid) => Boolean(item.members[pid].isLead) && item.activeMembers.includes(pid))[0]
-    ? Object.values(item.members).filter((el) => Boolean(el.isLead))[0].name
+  const providerNameClassroom = item.members
+      && Object.keys(item.members).filter((pid) => (Boolean(item.members[pid].isLead)
+      || Boolean(item.members[pid].isOwner))
+      && item.activeMembers.includes(pid))[0]
+    ? Object.values(item.members).filter((el) => Boolean(el.isLead) || Boolean(el.isOwner))[0].name
     : null;
   const providerPidClassroom = item.members && Object.keys(item.members)
     .filter(
@@ -94,8 +96,14 @@ export const mapSessionMainAgGridRows = (item) => {
   let status = 'No status';
   if (events.includes('ended'))
     status = 'Ended';
+  else if (events.includes('started'))
+    status = 'Ongoing';
+  else if (events.includes('delayed'))
+    status = 'Delayed';
   else if (events.includes('ready'))
     status = 'Ready to start';
+  else if (events.includes('booked'))
+    status = 'Booked';
 
   let type = '';
   switch (item.type) {
@@ -103,16 +111,19 @@ export const mapSessionMainAgGridRows = (item) => {
       type = 'Tutoring';
       break;
     case 'free_private_timed':
-      type = 'Classroom';
+      if (item.info.org === 'watutor_default')
+        type = 'Group';
+      else
+        type = 'Classroom';
       break;
     case 'free_private':
-      type = 'Study Session';
+      type = 'Group';
       break;
     case 'free_link':
       type = 'Link (no video)';
       break;
     case 'paid_private_timed':
-      type = 'Paid Timed';
+      type = 'Class';
       break;
     case 'paid':
       type = 'Paid';

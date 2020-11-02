@@ -70,7 +70,7 @@ function Login({
       }}
       >
         <Card
-          title="Welcome to the Watutor Organization Management Console"
+          title="WaTutor Organization Management Console"
           content={(
             <form onSubmit={handleSubmit}>
               <FormInputs
@@ -82,25 +82,24 @@ function Login({
                     label: 'Organization',
                     type: 'text',
                     bsClass: 'form-control',
-                    placeholder: 'Company Name Here',
+                    placeholder: 'Organization Name Here',
                   },
                   {
                     name: 'email',
-                    label: 'Email Username',
+                    label: 'Email',
                     type: 'text',
                     bsClass: 'form-control',
-                    placeholder: 'Username',
+                    placeholder: 'Email',
                   },
                   {
                     name: 'password',
                     label: 'Password',
                     type: 'password',
                     bsClass: 'form-control',
-                    placeholder: 'Username',
+                    placeholder: 'Password',
                   },
                 ]}
               />
-
               <Button bsStyle="info" pullRight fill type="submit">
                 Login
                 {' '}

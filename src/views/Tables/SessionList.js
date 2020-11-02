@@ -363,7 +363,9 @@ function SessionList({
         getData={getData}
         addData={handleAddData}
         removeRow={removeData}
-        columnDefs={generateSessionMainAgGridColumns()}
+        columnDefs={generateSessionMainAgGridColumns(
+          orgState === 'watutor_default' ? ['manage'] : null,
+        )}
         rowData={rowData}
         // hideAddFile
         addChildren={formData.type === 'Tutoring Session' && (

@@ -180,19 +180,28 @@ class Admin extends Component {
     }
   }
   render() {
-    if (!this.props.orgState)
-      this.props.history.push('/')
+    const { orgState, history, location } = this.props;
+    const { image, color, hasImage } = this.state;
+
+    if (!orgState) history.push('/')
 
     return (
       <div className="wrapper">
         <NotificationSystem ref="notificationSystem" style={style} />
-        <Sidebar {...this.props} routes={routes} image={this.state.image}
-        color={this.state.color}
-        hasImage={this.state.hasImage}/>
+        <Sidebar
+          {...this.props}
+          routes={orgState === 'watutor_default'
+            ? routes.filter(({ name }) => name !== 'Group List')
+            : routes
+          }
+          image={image}
+          color={color}
+          hasImage={hasImage}
+        />
         <div id="main-panel" className="main-panel" ref="mainPanel">
           <AdminNavbar
             {...this.props}
-            brandText={this.getBrandText(this.props.location.pathname)}
+            brandText={this.getBrandText(location.pathname)}
           />
           <Switch>{this.getRoutes(routes)}</Switch>
           <Footer />
