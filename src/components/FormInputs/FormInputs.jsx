@@ -99,6 +99,7 @@ function FieldGroup({
           <FormControl
             onChange={(e) => handleChange(e, name)}
             type={type}
+            name={name}
             {...props}
           />
           {!!help && (

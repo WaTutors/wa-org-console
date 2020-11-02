@@ -72,7 +72,7 @@ function Login({
         <Card
           title="WaTutor Organization Management Console"
           content={(
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ paddingLeft: 10, paddingRight: 10 }}>
               <FormInputs
                 ncols={['col-xs-12', 'col-xs-12', 'col-xs-12']}
                 handleChange={handleChange}
@@ -87,7 +87,7 @@ function Login({
                   {
                     name: 'email',
                     label: 'Email',
-                    type: 'text',
+                    type: 'email',
                     bsClass: 'form-control',
                     placeholder: 'Email',
                   },
