@@ -76,7 +76,9 @@ function StudentList({
     componentClass: 'select',
     placeholder: 'select',
     multi: true,
-    options: properties && properties.map((item) => ({ value: item, label: item })),
+    options: properties && (orgState === 'watutor_default'
+      ? properties.map((item) => ({ value: item.split('_')[1], label: item.split('_')[1] }))
+      : properties.map((item) => ({ value: item, label: item }))),
   }];
 
   function handleEditSubmit(e) {
@@ -95,7 +97,10 @@ function StudentList({
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
+      columnDefs={generateStudentMainAgGridColumns(
+        orgState === 'watutor_default' ? ['invite'] : [],
+        consumerProps,
+      )}
       rowData={rowData}
       addForm={form}
       editForm={editForm}
@@ -144,7 +149,7 @@ const mapStateToProps = ({ userReducer, studentsReducer }) => ({
   properties: userReducer.properties,
   orgReservedProps: userReducer.reservedLabels,
 });
-const mapDispatchToProps = (dispatch, componentProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   getData: () => dispatch(getStudentsThunk()),
   addData: (inputData) => dispatch(inviteStudentsThunk(inputData)),
   removeData: (data) => dispatch(removeStudentThunk(data)),

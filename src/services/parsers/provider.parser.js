@@ -114,7 +114,7 @@ function parsePropertiesFromItem(item, orgState) {
   const orgPrefix = `${orgState}_`;
   if (item.profile && item.profile.properties)
     return item.profile.properties
-      .filter((property) => property.includes(orgPrefix))
+      .filter((property) => (orgState === 'watutor_default' ? true : property.includes(orgPrefix)))
       .map((property) => property.replace(orgPrefix, ''));
   // else
   return null;

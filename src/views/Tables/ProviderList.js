@@ -28,9 +28,17 @@ function ProviderList({
   const columnDefs = useMemo(() => {
     console.log('calc columnDefs', { isMD });
     if (isMD) // full screen, filter nothing
-      return generateProviderMainAgGridColumns([], providerProps);
+      return generateProviderMainAgGridColumns(
+        orgState === 'watutor_default' ? ['invite'] : [],
+        providerProps,
+      );
       // if mobile, filter less important things
-    return generateProviderMainAgGridColumns(['ratingCount', 'phone'], providerProps);
+    return generateProviderMainAgGridColumns(
+      orgState === 'watutor_default'
+        ? ['ratingCount', 'phone', 'invite']
+        : ['ratingCount', 'phone'],
+      providerProps,
+    );
   }, [isMD]);
 
   const form = [{

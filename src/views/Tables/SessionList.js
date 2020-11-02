@@ -123,7 +123,7 @@ function SessionList({
     label: 'Link URL',
     csvlabel: 'Link URLs ()',
     type: 'text',
-    placeholder: 'www.watutors.com',
+    placeholder: 'https://watutor.com',
     csvPlaceholder: 'freeform',
   }, {
     name: 'subject',
