@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import { formatContactForUI } from 'services/formatContactInfo';
+import parsePhoneNumber from 'libphonenumber-js';
 
 const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
@@ -20,6 +21,8 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
     headerName: 'Edit', cellRenderer: 'editButton', width: 64, flex: 0.5,
+  }, {
+    headerName: 'Org', field: 'org', flex: 0.5,
   }, {
     headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
   }].filter((colObj) => {
@@ -150,9 +153,8 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: formatContactForUI(
-      item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-    ),
+    phone: parsePhoneNumber(item.profile && typeof item.phone === 'string' ? item.phone : item.to)
+      .formatNational(),
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
     properties: parsePropertiesFromItem(item, orgState),
@@ -160,6 +162,7 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     iid: item.iid,
     pid: item.pid,
     id: `u~${item.pid || item.iid}`,
+    org: item.profile.org.filter((org) => !org.includes('_')),
     // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
     // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
   });
@@ -198,9 +201,8 @@ const generateStudentMembersAgGridColumns = (columnsToHide, reservedLabels) => {
 const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
   invite: item.profile ? 'Accepted' : 'Sent',
   name: item.profile ? item.profile.name.split('~')[0] : undefined,
-  phone: formatContactForUI(
-    item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-  ),
+  phone: parsePhoneNumber(item.profile && typeof item.phone === 'string' ? item.phone : item.to)
+    .formatNational(),
   labels: item.profile
     ? item.profile.org
       .filter((str) => str.includes(orgState) && str !== orgState)

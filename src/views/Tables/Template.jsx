@@ -70,7 +70,7 @@ TemplateList.defaultProps = {
 
 function TemplateList({
   props, listName, columnDefs, rowData, isLoading, addInfo,
-  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, // vars
+  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, org, properties, // vars
   exampleFilePath, downloadName, // vars cont
   getData, addData, removeRow, onEditSubmit, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
@@ -102,7 +102,7 @@ function TemplateList({
 
   // update EditForm
   useEffect(() => {
-    const parsedForm = populateFormInitialValues(editForm, selectedRow);
+    const parsedForm = populateFormInitialValues(editForm, selectedRow, org, properties);
     console.log({ parsedForm });
     setEditFormParsed(parsedForm);
   }, [editForm, selectedRow]);

@@ -40,7 +40,7 @@ const style = {
       border: '0',
       fontSize: '14px',
       WebkitFontSmoothing: 'antialiased',
-      fontFamily: '"Roboto","Helvetica Neue",Arial,sans-serif',
+      fontFamily: '"Inter","Helvetica Neue",Arial,sans-serif',
       fontWeight: '400',
       color: '#FFFFFF',
     },

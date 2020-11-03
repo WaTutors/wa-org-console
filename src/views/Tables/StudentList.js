@@ -98,7 +98,7 @@ function StudentList({
       addData={addData}
       removeRow={removeData}
       columnDefs={generateStudentMainAgGridColumns(
-        orgState === 'watutor_default' ? ['invite'] : [],
+        orgState === 'watutor_default' ? ['invite'] : ['org'],
         consumerProps,
       )}
       rowData={rowData}

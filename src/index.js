@@ -23,18 +23,18 @@ import {
 } from 'react-router-dom';
 import { hot } from 'react-hot-loader';
 
+import { ToastContainer } from 'react-toastify';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/animate.min.css';
 import './assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0';
 import './assets/css/demo.css';
 import './assets/css/pe-icon-7-stroke.css';
-import './assets/css/bretts-final-tweaks.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import AdminLayout from 'layouts/Admin.jsx';
 import External from 'layouts/External.jsx';
 import store from './redux';
-import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -56,16 +56,15 @@ ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>
       <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          />
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Switch>
         <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
         <Route path="/ext" render={(props) => <External {...props} />} />

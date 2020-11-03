@@ -29,14 +29,14 @@ function ProviderList({
     console.log('calc columnDefs', { isMD });
     if (isMD) // full screen, filter nothing
       return generateProviderMainAgGridColumns(
-        orgState === 'watutor_default' ? ['invite'] : [],
+        orgState === 'watutor_default' ? ['invite'] : ['org'],
         providerProps,
       );
       // if mobile, filter less important things
     return generateProviderMainAgGridColumns(
       orgState === 'watutor_default'
         ? ['ratingCount', 'phone', 'invite']
-        : ['ratingCount', 'phone'],
+        : ['ratingCount', 'phone', 'org'],
       providerProps,
     );
   }, [isMD]);
@@ -97,7 +97,8 @@ function ProviderList({
 
   function handleEditSubmit(e) {
     console.log('ProviderList handleEditSubmit', e);
-    editData(e);
+    if (e.properties && e.properties.length > 0)
+      editData(e);
   }
 
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
@@ -107,6 +108,8 @@ function ProviderList({
     <TemplateList
       listName="Tutor"
       props={props}
+      org={orgState}
+      properties={properties}
       isLoading={loading}
       getData={getData}
       addData={addData}

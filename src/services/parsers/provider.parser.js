@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import { formatContactForUI } from 'services/formatContactInfo';
+import parsePhoneNumber from 'libphonenumber-js';
 
 const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
@@ -26,6 +27,8 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
     headerName: 'Edit', cellRenderer: 'editButton', width: 64, sortable: false,
+  }, {
+    headerName: 'Org', field: 'org', flex: 0.5,
   }, {
     headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, sortable: false,
   },
@@ -158,13 +161,14 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: formatContactForUI(item.profile ? item.phone : item.to),
+    phone: parsePhoneNumber(item.profile ? item.phone : item.to).formatNational(),
     rating: item.rating,
     ratingCount: item.numRating,
     properties: parsePropertiesFromItem(item, orgState),
     ...reduced,
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
+    org: item.profile.org.filter((org) => !org.includes('_')),
     iid: item.iid,
     pid: item.pid,
   });

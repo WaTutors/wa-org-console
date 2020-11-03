@@ -5,7 +5,7 @@ function EditButton() {
     <div style={{
       fontSize: '32px',
       color: 'white',
-      background: '#29CAEB',
+      background: '#3478f6',
       borderRadius: '100%',
       justifyContent: 'center',
       textAlign: 'center',
