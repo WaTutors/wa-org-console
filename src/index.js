@@ -21,9 +21,11 @@ import { Provider } from 'react-redux';
 import {
   BrowserRouter, Route, Switch, Redirect,
 } from 'react-router-dom';
-import { hot } from 'react-hot-loader';
+import { createBrowserHistory } from 'history';
 
 import { ToastContainer } from 'react-toastify';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/animate.min.css';
@@ -36,21 +38,19 @@ import AdminLayout from 'layouts/Admin.jsx';
 import External from 'layouts/External.jsx';
 import store from './redux';
 
-function App() {
-  return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <Switch>
-          <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-          <Route path="/ext" render={(props) => <External {...props} />} />
-          <Redirect from="/" to="/ext/login" />
-        </Switch>
-      </BrowserRouter>
-    </Provider>
-  );
-}
+const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppContainer = hot(module)(App);
+const history = createBrowserHistory();
+
+Sentry.init({
+  dsn: 'https://5e51804b311644a98ed1beb82ce76216@o389415.ingest.sentry.io/5405269',
+  release: 'wonsole@1.0.0',
+  integrations: [new Integrations.BrowserTracing({
+    routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
+  })],
+  tracesSampleRate: 1.0,
+  normalizeDepth: 10,
+});
 
 ReactDOM.render(
   <Provider store={store}>
@@ -66,8 +66,8 @@ ReactDOM.render(
         pauseOnHover
       />
       <Switch>
-        <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-        <Route path="/ext" render={(props) => <External {...props} />} />
+        <SentryRoute path="/admin" render={(props) => <AdminLayout {...props} />} />
+        <SentryRoute path="/ext" render={(props) => <External {...props} />} />
         <Redirect from="/" to="/ext/login" />
       </Switch>
     </BrowserRouter>

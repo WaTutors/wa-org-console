@@ -20,11 +20,21 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
-    headerName: 'Edit', cellRenderer: 'editButton', width: 64, flex: 0.5,
+    headerName: 'Edit',
+    cellRenderer: 'editButton',
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
+    flex: 0.1,
   }, {
     headerName: 'Org', field: 'org', flex: 0.5,
   }, {
-    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
+    headerName: 'Remove',
+    cellRenderer: 'deleteButton',
+    flex: 0.3,
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
   }].filter((colObj) => {
     if (columnsToHide)
       return !columnsToHide.includes(colObj.field);
@@ -150,11 +160,12 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
   }
   // console.log({ reserved });
 
+  const phone = parsePhoneNumber(String(item.phone || item.to));
+
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: parsePhoneNumber(item.profile && typeof item.phone === 'string' ? item.phone : item.to)
-      .formatNational(),
+    phone: phone ? phone.formatNational() : 'DELETED',
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
     properties: parsePropertiesFromItem(item, orgState),
@@ -162,7 +173,9 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     iid: item.iid,
     pid: item.pid,
     id: `u~${item.pid || item.iid}`,
-    org: item.profile.org.filter((org) => !org.includes('_')),
+    org: orgState === 'watutor_default'
+      ? item.profile.org.filter((org) => !org.includes('_'))
+      : '',
     // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
     // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
   });
@@ -198,19 +211,22 @@ const generateStudentMembersAgGridColumns = (columnsToHide, reservedLabels) => {
  * @param {string} orgState name of organization
  * @returns {object}
  */
-const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
-  invite: item.profile ? 'Accepted' : 'Sent',
-  name: item.profile ? item.profile.name.split('~')[0] : undefined,
-  phone: parsePhoneNumber(item.profile && typeof item.phone === 'string' ? item.phone : item.to)
-    .formatNational(),
-  labels: item.profile
-    ? item.profile.org
-      .filter((str) => str.includes(orgState) && str !== orgState)
-      .map((str) => str.split('_')[-1])
-    : item.labels,
-  isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
-  id: item.pid || item.iid,
-});
+const mapStudentMembersAgGridRows = (item, itemData, orgState) => {
+  const phone = parsePhoneNumber(String(item.phone || item.to));
+
+  return {
+    invite: item.profile ? 'Accepted' : 'Sent',
+    name: item.profile ? item.profile.name.split('~')[0] : undefined,
+    phone: phone ? phone.formatNational() : 'DELETED',
+    labels: item.profile
+      ? item.profile.org
+        .filter((str) => str.includes(orgState) && str !== orgState)
+        .map((str) => str.split('_')[-1])
+      : item.labels,
+    isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
+    id: item.pid || item.iid,
+  };
+};
 
 /**
  * parses a student document into a name field

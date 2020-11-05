@@ -1,0 +1,17 @@
+@import "~ag-grid-community/src/styles/ag-grid.scss";
+@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/ag-theme-alpine-mixin";
+
+$gridRowHoverColor: rgba(173, 221, 255, 0.4);
+
+.ag-theme-alpine {
+    @include ag-theme-alpine((
+        row-hover-color: var(--gridRowHoverColor, #{$gridRowHoverColor}),
+        border-radius: 10px,
+        border-color: rgba(128, 128, 128, 0.2)
+    ));
+
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.16), 0px 2px 5px rgba(0, 0, 0, 0.23);
+    -moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.16), 0px 2px 5px rgba(0, 0, 0, 0.23);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.16), 0px 2px 5px rgba(0, 0, 0, 0.23);
+}

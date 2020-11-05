@@ -26,11 +26,21 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
-    headerName: 'Edit', cellRenderer: 'editButton', width: 64, sortable: false,
+    headerName: 'Edit',
+    cellRenderer: 'editButton',
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
+    flex: 0.1,
   }, {
     headerName: 'Org', field: 'org', flex: 0.5,
   }, {
-    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, sortable: false,
+    headerName: 'Remove',
+    cellRenderer: 'deleteButton',
+    sortable: false,
+    flex: 0.3,
+    suppressMenu: true,
+    resizable: false,
   },
     /* removed columns
     {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true,
@@ -158,17 +168,22 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
   }
+
+  const phone = parsePhoneNumber(String(item.phone || item.to));
+
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: parsePhoneNumber(item.profile ? item.phone : item.to).formatNational(),
+    phone: phone ? phone.formatNational() : 'DELETED',
     rating: item.rating,
     ratingCount: item.numRating,
     properties: parsePropertiesFromItem(item, orgState),
     ...reduced,
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
-    org: item.profile.org.filter((org) => !org.includes('_')),
+    org: orgState === 'watutor_default'
+      ? item.profile.org.filter((org) => !org.includes('_'))
+      : '',
     iid: item.iid,
     pid: item.pid,
   });

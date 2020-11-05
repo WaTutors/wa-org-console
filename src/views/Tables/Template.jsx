@@ -13,6 +13,7 @@ import EditModal from 'components/Modals/EditModal';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import '../../assets/sass/aggrid.scss';
 import ButtonBar from 'components/Buttons/ButtonBar';
 import Loader from 'components/Loader';
 import populateFormInitialValues from 'services/parsers/editForm';
@@ -173,7 +174,7 @@ function TemplateList({
     } else if (cell.colDef.headerName === 'Manage') {
       selectRow(cell.data);
       setManageOpen(true);
-    } else if (cell.colDef.headerName === 'Edit') {
+    } else if (cell.colDef.headerName === 'Edit' && cell.data.invite === 'Accepted') {
       selectRow(cell.data);
       setEditOpen(true);
     }
@@ -201,7 +202,7 @@ function TemplateList({
   };
 
   return (
-    <div className="content">
+    <div className="content" style={{ backgroundColor: '#f4f4f4' }}>
       <ButtonBar
         universalOptions={{
           size: 'large',
@@ -222,9 +223,9 @@ function TemplateList({
         ]}
       />
       <div
-        className="ag-theme-alpine"
+        className={isLoading ? undefined : 'ag-theme-alpine'}
         style={{
-          height: '80vh', width: '100%', maxWidth: '1500px', justifyContent: 'center',
+          height: '61vh', width: '100%', maxWidth: '1500px', justifyContent: 'center',
         }}
       >
         {isLoading

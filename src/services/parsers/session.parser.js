@@ -7,19 +7,43 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75, field: 'manage',
+  headerName: 'Manage',
+  cellRenderer: 'addUserButton',
+  width: 75,
+  field: 'manage',
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
-  headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
+  headerName: 'Delete',
+  cellRenderer: 'deleteItem',
+  width: 50,
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
-  headerName: 'Session Type', field: 'type', sortable: true,
+  headerName: 'Type', field: 'type', sortable: true,
 }, {
   headerName: 'Subject', field: 'subjects', sortable: true, minWidth: 150,
 }, {
   headerName: 'Tutor', field: 'provider', sortable: true,
 }, {
-  headerName: 'Start Time', field: 'startTime', sortable: true, filter: 'agDateColumnFilter',
-}, {
-  headerName: 'Start Date', field: 'startDate', sortable: true, filter: 'agDateColumnFilter',
+  headerName: 'Start Time',
+  field: 'startTime',
+  sortable: true,
+  filter: 'agDateColumnFilter',
+  comparator: (a, b) => {
+    const momA = moment(a, 'h:mm A ddd, M/D/YY');
+    const momB = moment(b, 'h:mm A ddd, M/D/YY');
+
+    if (momB.isBefore(momA))
+      return -1;
+
+    if (momB.isAfter(momA))
+      return 1;
+
+    return 0;
+  },
 }, {
   headerName: 'Created', field: 'created', sortable: true,
 }, {
@@ -76,8 +100,12 @@ function getProviderInfo(item, type) {
 // remove any prefix before last underscore
 function stripUndPrefixArr(arr) {
   return arr.map((str) => {
-    const undArr = str.split('_');
-    return undArr[undArr.length - 1];
+    if (str) {
+      const undArr = str.split('_');
+      return undArr[undArr.length - 1];
+    }
+
+    return '';
   });
 }
 
@@ -150,11 +178,15 @@ export const mapSessionMainAgGridRows = (item) => {
     providerId,
     active: true,
     subjects: stripUndPrefixArr(type === 'Tutoring' ? [item.info.property] : item.info.properties),
-    name: item.info.name,
-    about: item.info.about,
+    // eslint-disable-next-line no-nested-ternary
+    name: item.info.name === 'placeholder'
+      ? !item.info.property
+        ? 'Availability'
+        : 'Booked'
+      : item.info.name,
+    about: item.info.about !== 'placeholder' ? item.info.about : '',
     links: item.info.links,
-    startTime: startDateTime.format('h:mm A'),
-    startDate: startDateTime.format('ddd, M/D/YY'),
+    startTime: startDateTime.format('h:mm A ddd, M/D/YY'),
     providerEmail: item.provider ? item.provider.email : null,
     members: item.members ? Object.values(item.members).map((member) => member.name.split('~')[0]) : [],
     numMembers: item.activeMembers ? Object.values(item.activeMembers).length : 0,

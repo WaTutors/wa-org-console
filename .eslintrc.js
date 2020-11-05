@@ -2,6 +2,7 @@ module.exports = {
   env: {
     es6: true,
     node: true,
+    browser: true,
   },
   extends: [
     'plugin:react/recommended',
@@ -37,5 +38,6 @@ module.exports = {
     'import/no-unresolved': 'off', // objective imports from src don't work correctly
     'react/forbid-prop-types': 'warn', // way too opioniated 
     'no-plusplus': 'warn', // there's a use for this
+    'react/jsx-props-no-spreading': 'off',
   },
 };

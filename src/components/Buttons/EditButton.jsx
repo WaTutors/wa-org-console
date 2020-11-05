@@ -1,19 +1,13 @@
 import React from 'react';
 
+import Edit from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton';
+
 function EditButton() {
   return (
-    <div style={{
-      fontSize: '32px',
-      color: 'white',
-      background: '#3478f6',
-      borderRadius: '100%',
-      justifyContent: 'center',
-      textAlign: 'center',
-      width: '40px',
-    }}
-    >
-      <i className="pe-7s-note" />
-    </div>
+    <IconButton aria-label="edit">
+      <Edit fontSize="large" style={{ color: 'gray' }} />
+    </IconButton>
   );
 }
 
