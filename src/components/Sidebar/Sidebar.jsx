@@ -48,37 +48,32 @@ class Sidebar extends Component {
   }
 
   render() {
-    const sidebarBackground = {
-      backgroundImage: `url(${this.props.image})`,
-    };
     return (
       <div
         id="sidebar"
         className="sidebar"
         data-color={this.props.color}
-        data-image={this.props.image}
       >
-        {this.props.hasImage ? (
-          <div className="sidebar-background" style={sidebarBackground} />
-        ) : (
-          null
-        )}
         <div className="logo">
           <Row>
             <Col xs={12}>
               <a
-                href="https://watutors.com"
+                href="https://watutor.com"
                 className="simple-text logo-mini"
               >
                 <div className="logo-img">
-                  <img src={logo} alt="logo_image" />
+                  <img src={logo} alt="WaTutor Logo" />
                 </div>
               </a>
             </Col>
             <Col xs={12}>
               <a
-                href="https://www.watutors.com"
                 className="simple-text logo-normal"
+                style={{
+                  marginTop: 15,
+                  fontWeight: 600,
+                  textAlign: 'center',
+                }}
               >
                 {this.props.orgState}
               </a>

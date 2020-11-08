@@ -79,6 +79,8 @@ function GroupList({
 
   return (
     <TemplateList
+      addText="Add group"
+      controlId="searchGroup"
       listName="Group"
       manageMembersFor="Group"
       props={props}
@@ -91,6 +93,7 @@ function GroupList({
       // hideAddFile
       addInfo="Groups are required to create sessions"
       addForm={groupForm}
+      placeholder="Search by description..."
       processFile={(raw) => {
         console.log('process file', raw);
         const rows = raw.split('\n');
@@ -109,6 +112,7 @@ function GroupList({
       }}
       downloadName={`add_groups_${orgState}.csv`}
       exampleFilePath={encodedUri}
+      searchOptions={['Description', 'Member']}
     />
   );
 }

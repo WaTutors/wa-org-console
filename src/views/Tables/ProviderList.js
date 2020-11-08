@@ -106,6 +106,8 @@ function ProviderList({
 
   return (
     <TemplateList
+      addText="Add instructor"
+      controlId="providerSearch"
       listName="Tutor"
       props={props}
       org={orgState}
@@ -125,6 +127,7 @@ function ProviderList({
       addForm={form}
       editForm={editForm}
       onEditSubmit={handleEditSubmit}
+      placeholder="Search by name or phone number..."
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');

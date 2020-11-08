@@ -34,16 +34,12 @@ import { style } from "variables/Variables.jsx";
 
 import routes from "routes.js";
 
-import image from "assets/img/sidebar-3.jpg";
-
 class Admin extends Component {
   constructor(props) {
     super(props);
     this.state = {
       _notificationSystem: null,
-      image: image,
-      color: "black",
-      hasImage: true,
+      color: 'blue',
       fixedClasses: "dropdown show-dropdown open"
     };
   }
@@ -194,9 +190,7 @@ class Admin extends Component {
             ? routes.filter(({ name }) => name !== 'Group List')
             : routes
           }
-          image={image}
           color={color}
-          hasImage={hasImage}
         />
         <div id="main-panel" className="main-panel" ref="mainPanel">
           <AdminNavbar

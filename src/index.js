@@ -22,6 +22,7 @@ import {
   BrowserRouter, Route, Switch, Redirect,
 } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
+import { hot } from 'react-hot-loader';
 
 import { ToastContainer } from 'react-toastify';
 import * as Sentry from '@sentry/react';
@@ -52,25 +53,30 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      <Switch>
-        <SentryRoute path="/admin" render={(props) => <AdminLayout {...props} />} />
-        <SentryRoute path="/ext" render={(props) => <External {...props} />} />
-        <Redirect from="/" to="/ext/login" />
-      </Switch>
-    </BrowserRouter>
-  </Provider>,
-  document.getElementById('root'),
-);
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+        <Switch>
+          <SentryRoute path="/admin" render={(props) => <AdminLayout {...props} />} />
+          <SentryRoute path="/ext" render={(props) => <External {...props} />} />
+          <Redirect from="/" to="/ext/login" />
+        </Switch>
+      </BrowserRouter>
+    </Provider>
+  );
+}
+
+const AppContainer = hot(module)(App);
+
+ReactDOM.render(<AppContainer />, document.getElementById('root'));

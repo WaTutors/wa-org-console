@@ -91,6 +91,8 @@ function StudentList({
 
   return (
     <TemplateList
+      addText="Add student"
+      controlId="studentSearch"
       listName="Student"
       props={props}
       isLoading={loading}
@@ -106,6 +108,7 @@ function StudentList({
       editForm={editForm}
       onEditSubmit={handleEditSubmit}
       downloadName={`add_student_${orgState}.csv`}
+      placeholder="Search by name or phone number..."
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');

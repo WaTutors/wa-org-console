@@ -17,6 +17,7 @@ import '../../assets/sass/aggrid.scss';
 import ButtonBar from 'components/Buttons/ButtonBar';
 import Loader from 'components/Loader';
 import populateFormInitialValues from 'services/parsers/editForm';
+import SearchBar from 'components/FormInputs/SearchBar';
 
 TemplateList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
@@ -70,7 +71,7 @@ TemplateList.defaultProps = {
 };
 
 function TemplateList({
-  props, listName, columnDefs, rowData, isLoading, addInfo,
+  props, listName, columnDefs, rowData, isLoading, addInfo, placeholder, controlId, addText, searchOptions,
   addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, org, properties, // vars
   exampleFilePath, downloadName, // vars cont
   getData, addData, removeRow, onEditSubmit, // callback functions
@@ -88,6 +89,8 @@ function TemplateList({
   const toggleEditOpen = () => setEditOpen(!isEditOpen);
   const [editFormParsed, setEditFormParsed] = useState(editForm);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
   const toggleConfirmOpen = () => {
     console.log('confirm toggle');
     setConfirmOpen(!isConfirmOpen);
@@ -117,25 +120,33 @@ function TemplateList({
   }, [rowData]);
 
   useEffect(() => {
-    if (!gridApi)
-      return; // abort if null
+    if (gridApi)
+      if (!search) {
+        gridApi.setFilterModel(null);
+      } else if (/^[a-zA-Z]+$/.test(search)) {
+        const filterComponent = gridApi.getFilterInstance('name');
 
-    if (!props.location.state || !props.location.state.filters)
-      return;
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
 
-    const { filters } = props.location.state;
-    console.log('setting filters: ', filters);
-    Object.keys(filters).forEach((filterKey) => {
-      const filterComponent = gridApi.getFilterInstance(filterKey);
-      if (filterComponent !== undefined) {
-        filterComponent.setModel({
-          type: 'contains',
-          filter: filters[filterKey],
-        });
-        gridApi.onFilterChanged();
+          gridApi.onFilterChanged();
+        }
+      } else {
+        const filterComponent = gridApi.getFilterInstance('phone');
+
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
+
+          gridApi.onFilterChanged();
+        }
       }
-    });
-  }, [gridApi]);
+  }, [gridApi, search]);
 
   function handleGridReady(params) {
     console.log('TemplateList passed filters:', props.location.state);
@@ -203,29 +214,19 @@ function TemplateList({
 
   return (
     <div className="content" style={{ backgroundColor: '#f4f4f4' }}>
-      <ButtonBar
-        universalOptions={{
-          size: 'large',
-          color: 'info',
-        }}
-        buttonGroups={[
-          [{
-            text: 'Refresh',
-            onClick: handleRefresh,
-            icon: 'pe-7s-refresh-2',
-          }],
-          [{
-            text: 'Add',
-            onClick: () => setAddOpen(true),
-            icon: 'pe-7s-add-user',
-          }],
-          ...buttonBarExt,
-        ]}
+      <SearchBar
+        addText={addText}
+        controlId={controlId}
+        onAdd={() => setAddOpen(true)}
+        onRefresh={handleRefresh}
+        options={searchOptions}
+        placeholder={placeholder}
+        setSearch={setSearch}
       />
       <div
         className={isLoading ? undefined : 'ag-theme-alpine'}
         style={{
-          height: '61vh', width: '100%', maxWidth: '1500px', justifyContent: 'center',
+          height: '61vh', width: '100%', justifyContent: 'center',
         }}
       >
         {isLoading

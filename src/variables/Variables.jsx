@@ -529,20 +529,22 @@ const optionsSales = {
   showPoint: true,
   fullWidth: true,
   chartPadding: {
-    right: 50,
+    right: 80,
   },
 };
 const responsiveSales = [
-  [
-    'screen and (max-width: 640px)',
-    {
-      axisX: {
-        labelInterpolationFnc(value) {
-          return value[0];
-        },
-      },
+  ['screen and (min-width: 641px) and (max-width: 1024px)', {
+    showPoint: false,
+    axisX: {
+      labelInterpolationFnc: (value) => value.slice(0, 3),
     },
-  ],
+  }],
+  ['screen and (max-width: 640px)', {
+    showLine: false,
+    axisX: {
+      labelInterpolationFnc: (value) => value[0],
+    },
+  }],
 ];
 const legendSales = {
   names: ['Open App ', 'Joined Group ', 'Book Session '],
