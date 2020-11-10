@@ -72,7 +72,7 @@ TemplateList.defaultProps = {
 
 function TemplateList({
   props, listName, columnDefs, rowData, isLoading, addInfo, placeholder, controlId, addText, searchOptions,
-  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, org, properties, // vars
+  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, org, properties, editHeader, editInfo, // vars
   exampleFilePath, downloadName, // vars cont
   getData, addData, removeRow, onEditSubmit, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
@@ -90,6 +90,7 @@ function TemplateList({
   const [editFormParsed, setEditFormParsed] = useState(editForm);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [optionFilter, setOptionFilter] = useState(searchOptions ? searchOptions[0].value : '');
 
   const toggleConfirmOpen = () => {
     console.log('confirm toggle');
@@ -123,6 +124,17 @@ function TemplateList({
     if (gridApi)
       if (!search) {
         gridApi.setFilterModel(null);
+      } else if (searchOptions) {
+        const filterComponent = gridApi.getFilterInstance(optionFilter);
+
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
+
+          gridApi.onFilterChanged();
+        }
       } else if (/^[a-zA-Z]+$/.test(search)) {
         const filterComponent = gridApi.getFilterInstance('name');
 
@@ -146,7 +158,7 @@ function TemplateList({
           gridApi.onFilterChanged();
         }
       }
-  }, [gridApi, search]);
+  }, [gridApi, optionFilter, search]);
 
   function handleGridReady(params) {
     console.log('TemplateList passed filters:', props.location.state);
@@ -155,7 +167,10 @@ function TemplateList({
   }
 
   function handleEditSubmit(data) {
-    onEditSubmit({ pid: selectedRow.pid, ...data });
+    if (controlId === 'propertySearch')
+      onEditSubmit(selectedRow);
+    else
+      onEditSubmit({ pid: selectedRow.pid, ...data });
   }
 
   function handleConfirmRemove() { // confirm remove user
@@ -185,7 +200,8 @@ function TemplateList({
     } else if (cell.colDef.headerName === 'Manage') {
       selectRow(cell.data);
       setManageOpen(true);
-    } else if (cell.colDef.headerName === 'Edit' && cell.data.invite === 'Accepted') {
+    } else if (cell.colDef.headerName === 'Edit'
+      && (cell.data.invite === 'Accepted' || !cell.data.invite)) {
       selectRow(cell.data);
       setEditOpen(true);
     }
@@ -221,6 +237,7 @@ function TemplateList({
         onRefresh={handleRefresh}
         options={searchOptions}
         placeholder={placeholder}
+        setOptionFilter={setOptionFilter}
         setSearch={setSearch}
       />
       <div
@@ -278,16 +295,15 @@ function TemplateList({
         defaultMembersOf={manageMembersFor}
         rowData
       />
-      {editForm
-      && (
-      <EditModal
-        header="Edit User"
-        info="Edit user information"
-        isOpen={isEditOpen}
-        toggleOpen={toggleEditOpen}
-        onSubmit={handleEditSubmit}
-        form={editFormParsed}
-      />
+      {editForm && (
+        <EditModal
+          header={editHeader}
+          info={editInfo}
+          isOpen={isEditOpen}
+          toggleOpen={toggleEditOpen}
+          onSubmit={handleEditSubmit}
+          form={editFormParsed}
+        />
       )}
     </div>
   );

@@ -55,6 +55,11 @@ function populateFormInitialValues(form, rowData, org, properties) {
       };
     }
 
+    if (field.name === 'property')
+      return {
+        defaultValue: rowData.id,
+      };
+
     return {
       ...field,
       defaultValue: formattedVal,

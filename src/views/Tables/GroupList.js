@@ -93,7 +93,6 @@ function GroupList({
       // hideAddFile
       addInfo="Groups are required to create sessions"
       addForm={groupForm}
-      placeholder="Search by description..."
       processFile={(raw) => {
         console.log('process file', raw);
         const rows = raw.split('\n');
@@ -112,7 +111,13 @@ function GroupList({
       }}
       downloadName={`add_groups_${orgState}.csv`}
       exampleFilePath={encodedUri}
-      searchOptions={['Description', 'Member']}
+      searchOptions={[{
+        label: 'Description',
+        value: 'info',
+      }, {
+        label: 'Member',
+        value: 'members',
+      }]}
     />
   );
 }

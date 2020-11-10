@@ -19,7 +19,7 @@ import Dashboard from 'views/Dashboard.jsx';
 import UserProfile from 'views/UserProfile.jsx';
 import TableList from 'views/TableList.jsx';
 import {
-  GroupList, ProviderList, StudentList, SessionList,
+  GroupList, ProviderList, StudentList, SessionList, PropertyList,
 } from 'views/Tables';
 
 import Typography from 'views/Typography.jsx';
@@ -69,6 +69,14 @@ const dashboardRoutes = [
     name: 'Session List',
     icon: 'pe-7s-video',
     component: SessionList,
+    layout: '/admin',
+  },
+  {
+    live: true,
+    path: '/properties',
+    name: 'Properties',
+    icon: 'pe-7s-note',
+    component: PropertyList,
     layout: '/admin',
   },
   /* {

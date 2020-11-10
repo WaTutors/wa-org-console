@@ -148,7 +148,7 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`))),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(r))),
         };
       console.error(`In mapStudentMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other
@@ -158,7 +158,6 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.replace(/ /g, '_')));
   }
-  // console.log({ reserved });
 
   const phone = parsePhoneNumber(String(item.phone || item.to));
 

@@ -451,7 +451,6 @@ function SessionList({
         addInfo="Create a sessions to create a time for a video call and invite users"
         addForm={addForm}
         passInputData={setFormData}
-        placeholder="Search by name..."
         processFile={(raw) => {
           const rows = raw.split('\n');
           const validRows = rows.filter((row) => row !== '');
@@ -481,7 +480,19 @@ function SessionList({
         }]]}
         exampleFilePath={encodedFormUri}
         downloadName={`add_session_${orgState}.csv`}
-        searchOptions={['Name', 'Subject', 'Instructor', 'Member']}
+        searchOptions={[{
+          label: 'Name',
+          value: 'name',
+        }, {
+          label: 'Subject',
+          value: 'subjects',
+        }, {
+          label: 'Instructor',
+          value: 'provider',
+        }, {
+          label: 'Member',
+          value: 'members',
+        }]}
       />
       <AddModal
         hideFile // if enabled: processFile={(raw) => window.alert('raw data: '+raw)}

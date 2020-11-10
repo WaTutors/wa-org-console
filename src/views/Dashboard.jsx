@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
@@ -25,14 +25,9 @@ import moment from 'moment';
 
 import { Card } from 'components/Cards/Card';
 import { StatsCard } from 'components/Cards/StatsCard';
-import OrgProperties from 'components/Cards/Properties';
 import OrgGroupLabels from 'components/Cards/GroupLabels';
-import SearchForm from 'components/FormInputs/SearchForm';
 
 import {
-  dataPie,
-  legendPie,
-  dataSales,
   optionsSales,
   responsiveSales,
   legendSales,
@@ -43,13 +38,15 @@ import {
 } from 'variables/Variables';
 import { getProvidersThunk } from 'redux/ducks/provider.duck';
 import { getStudentsThunk } from 'redux/ducks/student.duck';
+import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 
 function Dashboard({
-  alias, getProviders, providers, getStudents, students, orgState, ...props
+  alias, getProviders, providers, getStudents, students, orgState, getOrgSummary, ...props
 }) {
   useEffect(() => {
     getProviders();
     getStudents();
+    getOrgSummary();
   }, []);
 
   function createLegend(json) {
@@ -201,7 +198,6 @@ function Dashboard({
         <Row>
           {/* activityGraphCol */}
           {orgState !== 'watutor_default' && <OrgGroupLabels />}
-          <OrgProperties />
         </Row>
       </Grid>
     </div>
@@ -222,6 +218,7 @@ Dashboard.propTypes = {
   getStudents: PropTypes.func.isRequired,
   students: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   orgState: PropTypes.string.isRequired,
+  getOrgSummary: PropTypes.func.isRequired,
 };
 
 Dashboard.defaultProps = {
@@ -245,6 +242,7 @@ const mapStateToProps = ({ userReducer, providersReducer, studentsReducer }) => 
 const mapDispatchToProps = (dispatch) => ({
   getProviders: () => dispatch(getProvidersThunk()),
   getStudents: () => dispatch(getStudentsThunk()),
+  getOrgSummary: () => dispatch(getOrgSummaryThunk()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

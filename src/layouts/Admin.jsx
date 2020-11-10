@@ -21,7 +21,7 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';
 import { Route, Switch } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
-
+import { PropTypes } from 'prop-types';
 
 
 import AdminNavbar from "components/Navbars/AdminNavbar";
@@ -78,6 +78,8 @@ class Admin extends Component {
     */
   };
   getRoutes = routes => {
+    const { alias } = this.props;
+
     return routes.map((prop, key) => {
       if (prop.layout === "/admin") { // FIXME && prop.live
         return (
@@ -97,13 +99,15 @@ class Admin extends Component {
     });
   };
   getBrandText = path => {
+    const { alias } = this.props;
+
     for (let i = 0; i < routes.length; i++) {
       if (
         this.props.location.pathname.indexOf(
           routes[i].layout + routes[i].path
         ) !== -1
       ) {
-        return routes[i].name;
+        return routes[i].name === 'Properties' ? alias.properties : routes[i].name;
       }
     }
     return "Brand";
@@ -176,7 +180,9 @@ class Admin extends Component {
     }
   }
   render() {
-    const { orgState, history, location } = this.props;
+    const {
+      orgState, history, location, alias,
+    } = this.props;
     const { image, color, hasImage } = this.state;
 
     if (!orgState) history.push('/')
@@ -186,9 +192,19 @@ class Admin extends Component {
         <NotificationSystem ref="notificationSystem" style={style} />
         <Sidebar
           {...this.props}
-          routes={orgState === 'watutor_default'
-            ? routes.filter(({ name }) => name !== 'Group List')
-            : routes
+          routes={(orgState === 'watutor_default'
+            ? routes
+              .filter(({ name }) => name !== 'Group List')
+            : routes)
+            .map((route) => {
+              if (route.name === 'Properties')
+                return {
+                  ...route,
+                  name: `${alias.properties}`,
+                };
+
+              return route;
+            })
           }
           color={color}
         />
@@ -215,8 +231,21 @@ class Admin extends Component {
   }
 }
 
+Admin.propTypes = {
+  alias: PropTypes.shape({
+    properties: PropTypes.string,
+  }),
+};
+
+Admin.defaultProps = {
+  alias: {
+    properties: 'Categories',
+  },
+};
+
 const mapStateToProps = ({ userReducer }) => ({
   orgState: userReducer.org,
+  alias: userReducer.alias,
 });
 
 export default connect(
