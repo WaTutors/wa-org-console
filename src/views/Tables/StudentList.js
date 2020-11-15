@@ -76,7 +76,9 @@ function StudentList({
     componentClass: 'select',
     placeholder: 'select',
     multi: true,
-    options: properties && properties.map((item) => ({ value: item, label: item })),
+    options: properties && (orgState === 'watutor_default'
+      ? properties.map((item) => ({ value: item.split('_')[1], label: item.split('_')[1] }))
+      : properties.map((item) => ({ value: item, label: item }))),
   }];
 
   function handleEditSubmit(e) {
@@ -89,18 +91,24 @@ function StudentList({
 
   return (
     <TemplateList
+      addText="Add student"
+      controlId="studentSearch"
       listName="Student"
       props={props}
       isLoading={loading}
       getData={getData}
       addData={addData}
       removeRow={removeData}
-      columnDefs={generateStudentMainAgGridColumns([], consumerProps)}
+      columnDefs={generateStudentMainAgGridColumns(
+        orgState === 'watutor_default' ? ['invite'] : ['org'],
+        consumerProps,
+      )}
       rowData={rowData}
       addForm={form}
       editForm={editForm}
       onEditSubmit={handleEditSubmit}
       downloadName={`add_student_${orgState}.csv`}
+      placeholder="Search by name or phone number..."
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');
@@ -144,7 +152,7 @@ const mapStateToProps = ({ userReducer, studentsReducer }) => ({
   properties: userReducer.properties,
   orgReservedProps: userReducer.reservedLabels,
 });
-const mapDispatchToProps = (dispatch, componentProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   getData: () => dispatch(getStudentsThunk()),
   addData: (inputData) => dispatch(inviteStudentsThunk(inputData)),
   removeData: (data) => dispatch(removeStudentThunk(data)),

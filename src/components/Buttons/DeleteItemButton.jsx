@@ -1,20 +1,12 @@
 import React from 'react';
 
-function DeleteButton() {
+import Delete from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+
+export default function DeleteButton() {
   return (
-    <div style={{
-      fontSize: '32px',
-      color: 'white',
-      background: 'red',
-      borderRadius: '100%',
-      justifyContent: 'center',
-      textAlign: 'center',
-      width: '40px',
-    }}
-    >
-      <i className="pe-7s-trash" />
-    </div>
+    <IconButton aria-label="delete">
+      <Delete fontSize="large" style={{ color: '#fa282d' }} />
+    </IconButton>
   );
 }
-
-export default DeleteButton;

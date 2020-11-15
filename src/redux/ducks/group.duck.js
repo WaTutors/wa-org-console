@@ -125,7 +125,7 @@ export function getGroupsThunk() {
       const { groups } = groupsObj;
 
       // dispatch bullshit
-      dispatch(getGroupsSuccess(groups));
+      dispatch(getGroupsSuccess(groups || []));
     } catch (error) {
       console.error('getGroups thunk threw', error);
       dispatch(getGroupsFailure(error.message));

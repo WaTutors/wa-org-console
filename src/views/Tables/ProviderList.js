@@ -28,9 +28,17 @@ function ProviderList({
   const columnDefs = useMemo(() => {
     console.log('calc columnDefs', { isMD });
     if (isMD) // full screen, filter nothing
-      return generateProviderMainAgGridColumns([], providerProps);
+      return generateProviderMainAgGridColumns(
+        orgState === 'watutor_default' ? ['invite'] : ['org'],
+        providerProps,
+      );
       // if mobile, filter less important things
-    return generateProviderMainAgGridColumns(['ratingCount', 'phone'], providerProps);
+    return generateProviderMainAgGridColumns(
+      orgState === 'watutor_default'
+        ? ['ratingCount', 'phone', 'invite']
+        : ['ratingCount', 'phone', 'org'],
+      providerProps,
+    );
   }, [isMD]);
 
   const form = [{
@@ -89,7 +97,8 @@ function ProviderList({
 
   function handleEditSubmit(e) {
     console.log('ProviderList handleEditSubmit', e);
-    editData(e);
+    if (e.properties && e.properties.length > 0)
+      editData(e);
   }
 
   const csvContent = `data:text/csv;charset=utf-8, ${form.map((item) => item.csvlabel).join(',')}\n`;
@@ -97,8 +106,12 @@ function ProviderList({
 
   return (
     <TemplateList
+      addText="Add instructor"
+      controlId="providerSearch"
       listName="Tutor"
       props={props}
+      org={orgState}
+      properties={properties}
       isLoading={loading}
       getData={getData}
       addData={addData}
@@ -114,6 +127,7 @@ function ProviderList({
       addForm={form}
       editForm={editForm}
       onEditSubmit={handleEditSubmit}
+      placeholder="Search by name or phone number..."
       processFile={(raw) => {
         const rows = raw.split('\n');
         const validRows = rows.filter((row) => row !== '');

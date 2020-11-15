@@ -13,9 +13,11 @@ import EditModal from 'components/Modals/EditModal';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import '../../assets/sass/aggrid.scss';
 import ButtonBar from 'components/Buttons/ButtonBar';
 import Loader from 'components/Loader';
 import populateFormInitialValues from 'services/parsers/editForm';
+import SearchBar from 'components/FormInputs/SearchBar';
 
 TemplateList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
@@ -69,8 +71,8 @@ TemplateList.defaultProps = {
 };
 
 function TemplateList({
-  props, listName, columnDefs, rowData, isLoading, addInfo,
-  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, // vars
+  props, listName, columnDefs, rowData, isLoading, addInfo, placeholder, controlId, addText, searchOptions,
+  addForm, editForm, hideAddFile, buttonBarExt, manageMembersFor, org, properties, editHeader, editInfo, // vars
   exampleFilePath, downloadName, // vars cont
   getData, addData, removeRow, onEditSubmit, // callback functions
   formOnChangeSetFieldInvisibility, processFile, // passed forward functions
@@ -87,6 +89,9 @@ function TemplateList({
   const toggleEditOpen = () => setEditOpen(!isEditOpen);
   const [editFormParsed, setEditFormParsed] = useState(editForm);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [optionFilter, setOptionFilter] = useState(searchOptions ? searchOptions[0].value : '');
+
   const toggleConfirmOpen = () => {
     console.log('confirm toggle');
     setConfirmOpen(!isConfirmOpen);
@@ -102,7 +107,7 @@ function TemplateList({
 
   // update EditForm
   useEffect(() => {
-    const parsedForm = populateFormInitialValues(editForm, selectedRow);
+    const parsedForm = populateFormInitialValues(editForm, selectedRow, org, properties);
     console.log({ parsedForm });
     setEditFormParsed(parsedForm);
   }, [editForm, selectedRow]);
@@ -116,25 +121,44 @@ function TemplateList({
   }, [rowData]);
 
   useEffect(() => {
-    if (!gridApi)
-      return; // abort if null
+    if (gridApi)
+      if (!search) {
+        gridApi.setFilterModel(null);
+      } else if (searchOptions) {
+        const filterComponent = gridApi.getFilterInstance(optionFilter);
 
-    if (!props.location.state || !props.location.state.filters)
-      return;
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
 
-    const { filters } = props.location.state;
-    console.log('setting filters: ', filters);
-    Object.keys(filters).forEach((filterKey) => {
-      const filterComponent = gridApi.getFilterInstance(filterKey);
-      if (filterComponent !== undefined) {
-        filterComponent.setModel({
-          type: 'contains',
-          filter: filters[filterKey],
-        });
-        gridApi.onFilterChanged();
+          gridApi.onFilterChanged();
+        }
+      } else if (/^[a-zA-Z]+$/.test(search)) {
+        const filterComponent = gridApi.getFilterInstance('name');
+
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
+
+          gridApi.onFilterChanged();
+        }
+      } else {
+        const filterComponent = gridApi.getFilterInstance('phone');
+
+        if (filterComponent) {
+          filterComponent.setModel({
+            type: 'contains',
+            filter: search,
+          });
+
+          gridApi.onFilterChanged();
+        }
       }
-    });
-  }, [gridApi]);
+  }, [gridApi, optionFilter, search]);
 
   function handleGridReady(params) {
     console.log('TemplateList passed filters:', props.location.state);
@@ -143,7 +167,10 @@ function TemplateList({
   }
 
   function handleEditSubmit(data) {
-    onEditSubmit({ pid: selectedRow.pid, ...data });
+    if (controlId === 'propertySearch')
+      onEditSubmit(selectedRow);
+    else
+      onEditSubmit({ pid: selectedRow.pid, ...data });
   }
 
   function handleConfirmRemove() { // confirm remove user
@@ -173,7 +200,8 @@ function TemplateList({
     } else if (cell.colDef.headerName === 'Manage') {
       selectRow(cell.data);
       setManageOpen(true);
-    } else if (cell.colDef.headerName === 'Edit') {
+    } else if (cell.colDef.headerName === 'Edit'
+      && (cell.data.invite === 'Accepted' || !cell.data.invite)) {
       selectRow(cell.data);
       setEditOpen(true);
     }
@@ -201,30 +229,21 @@ function TemplateList({
   };
 
   return (
-    <div className="content">
-      <ButtonBar
-        universalOptions={{
-          size: 'large',
-          color: 'info',
-        }}
-        buttonGroups={[
-          [{
-            text: 'Refresh',
-            onClick: handleRefresh,
-            icon: 'pe-7s-refresh-2',
-          }],
-          [{
-            text: 'Add',
-            onClick: () => setAddOpen(true),
-            icon: 'pe-7s-add-user',
-          }],
-          ...buttonBarExt,
-        ]}
+    <div className="content" style={{ backgroundColor: '#f4f4f4' }}>
+      <SearchBar
+        addText={addText}
+        controlId={controlId}
+        onAdd={() => setAddOpen(true)}
+        onRefresh={handleRefresh}
+        options={searchOptions}
+        placeholder={placeholder}
+        setOptionFilter={setOptionFilter}
+        setSearch={setSearch}
       />
       <div
-        className="ag-theme-alpine"
+        className={isLoading ? undefined : 'ag-theme-alpine'}
         style={{
-          height: '80vh', width: '100%', maxWidth: '1500px', justifyContent: 'center',
+          height: '61vh', width: '100%', justifyContent: 'center',
         }}
       >
         {isLoading
@@ -276,16 +295,15 @@ function TemplateList({
         defaultMembersOf={manageMembersFor}
         rowData
       />
-      {editForm
-      && (
-      <EditModal
-        header="Edit User"
-        info="Edit user information"
-        isOpen={isEditOpen}
-        toggleOpen={toggleEditOpen}
-        onSubmit={handleEditSubmit}
-        form={editFormParsed}
-      />
+      {editForm && (
+        <EditModal
+          header={editHeader}
+          info={editInfo}
+          isOpen={isEditOpen}
+          toggleOpen={toggleEditOpen}
+          onSubmit={handleEditSubmit}
+          form={editFormParsed}
+        />
       )}
     </div>
   );

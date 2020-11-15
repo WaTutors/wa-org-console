@@ -13,7 +13,7 @@ export default {
   },
   user: {
     org: false, // testorg
-    name: 'Hank Hill',
+    name: 'Loading...',
     properties: ['Loading...'],
   },
   students: {

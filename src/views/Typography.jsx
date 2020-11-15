@@ -29,7 +29,7 @@ class Typography extends Component {
             <Col md={12}>
               <Card
                 title="Light Bootstrap Table Heading"
-                category="Created using Roboto Font Family"
+                category="Created using Inter Font Family"
                 content={(
                   <div>
                     <div className="typo-line">

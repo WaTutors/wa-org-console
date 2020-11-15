@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import { formatContactForUI } from 'services/formatContactInfo';
+import parsePhoneNumber from 'libphonenumber-js';
 
 const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
@@ -25,9 +26,21 @@ const generateProviderMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
-    headerName: 'Edit', cellRenderer: 'editButton', width: 64, sortable: false,
+    headerName: 'Edit',
+    cellRenderer: 'editButton',
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
+    flex: 0.1,
   }, {
-    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, sortable: false,
+    headerName: 'Org', field: 'org', flex: 0.5,
+  }, {
+    headerName: 'Remove',
+    cellRenderer: 'deleteButton',
+    sortable: false,
+    flex: 0.3,
+    suppressMenu: true,
+    resizable: false,
   },
     /* removed columns
     {headerName: 'Upcoming Sessions', field: 'upcomingSessions', sortable: true,
@@ -114,7 +127,7 @@ function parsePropertiesFromItem(item, orgState) {
   const orgPrefix = `${orgState}_`;
   if (item.profile && item.profile.properties)
     return item.profile.properties
-      .filter((property) => property.includes(orgPrefix))
+      .filter((property) => (orgState === 'watutor_default' ? true : property.includes(orgPrefix)))
       .map((property) => property.replace(orgPrefix, ''));
   // else
   return null;
@@ -155,16 +168,22 @@ const mapProviderMainAgGridRows = (item, orgState, reservedLabels) => {
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.toUpperCase().replace(/ /g, '_')));
   }
+
+  const phone = parsePhoneNumber(String(item.phone || item.to));
+
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: formatContactForUI(item.profile ? item.phone : item.to),
+    phone: phone ? phone.formatNational() : 'DELETED',
     rating: item.rating,
     ratingCount: item.numRating,
     properties: parsePropertiesFromItem(item, orgState),
     ...reduced,
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
+    org: orgState === 'watutor_default'
+      ? item.profile.org.filter((org) => !org.includes('_'))
+      : '',
     iid: item.iid,
     pid: item.pid,
   });

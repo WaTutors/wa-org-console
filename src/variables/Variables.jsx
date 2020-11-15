@@ -40,7 +40,7 @@ const style = {
       border: '0',
       fontSize: '14px',
       WebkitFontSmoothing: 'antialiased',
-      fontFamily: '"Roboto","Helvetica Neue",Arial,sans-serif',
+      fontFamily: '"Inter","Helvetica Neue",Arial,sans-serif',
       fontWeight: '400',
       color: '#FFFFFF',
     },
@@ -529,20 +529,22 @@ const optionsSales = {
   showPoint: true,
   fullWidth: true,
   chartPadding: {
-    right: 50,
+    right: 80,
   },
 };
 const responsiveSales = [
-  [
-    'screen and (max-width: 640px)',
-    {
-      axisX: {
-        labelInterpolationFnc(value) {
-          return value[0];
-        },
-      },
+  ['screen and (min-width: 641px) and (max-width: 1024px)', {
+    showPoint: false,
+    axisX: {
+      labelInterpolationFnc: (value) => value.slice(0, 3),
     },
-  ],
+  }],
+  ['screen and (max-width: 640px)', {
+    showLine: false,
+    axisX: {
+      labelInterpolationFnc: (value) => value[0],
+    },
+  }],
 ];
 const legendSales = {
   names: ['Open App ', 'Joined Group ', 'Book Session '],

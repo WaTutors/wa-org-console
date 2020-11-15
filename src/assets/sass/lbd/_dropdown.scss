@@ -1,5 +1,11 @@
+.open {
+    @include opacity(1);
+    visibility: visible;
+    display: block;
+}
+
 .dropdown-menu{
-    visibility: hidden;
+    // visibility: hidden;
     margin: 0;
     padding: 0;
     border-radius: $border-radius-extreme;
@@ -7,7 +13,7 @@
     z-index: 9000;
     position: absolute;
     
-    @include opacity(0); 
+    // @include opacity(0); 
     @include box-shadow($dropdown-shadow);
         
     .open &{

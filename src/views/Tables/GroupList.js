@@ -79,6 +79,8 @@ function GroupList({
 
   return (
     <TemplateList
+      addText="Add group"
+      controlId="searchGroup"
       listName="Group"
       manageMembersFor="Group"
       props={props}
@@ -109,6 +111,13 @@ function GroupList({
       }}
       downloadName={`add_groups_${orgState}.csv`}
       exampleFilePath={encodedUri}
+      searchOptions={[{
+        label: 'Description',
+        value: 'info',
+      }, {
+        label: 'Member',
+        value: 'members',
+      }]}
     />
   );
 }

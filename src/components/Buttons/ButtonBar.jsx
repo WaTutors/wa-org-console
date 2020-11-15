@@ -29,16 +29,15 @@ function ButtonBar({
 
   return (
     <div style={{
-      paddingBottom: '20px',
-      justifyContent: 'center',
+      paddingBottom: '15px',
       ...containerStyle,
     }}
     >
       {buttonGroups.map((buttonGroup, gi) => (
-        <ButtonGroup key={gi} style={{ paddingRight: '10px' }}>
+        <ButtonGroup key={gi}>
           {buttonGroup.map((button, bi) => {
             const {
-              text, size, color, icon, onClick, className, field,
+              text, size, color, icon, onClick, className, field, style,
             } = { ...universalOptions, ...button };
             return (
               <Button
@@ -47,6 +46,7 @@ function ButtonBar({
                 bsStyle={selectedField && selectedField !== field ? undefined : color}
                 onClick={onClick}
                 className={className || 'btn-fill'}
+                style={style || {}}
               >
                 {icon && <i className={icon} />}
                 {' '}

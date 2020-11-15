@@ -4,6 +4,8 @@ import {
 } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 
+import * as Sentry from '@sentry/react';
+
 import monitorReducersEnhancer from './enhancers/monitorReducers';
 import loggerMiddleware from './middleware/logger';
 
@@ -20,8 +22,10 @@ function configureStore(preloadedState) {
   const middlewares = [loggerMiddleware, thunkMiddleware];
   const middlewareEnhancer = applyMiddleware(...middlewares);
 
+  const sentryReduxEnhancer = Sentry.createReduxEnhancer();
+
   const enhancers = [middlewareEnhancer];
-  const composedEnhancers = compose(...enhancers);
+  const composedEnhancers = compose(...enhancers, sentryReduxEnhancer);
 
   return createStore(rootReducer, preloadedState, composedEnhancers);
 }

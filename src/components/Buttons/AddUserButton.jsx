@@ -1,20 +1,14 @@
 import React from 'react';
 
-function AddUserButton() {
+import PersonAdd from '@material-ui/icons/PersonAdd';
+import IconButton from '@material-ui/core/IconButton';
+
+function DeleteButton() {
   return (
-    <div style={{
-      fontSize: '32px',
-      color: 'white',
-      background: 'green',
-      borderRadius: '100%',
-      justifyContent: 'center',
-      textAlign: 'center',
-      width: '40px',
-    }}
-    >
-      <i className="pe-7s-add-user" />
-    </div>
+    <IconButton aria-label="manage">
+      <PersonAdd fontSize="large" style={{ color: '#00bb3b' }} />
+    </IconButton>
   );
 }
 
-export default AddUserButton;
+export default DeleteButton;

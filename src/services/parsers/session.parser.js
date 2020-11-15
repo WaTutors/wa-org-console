@@ -7,19 +7,43 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
 }, {
   headerName: 'About', field: 'about', minWidth: 150,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', width: 75,
+  headerName: 'Manage',
+  cellRenderer: 'addUserButton',
+  width: 75,
+  field: 'manage',
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
-  headerName: 'Delete', cellRenderer: 'deleteItem', width: 75,
+  headerName: 'Delete',
+  cellRenderer: 'deleteItem',
+  width: 50,
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
-  headerName: 'Session Type', field: 'type', sortable: true,
+  headerName: 'Type', field: 'type', sortable: true,
 }, {
   headerName: 'Subject', field: 'subjects', sortable: true, minWidth: 150,
 }, {
   headerName: 'Tutor', field: 'provider', sortable: true,
 }, {
-  headerName: 'Start Time', field: 'startTime', sortable: true, filter: 'agDateColumnFilter',
-}, {
-  headerName: 'Start Date', field: 'startDate', sortable: true, filter: 'agDateColumnFilter',
+  headerName: 'Start Time',
+  field: 'startTime',
+  sortable: true,
+  filter: 'agDateColumnFilter',
+  comparator: (a, b) => {
+    const momA = moment(a, 'h:mm A ddd, M/D/YY');
+    const momB = moment(b, 'h:mm A ddd, M/D/YY');
+
+    if (momB.isBefore(momA))
+      return -1;
+
+    if (momB.isAfter(momA))
+      return 1;
+
+    return 0;
+  },
 }, {
   headerName: 'Created', field: 'created', sortable: true,
 }, {
@@ -48,9 +72,11 @@ export const generateSessionMainAgGridColumns = (columnsToHide) => [{
  * @returns {object} name, and pid fields
  */
 function getProviderInfo(item, type) {
-  const providerNameClassroom = item.members && Object.keys(item.members)
-    .filter((pid) => Boolean(item.members[pid].isLead) && item.activeMembers.includes(pid))[0]
-    ? Object.values(item.members).filter((el) => Boolean(el.isLead))[0].name
+  const providerNameClassroom = item.members
+      && Object.keys(item.members).filter((pid) => (Boolean(item.members[pid].isLead)
+      || Boolean(item.members[pid].isOwner))
+      && item.activeMembers.includes(pid))[0]
+    ? Object.values(item.members).filter((el) => Boolean(el.isLead) || Boolean(el.isOwner))[0].name
     : null;
   const providerPidClassroom = item.members && Object.keys(item.members)
     .filter(
@@ -74,8 +100,12 @@ function getProviderInfo(item, type) {
 // remove any prefix before last underscore
 function stripUndPrefixArr(arr) {
   return arr.map((str) => {
-    const undArr = str.split('_');
-    return undArr[undArr.length - 1];
+    if (str) {
+      const undArr = str.split('_');
+      return undArr[undArr.length - 1];
+    }
+
+    return '';
   });
 }
 
@@ -94,8 +124,14 @@ export const mapSessionMainAgGridRows = (item) => {
   let status = 'No status';
   if (events.includes('ended'))
     status = 'Ended';
+  else if (events.includes('started'))
+    status = 'Ongoing';
+  else if (events.includes('delayed'))
+    status = 'Delayed';
   else if (events.includes('ready'))
     status = 'Ready to start';
+  else if (events.includes('booked'))
+    status = 'Booked';
 
   let type = '';
   switch (item.type) {
@@ -103,16 +139,19 @@ export const mapSessionMainAgGridRows = (item) => {
       type = 'Tutoring';
       break;
     case 'free_private_timed':
-      type = 'Classroom';
+      if (item.info.org === 'watutor_default')
+        type = 'Group';
+      else
+        type = 'Classroom';
       break;
     case 'free_private':
-      type = 'Study Session';
+      type = 'Group';
       break;
     case 'free_link':
       type = 'Link (no video)';
       break;
     case 'paid_private_timed':
-      type = 'Paid Timed';
+      type = 'Class';
       break;
     case 'paid':
       type = 'Paid';
@@ -139,16 +178,20 @@ export const mapSessionMainAgGridRows = (item) => {
     providerId,
     active: true,
     subjects: stripUndPrefixArr(type === 'Tutoring' ? [item.info.property] : item.info.properties),
-    name: item.info.name,
-    about: item.info.about,
+    // eslint-disable-next-line no-nested-ternary
+    name: item.info.name === 'placeholder'
+      ? !item.info.property
+        ? 'Availability'
+        : 'Booked'
+      : item.info.name,
+    about: item.info.about !== 'placeholder' ? item.info.about : '',
     links: item.info.links,
-    startTime: startDateTime.format('h:m A'),
-    startDate: startDateTime.format('ddd D/M/YY'),
+    startTime: startDateTime.format('h:mm A ddd, M/D/YY'),
     providerEmail: item.provider ? item.provider.email : null,
     members: item.members ? Object.values(item.members).map((member) => member.name.split('~')[0]) : [],
     numMembers: item.activeMembers ? Object.values(item.activeMembers).length : 0,
     activeMembers: item.activeMembers,
-    created: createdDateTime.toLocaleDateString('en-US', TimeOptions),
+    created: moment(createdDateTime).format('M/D/YY, h:mm A'),
     sid: item.sid,
     id: `s~${item.sid}`,
   };

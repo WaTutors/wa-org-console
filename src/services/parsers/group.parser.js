@@ -1,9 +1,19 @@
 exports.generateGroupMainAgGridColumns = (columnsToHide) => [{
   headerName: 'Name', field: 'name', sortable: true,
 }, {
-  headerName: 'Manage', cellRenderer: 'addUserButton', flex: 0.5, width: 64,
+  headerName: 'Manage',
+  cellRenderer: 'addUserButton',
+  flex: 0.3,
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
-  headerName: 'Delete', cellRenderer: 'deleteItem', flex: 0.5,
+  headerName: 'Delete',
+  cellRenderer: 'deleteItem',
+  flex: 0.3,
+  sortable: false,
+  suppressMenu: true,
+  resizable: false,
 }, {
   headerName: 'Description', field: 'info', sortable: true, flex: 1.5,
 }, {

@@ -123,7 +123,7 @@ function SessionList({
     label: 'Link URL',
     csvlabel: 'Link URLs ()',
     type: 'text',
-    placeholder: 'www.watutors.com',
+    placeholder: 'https://watutor.com',
     csvPlaceholder: 'freeform',
   }, {
     name: 'subject',
@@ -356,6 +356,7 @@ function SessionList({
   return (
     <>
       <TemplateList
+        addText="Add session"
         listName="Session"
         manageMembersFor="Session"
         props={props}
@@ -363,7 +364,9 @@ function SessionList({
         getData={getData}
         addData={handleAddData}
         removeRow={removeData}
-        columnDefs={generateSessionMainAgGridColumns()}
+        columnDefs={generateSessionMainAgGridColumns(
+          orgState === 'watutor_default' ? ['manage'] : null,
+        )}
         rowData={rowData}
         // hideAddFile
         addChildren={formData.type === 'Tutoring Session' && (
@@ -477,6 +480,19 @@ function SessionList({
         }]]}
         exampleFilePath={encodedFormUri}
         downloadName={`add_session_${orgState}.csv`}
+        searchOptions={[{
+          label: 'Name',
+          value: 'name',
+        }, {
+          label: 'Subject',
+          value: 'subjects',
+        }, {
+          label: 'Instructor',
+          value: 'provider',
+        }, {
+          label: 'Member',
+          value: 'members',
+        }]}
       />
       <AddModal
         hideFile // if enabled: processFile={(raw) => window.alert('raw data: '+raw)}

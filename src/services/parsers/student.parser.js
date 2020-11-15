@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import { formatContactForUI } from 'services/formatContactInfo';
+import parsePhoneNumber from 'libphonenumber-js';
 
 const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   let reserved = {};
@@ -19,9 +20,21 @@ const generateStudentMainAgGridColumns = (columnsToHide, reservedLabels) => {
   }, {
     headerName: 'Subjects', field: 'properties', flex: 1.25,
   }, {
-    headerName: 'Edit', cellRenderer: 'editButton', width: 64, flex: 0.5,
+    headerName: 'Edit',
+    cellRenderer: 'editButton',
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
+    flex: 0.1,
   }, {
-    headerName: 'Remove', cellRenderer: 'deleteButton', width: 64, flex: 0.5,
+    headerName: 'Org', field: 'org', flex: 0.5,
+  }, {
+    headerName: 'Remove',
+    cellRenderer: 'deleteButton',
+    flex: 0.3,
+    sortable: false,
+    suppressMenu: true,
+    resizable: false,
   }].filter((colObj) => {
     if (columnsToHide)
       return !columnsToHide.includes(colObj.field);
@@ -88,7 +101,7 @@ function parsePropertiesFromItem(item, orgState) {
   const orgPrefix = `${orgState}_`;
   if (item.profile && item.profile.properties)
     return item.profile.properties
-      .filter((property) => property.includes(orgPrefix))
+      .filter((property) => (orgState === 'watutor_default' ? true : property.includes(orgPrefix)))
       .map((property) => property.replace(orgPrefix, ''));
   // else
   return null;
@@ -135,7 +148,7 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
         return {
           [p]: item.profile // if profile or invite filter for relevant labels differently
             ? allCapsToText(reservedLabels[p].filter((r) => item.profile.org.includes(`${orgState}_${r}`)) || '')
-            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(`${r}`))),
+            : allCapsToText(reservedLabels[p].filter((r) => item.labels.includes(r))),
         };
       console.error(`In mapStudentMainAgGridRows, label type not recognized: ${reservedLabels[p]}`);
       return {}; // other
@@ -145,14 +158,13 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     for (const [key, val] of Object.entries(reduced))
       val.map((v) => capsreduced.push(v.replace(/ /g, '_')));
   }
-  // console.log({ reserved });
+
+  const phone = parsePhoneNumber(String(item.phone || item.to));
 
   return ({
     invite: item.profile ? 'Accepted' : 'Sent',
     name: item.profile ? item.profile.name.split('~')[0] : undefined,
-    phone: formatContactForUI(
-      item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-    ),
+    phone: phone ? phone.formatNational() : 'DELETED',
     labels: parseLabels(item, orgState, capsreduced),
     nickname: parseTextLabel(item, orgState),
     properties: parsePropertiesFromItem(item, orgState),
@@ -160,6 +172,9 @@ const mapStudentMainAgGridRows = (item, orgState, reservedLabels) => {
     iid: item.iid,
     pid: item.pid,
     id: `u~${item.pid || item.iid}`,
+    org: orgState === 'watutor_default'
+      ? item.profile.org.filter((org) => !org.includes('_'))
+      : '',
     // groupNum: item.recentGroups ? Object.keys(item.recentGroups).length : 0,
     // groups: item.recentGroups ? Object.keys(item.recentGroups) : undefined,
   });
@@ -195,20 +210,22 @@ const generateStudentMembersAgGridColumns = (columnsToHide, reservedLabels) => {
  * @param {string} orgState name of organization
  * @returns {object}
  */
-const mapStudentMembersAgGridRows = (item, itemData, orgState) => ({
-  invite: item.profile ? 'Accepted' : 'Sent',
-  name: item.profile ? item.profile.name.split('~')[0] : undefined,
-  phone: formatContactForUI(
-    item.profile && typeof item.phone === 'string' ? item.phone : item.to,
-  ),
-  labels: item.profile
-    ? item.profile.org
-      .filter((str) => str.includes(orgState) && str !== orgState)
-      .map((str) => str.split('_')[-1])
-    : item.labels,
-  isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
-  id: item.pid || item.iid,
-});
+const mapStudentMembersAgGridRows = (item, itemData, orgState) => {
+  const phone = parsePhoneNumber(String(item.phone || item.to));
+
+  return {
+    invite: item.profile ? 'Accepted' : 'Sent',
+    name: item.profile ? item.profile.name.split('~')[0] : undefined,
+    phone: phone ? phone.formatNational() : 'DELETED',
+    labels: item.profile
+      ? item.profile.org
+        .filter((str) => str.includes(orgState) && str !== orgState)
+        .map((str) => str.split('_')[-1])
+      : item.labels,
+    isIncluded: itemData.activeMembers && itemData.activeMembers.includes(item.pid),
+    id: item.pid || item.iid,
+  };
+};
 
 /**
  * parses a student document into a name field

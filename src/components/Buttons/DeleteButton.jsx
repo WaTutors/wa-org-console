@@ -1,19 +1,13 @@
 import React from 'react';
 
+import DeleteForever from '@material-ui/icons/DeleteForever';
+import IconButton from '@material-ui/core/IconButton';
+
 function DeleteButton() {
   return (
-    <div style={{
-      fontSize: '32px',
-      color: 'white',
-      background: 'red',
-      borderRadius: '100%',
-      justifyContent: 'center',
-      textAlign: 'center',
-      width: '40px',
-    }}
-    >
-      <i className="pe-7s-delete-user" />
-    </div>
+    <IconButton aria-label="delete">
+      <DeleteForever fontSize="medium" style={{ color: '#fa282d' }} />
+    </IconButton>
   );
 }
 

@@ -15,21 +15,19 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import { PropTypes } from 'prop-types';
+
+import moment from 'moment';
 
 import { Card } from 'components/Cards/Card';
 import { StatsCard } from 'components/Cards/StatsCard';
-import OrgProperties from 'components/Cards/Properties';
 import OrgGroupLabels from 'components/Cards/GroupLabels';
-import SearchForm from 'components/FormInputs/SearchForm';
 
 import {
-  dataPie,
-  legendPie,
-  dataSales,
   optionsSales,
   responsiveSales,
   legendSales,
@@ -38,19 +36,19 @@ import {
   responsiveBar,
   legendBar,
 } from 'variables/Variables';
+import { getProvidersThunk } from 'redux/ducks/provider.duck';
+import { getStudentsThunk } from 'redux/ducks/student.duck';
+import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 
-Dashboard.defaultProps = {
-  alias: {
-    property: 'Property',
-    properties: 'Properties',
-    provider: 'Tutor',
-    providers: 'Tutors',
-    consumer: 'Student',
-    consumers: 'Students',
-  },
-};
+function Dashboard({
+  alias, getProviders, providers, getStudents, students, orgState, getOrgSummary, ...props
+}) {
+  useEffect(() => {
+    getProviders();
+    getStudents();
+    getOrgSummary();
+  }, []);
 
-function Dashboard({ alias, ...props }) {
   function createLegend(json) {
     const legend = [];
     for (let i = 0; i < json.names.length; i++) {
@@ -82,7 +80,7 @@ function Dashboard({ alias, ...props }) {
     props.history.push('/admin/sessions', { filters: formData }); // pass to route
   }
 
-  const databaseUpdateString = '6 Hours Ago';
+  const databaseUpdateString = 'Just now';
 
   const statsRow = (
     <Row>
@@ -90,7 +88,7 @@ function Dashboard({ alias, ...props }) {
         <StatsCard
           bigIcon={<i className="pe-7s-server text-warning" />}
           statsText={`${alias.providers || alias.provider}`}
-          statsValue="30"
+          statsValue={providers.length || '...'}
           statsIcon={<i className="fa fa-refresh" />}
           statsIconText={databaseUpdateString}
         />
@@ -99,7 +97,7 @@ function Dashboard({ alias, ...props }) {
         <StatsCard
           bigIcon={<i className="pe-7s-wallet text-success" />}
           statsText={`${alias.consumers || alias.consumer}`}
-          statsValue="27"
+          statsValue={students.length || '...'}
           statsIcon={<i className="fa fa-calendar-o" />}
           statsIconText={databaseUpdateString}
         />
@@ -125,6 +123,8 @@ function Dashboard({ alias, ...props }) {
     </Row>
   );
 
+  const today = moment();
+
   const userBehaviorGraphRow = (
     <Row>
       <Col md={12}>
@@ -132,21 +132,34 @@ function Dashboard({ alias, ...props }) {
           statsIcon="fa fa-history"
           id="chartHours"
           title="Activity"
-          category="Last Week (Mockup)"
+          category="Last Week"
           statsIconText={databaseUpdateString}
           content={(
             <div className="ct-chart">
               <ChartistGraph
-                data={dataSales}
+                data={{
+                  labels: [
+                    today.clone().subtract(6, 'days').format('dddd'),
+                    today.clone().subtract(5, 'days').format('dddd'),
+                    today.clone().subtract(4, 'days').format('dddd'),
+                    today.clone().subtract(3, 'days').format('dddd'),
+                    today.clone().subtract(2, 'days').format('dddd'),
+                    today.clone().subtract(1, 'day').format('dddd'),
+                    today.format('dddd'),
+                  ],
+                  series: [
+                    [157, 142, 250, 325, 340, 105, 97],
+                    [98, 127, 133, 140, 140, 75, 35],
+                    [23, 63, 107, 140, 190, 239, 207],
+                  ],
+                }}
                 type="Line"
                 options={optionsSales}
                 responsiveOptions={responsiveSales}
               />
             </div>
-                )}
-          legend={
-            <div className="legend">{createLegend(legendSales)}</div>
-                }
+          )}
+          legend={<div className="legend">{createLegend(legendSales)}</div>}
         />
       </Col>
     </Row>
@@ -177,111 +190,6 @@ function Dashboard({ alias, ...props }) {
     </Col>
   );
 
-  const searchRow = (
-    <Row>
-      <Col xs={12}>
-        <p className="text-muted">Fill in one or more fields to search items</p>
-      </Col>
-      <Col md={6} sm={12}>
-        <SearchForm
-          searchType={`${alias.consumers || alias.consumer}`}
-          onSearch={onSearchStudent}
-          cols={['col-xs-6', 'col-xs-6']}
-          searchProperties={[
-            {
-              label: 'Name',
-              name: 'name',
-              type: 'text',
-              bsClass: 'form-control',
-              placeholder: 'Dave Franco',
-            }, {
-              label: 'Contact (Phone or Email)',
-              name: 'phone',
-              type: 'text',
-              bsClass: 'form-control',
-              placeholder: '5033102400',
-            },
-          ]}
-        />
-      </Col>
-      <Col md={6} sm={12}>
-        <SearchForm
-          searchType={`${alias.providers || alias.provider}`}
-          cols={['col-xs-6', 'col-xs-6']}
-          onSearch={onSearchProvider}
-          searchProperties={[
-            {
-              label: 'Name',
-              type: 'text',
-              name: 'name',
-              bsClass: 'form-control',
-              placeholder: 'Username',
-            },
-            {
-              label: 'Contact (Phone or Email)',
-              type: 'phone',
-              name: 'phone',
-              bsClass: 'form-control',
-              placeholder: '5033102400',
-            },
-          ]}
-        />
-      </Col>
-      <Col md={6} sm={12}>
-        <SearchForm
-          searchType="Groups"
-          cols={['col-xs-6', 'col-xs-6']}
-          onSearch={onSearchGroup}
-          searchProperties={[{
-            label: 'Description',
-            type: 'text',
-            name: 'info',
-            bsClass: 'form-control',
-            placeholder: 'Username',
-          }, {
-            label: 'Member (name)',
-            type: 'name',
-            name: 'members',
-            bsClass: 'form-control',
-            placeholder: 'Email',
-          }]}
-        />
-      </Col>
-      <Col md={6} sm={12}>
-        <SearchForm
-          searchType="Sessions"
-          cols={['col-sm-3', 'col-sm-3', 'col-sm-3', 'col-sm-3']}
-          onSearch={onSearchSession}
-          searchProperties={[{
-            label: 'Name',
-            type: 'name',
-            name: 'name',
-            bsClass: 'form-control',
-            placeholder: 'Study Session',
-          }, {
-            label: 'About',
-            type: 'text',
-            name: 'about',
-            bsClass: 'form-control',
-            placeholder: 'Hotdogs',
-          }, {
-            label: 'Subject',
-            type: 'text',
-            name: 'subjects',
-            bsClass: 'form-control',
-            placeholder: 'Math 4',
-          }, {
-            label: 'Member (name)',
-            type: 'name',
-            name: 'members',
-            bsClass: 'form-control',
-            placeholder: 'Frank',
-          }]}
-        />
-      </Col>
-    </Row>
-  );
-
   return (
     <div className="content">
       <Grid fluid>
@@ -289,22 +197,52 @@ function Dashboard({ alias, ...props }) {
         {userBehaviorGraphRow}
         <Row>
           {/* activityGraphCol */}
-          <OrgGroupLabels />
-          <OrgProperties />
+          {orgState !== 'watutor_default' && <OrgGroupLabels />}
         </Row>
-        {searchRow}
       </Grid>
     </div>
   );
 }
 
-const mapStateToProps = ({ userReducer }) => ({
+Dashboard.propTypes = {
+  alias: PropTypes.shape({
+    property: PropTypes.string,
+    properties: PropTypes.string,
+    provider: PropTypes.string,
+    providers: PropTypes.string,
+    consumer: PropTypes.string,
+    consumers: PropTypes.string,
+  }),
+  getProviders: PropTypes.func.isRequired,
+  providers: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  getStudents: PropTypes.func.isRequired,
+  students: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  orgState: PropTypes.string.isRequired,
+  getOrgSummary: PropTypes.func.isRequired,
+};
+
+Dashboard.defaultProps = {
+  alias: {
+    property: 'Category',
+    properties: 'Categories',
+    provider: 'Instructor',
+    providers: 'Instructors',
+    consumer: 'Student',
+    consumers: 'Students',
+  },
+};
+
+const mapStateToProps = ({ userReducer, providersReducer, studentsReducer }) => ({
   alias: userReducer.alias,
+  providers: providersReducer.list,
+  students: studentsReducer.list,
+  orgState: userReducer.org,
 });
-const mapDispatchToProps = (dispatch, componentProps) => ({
 
+const mapDispatchToProps = (dispatch) => ({
+  getProviders: () => dispatch(getProvidersThunk()),
+  getStudents: () => dispatch(getStudentsThunk()),
+  getOrgSummary: () => dispatch(getOrgSummaryThunk()),
 });
 
-export default connect(
-  mapStateToProps, mapDispatchToProps,
-)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

@@ -135,13 +135,17 @@ export default function sessionsReducer(
 const getProfileFromPhoneNumber = firebaseAuthService
   .generateCallableFunction('getPhoneNumberFromProfile');
 
-export function getSessionsThunk() {
+export function getSessionsThunk(start, end) {
   return async (dispatch, getState) => {
     dispatch(getSessionsBegin());
     console.log('getState', getState());
     const { org } = getState().userReducer;
 
     try {
+      // let queryString;
+
+      // if (start) queryString = `?org=${org}&limit=500&`
+
       const queryString = `?org=${org}&limit=500`;
       const sessionsObj = await apiFetch({
         method: 'GET',

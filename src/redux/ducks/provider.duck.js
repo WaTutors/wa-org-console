@@ -240,7 +240,6 @@ export function editProviderThunk(payload) {
       const { org, uuid } = getState().userReducer;
       const { list } = getState().providersReducer;
 
-      let request;
       // validate and format payload
       const inputErrors = [];
       const { pid, properties } = payload;
@@ -260,9 +259,12 @@ export function editProviderThunk(payload) {
         return false;
       }
       // format
-      const pArr = properties ? properties.map((el) => `${org}_${el.value}`) : []; // new properties array from form
-      const pArrPrev = providerObj.properties
-        ? providerObj.profile.properties.filter((property) => property.includes(`${org}_`))
+      const pArr = properties
+        ? properties.map((el) => `${org !== 'watutor_default' ? `${org}_` : ''}${el.value}`)
+        : []; // new properties array from form
+      const pArrPrev = providerObj.profile.properties
+        ? providerObj.profile.properties
+          .filter((property) => property.includes(`${org !== 'watutor_default' ? `${org}_` : ''}`))
         : [];
       const addProperties = pArr.filter((el) => !pArrPrev.includes(el)); // properties added
       const removeProperties = pArrPrev.filter((el) => !pArr.includes(el)); // properties removed
@@ -286,7 +288,7 @@ export function editProviderThunk(payload) {
         endpoint: `admin/profiles/provider/${org}`,
         body,
       });
-      await Promise.all([request]);
+
       const newProfile = {
         ...providerObj,
         profile: {

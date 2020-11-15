@@ -21,28 +21,55 @@ import { Provider } from 'react-redux';
 import {
   BrowserRouter, Route, Switch, Redirect,
 } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
 import { hot } from 'react-hot-loader';
+
+import { ToastContainer } from 'react-toastify';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/animate.min.css';
 import './assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0';
 import './assets/css/demo.css';
 import './assets/css/pe-icon-7-stroke.css';
-import './assets/css/bretts-final-tweaks.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import AdminLayout from 'layouts/Admin.jsx';
 import External from 'layouts/External.jsx';
 import store from './redux';
-import { ToastContainer } from 'react-toastify';
+
+const SentryRoute = Sentry.withSentryRouting(Route);
+
+const history = createBrowserHistory();
+
+Sentry.init({
+  dsn: 'https://5e51804b311644a98ed1beb82ce76216@o389415.ingest.sentry.io/5405269',
+  release: 'wonsole@1.0.0',
+  integrations: [new Integrations.BrowserTracing({
+    routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
+  })],
+  tracesSampleRate: 1.0,
+  normalizeDepth: 10,
+});
 
 function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <Switch>
-          <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-          <Route path="/ext" render={(props) => <External {...props} />} />
+          <SentryRoute path="/admin" render={(props) => <AdminLayout {...props} />} />
+          <SentryRoute path="/ext" render={(props) => <External {...props} />} />
           <Redirect from="/" to="/ext/login" />
         </Switch>
       </BrowserRouter>
@@ -52,26 +79,4 @@ function App() {
 
 const AppContainer = hot(module)(App);
 
-ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          />
-      <Switch>
-        <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-        <Route path="/ext" render={(props) => <External {...props} />} />
-        <Redirect from="/" to="/ext/login" />
-      </Switch>
-    </BrowserRouter>
-  </Provider>,
-  document.getElementById('root'),
-);
+ReactDOM.render(<AppContainer />, document.getElementById('root'));
