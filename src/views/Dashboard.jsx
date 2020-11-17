@@ -15,9 +15,11 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChartistGraph from 'react-chartist';
-import { Grid, Row, Col } from 'react-bootstrap';
+import {
+  Grid, Row, Col, Button,
+} from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
@@ -39,10 +41,13 @@ import {
 import { getProvidersThunk } from 'redux/ducks/provider.duck';
 import { getStudentsThunk } from 'redux/ducks/student.duck';
 import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
+import SimulationModal from 'components/Modals/SimulationModal';
 
 function Dashboard({
   alias, getProviders, providers, getStudents, students, orgState, getOrgSummary, ...props
 }) {
+  const [isSimModalOpen, showSimModal] = useState(true);
+
   useEffect(() => {
     getProviders();
     getStudents();
@@ -193,6 +198,23 @@ function Dashboard({
   return (
     <div className="content">
       <Grid fluid>
+        {orgState === 'watutor_default' && (
+          <Row style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 15 }}>
+            <Button
+              bsSize="medium"
+              bsStyle="info"
+              onClick={() => showSimModal(true)}
+              className="btn-fill"
+              style={{
+                fontWeight: 500,
+                borderRadius: 10,
+                alignSelf: 'flex-end',
+              }}
+            >
+              + Create Simulation
+            </Button>
+          </Row>
+        )}
         {statsRow}
         {userBehaviorGraphRow}
         <Row>
@@ -200,6 +222,7 @@ function Dashboard({
           {orgState !== 'watutor_default' && <OrgGroupLabels />}
         </Row>
       </Grid>
+      <SimulationModal isOpen={isSimModalOpen} toggleOpen={showSimModal} />
     </div>
   );
 }
