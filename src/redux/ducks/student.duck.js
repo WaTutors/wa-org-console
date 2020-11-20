@@ -10,9 +10,9 @@ const GET_STUDENTS_BEGIN = 'GET_STUDENTS_BEGIN';
 const GET_STUDENTS_SUCCESS = 'GET_STUDENTS_SUCCESS';
 const GET_STUDENTS_FAILURE = 'GET_STUDENTS_FAILURE';
 
-const ADD_STUDENTS_BEGIN = 'ADD_STUDENTS_BEGIN';
-const ADD_STUDENTS_SUCCESS = 'ADD_STUDENTS_SUCCESS';
-const ADD_STUDENTS_FAILURE = 'ADD_STUDENTS_FAILURE';
+const INVITE_STUDENTS_BEGIN = 'INVITE_STUDENTS_BEGIN';
+const INVITE_STUDENTS_SUCCESS = 'INVITE_STUDENTS_SUCCESS';
+const INVITE_STUDENTS_FAILURE = 'INVITE_STUDENTS_FAILURE';
 
 const EDIT_STUDENT_BEGIN = 'EDIT_STUDENT_BEGIN';
 const EDIT_STUDENT_SUCCESS = 'EDIT_STUDENT_SUCCESS';
@@ -22,11 +22,13 @@ const REMOVE_STUDENT_BEGIN = 'REMOVE_STUDENT_BEGIN';
 const REMOVE_STUDENT_SUCCESS = 'REMOVE_STUDENT_SUCCESS';
 const REMOVE_STUDENT_FAILURE = 'REMOVE_STUDENT_FAILURE';
 
-// REDUCER
+const CREATE_STUDENTS_BEGIN = 'CREATE_STUDENTS_BEGIN';
+const CREATE_STUDENTS_SUCCESS = 'CREATE_STUDENTS_SUCCESS';
+const CREATE_STUDENTS_FAILURE = 'CREATE_STUDENTS_FAILURE';
 
-export default function studentsReducer(
-  state = initialState.students, action = {},
-) {
+// SECTION - Reducer
+
+export default function studentsReducer(state = initialState.students, action = {}) {
   switch (action.type) {
     case GET_STUDENTS_BEGIN:
       return {
@@ -46,18 +48,18 @@ export default function studentsReducer(
         error: action.payload,
       };
 
-    case ADD_STUDENTS_BEGIN:
+    case INVITE_STUDENTS_BEGIN:
       return {
         ...state,
         loading: true,
       };
-    case ADD_STUDENTS_SUCCESS:
+    case INVITE_STUDENTS_SUCCESS:
       return {
         ...state,
         loading: false,
         list: [...state.list, ...action.payload],
       };
-    case ADD_STUDENTS_FAILURE:
+    case INVITE_STUDENTS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -107,12 +109,36 @@ export default function studentsReducer(
         loading: false,
         error: action.payload,
       };
+
+    case CREATE_STUDENTS_BEGIN:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case CREATE_STUDENTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case CREATE_STUDENTS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+
     default:
       return state;
   }
 }
 
-// THUNKS
+// !SECTION
+
+// SECTION - Thunks
+
 const getProfileFromPhoneNumber = firebaseAuthService
   .generateCallableFunction('getPhoneNumberFromProfile');
 
@@ -144,7 +170,7 @@ export function getStudentsThunk() {
 
 export function inviteStudentsThunk(payload) {
   return async (dispatch, getState) => {
-    dispatch(addStudentsBegin());
+    dispatch(inviteStudentsBegin());
     try {
       const newStudents = Array.isArray(payload) ? payload : [payload];
       const { org } = getState().userReducer;
@@ -179,7 +205,7 @@ export function inviteStudentsThunk(payload) {
         .map((student) => formatContactForDb(student.phone));
       if (contactInfoArr.includes(false)) {
         toast.error('-- Invalid phone number or email --');
-        dispatch(addStudentsFailure('-- Invalid phone number or email --'));
+        dispatch(inviteStudentsFailure('-- Invalid phone number or email --'));
         return false;
       }
 
@@ -202,11 +228,11 @@ export function inviteStudentsThunk(payload) {
             labels: postedLabels[i],
             iid: response.iids[i].iid,
           }));
-          dispatch(addStudentsSuccess(newStudentObjs));
+          dispatch(inviteStudentsSuccess(newStudentObjs));
         })
         .catch((error) => {
-          console.error('addStudents');
-          dispatch(addStudentsFailure(error.message));
+          console.error('inviteStudents');
+          dispatch(inviteStudentsFailure(error.message));
         });
     } catch (error) {
       console.log('Error with ', error);
@@ -319,7 +345,46 @@ export function removeStudentThunk({ pid, iid }) {
   };
 }
 
-// ACTIONS
+/**
+ * Creates simulated students.
+ *
+ * Based on parsed profiles inputted and unique simulation organization ID, creates profile
+ * documents for all students.
+ *
+ * @param {array}  students Array of student profiles to create.
+ * @param {string} org      Simulation org ID.
+ */
+export function createStudentsThunk(students, org) {
+  return async (dispatch) => {
+    dispatch(createStudentsBegin());
+
+    await Promise.all(students.map(({ name, properties }) => apiFetch({
+      method: 'POST',
+      endpoint: 'profile/single/consumer',
+      body: {
+        uuid: `sim-consumer-${new Date().getTime()}-1`,
+        type: 'consumer',
+        profile: {
+          name,
+          about: 'Simulated student',
+          properties,
+          org,
+        },
+      },
+    })))
+      .then(() => {
+        dispatch(createStudentsSuccess());
+      })
+      .catch((error) => {
+        dispatch(createStudentsFailure(error));
+      });
+  };
+}
+
+// !SECTION
+
+// SECTION - Actions
+
 export const getStudentsBegin = () => ({
   type: GET_STUDENTS_BEGIN,
 });
@@ -332,15 +397,15 @@ export const getStudentsFailure = (error) => ({
   payload: { error },
 });
 
-export const addStudentsBegin = () => ({
-  type: ADD_STUDENTS_BEGIN,
+export const inviteStudentsBegin = () => ({
+  type: INVITE_STUDENTS_BEGIN,
 });
-export const addStudentsSuccess = (newStudents) => ({
-  type: ADD_STUDENTS_SUCCESS,
+export const inviteStudentsSuccess = (newStudents) => ({
+  type: INVITE_STUDENTS_SUCCESS,
   payload: newStudents,
 });
-export const addStudentsFailure = (error) => ({
-  type: ADD_STUDENTS_FAILURE,
+export const inviteStudentsFailure = (error) => ({
+  type: INVITE_STUDENTS_FAILURE,
   payload: { error },
 });
 
@@ -367,3 +432,18 @@ export const removeStudentFailure = (error) => ({
   type: REMOVE_STUDENT_FAILURE,
   payload: { error },
 });
+
+const createStudentsBegin = () => ({
+  type: CREATE_STUDENTS_BEGIN,
+});
+
+const createStudentsSuccess = () => ({
+  type: CREATE_STUDENTS_SUCCESS,
+});
+
+const createStudentsFailure = (error) => ({
+  type: CREATE_STUDENTS_FAILURE,
+  payload: { error },
+});
+
+// !SECTION

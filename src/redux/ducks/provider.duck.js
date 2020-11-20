@@ -10,9 +10,9 @@ const GET_PROVIDERS_BEGIN = 'GET_PROVIDERS_BEGIN';
 const GET_PROVIDERS_SUCCESS = 'GET_PROVIDERS_SUCCESS';
 const GET_PROVIDERS_FAILURE = 'GET_PROVIDERS_FAILURE';
 
-const ADD_PROVIDERS_BEGIN = 'ADD_PROVIDERS_BEGIN';
-const ADD_PROVIDERS_SUCCESS = 'ADD_PROVIDERS_SUCCESS';
-const ADD_PROVIDERS_FAILURE = 'ADD_PROVIDERS_FAILURE';
+const INVITE_PROVIDERS_BEGIN = 'INVITE_PROVIDERS_BEGIN';
+const INVITE_PROVIDERS_SUCCESS = 'INVITE_PROVIDERS_SUCCESS';
+const INVITE_PROVIDERS_FAILURE = 'INVITE_PROVIDERS_FAILURE';
 
 const REMOVE_PROVIDER_BEGIN = 'REMOVE_PROVIDER_BEGIN';
 const REMOVE_PROVIDER_SUCCESS = 'REMOVE_PROVIDER_SUCCESS';
@@ -21,11 +21,14 @@ const REMOVE_PROVIDER_FAILURE = 'REMOVE_PROVIDER_FAILURE';
 const EDIT_PROVIDER_BEGIN = 'EDIT_PROVIDER_BEGIN';
 const EDIT_PROVIDER_SUCCESS = 'EDIT_PROVIDER_SUCCESS';
 const EDIT_PROVIDER_FAILURE = 'EDIT_PROVIDER_FAILURE';
+
+const CREATE_PROVIDERS_BEGIN = 'CREATE_PROVIDERS_BEGIN';
+const CREATE_PROVIDERS_SUCCESS = 'CREATE_PROVIDERS_SUCCESS';
+const CREATE_PROVIDERS_FAILURE = 'CREATE_PROVIDERS_FAILURE';
+
 // REDUCER
 
-export default function providersReducer(
-  state = initialState.providers, action = {},
-) {
+export default function providersReducer(state = initialState.providers, action = {}) {
   switch (action.type) {
     case GET_PROVIDERS_BEGIN:
       return {
@@ -45,18 +48,18 @@ export default function providersReducer(
         error: action.payload,
       };
 
-    case ADD_PROVIDERS_BEGIN:
+    case INVITE_PROVIDERS_BEGIN:
       return {
         ...state,
         loading: true,
       };
-    case ADD_PROVIDERS_SUCCESS:
+    case INVITE_PROVIDERS_SUCCESS:
       return {
         ...state,
         loading: false,
         list: [...state.list, ...action.payload],
       };
-    case ADD_PROVIDERS_FAILURE:
+    case INVITE_PROVIDERS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -106,6 +109,27 @@ export default function providersReducer(
         loading: false,
         error: action.payload,
       };
+
+    case CREATE_PROVIDERS_BEGIN:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case CREATE_PROVIDERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case CREATE_PROVIDERS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+
     default:
       return state;
   }
@@ -149,7 +173,7 @@ export function getProvidersThunk() {
 export function inviteProvidersThunk(payload) {
   console.log({ payload });
   return async (dispatch, getState) => {
-    dispatch(addProvidersBegin());
+    dispatch(inviteProvidersBegin());
     const newProviders = Array.isArray(payload) ? payload : [payload];
     const { org } = getState().userReducer;
     const { uid } = firebaseAuthService.getUser(true);
@@ -194,7 +218,7 @@ export function inviteProvidersThunk(payload) {
       .map((provider) => formatContactForDb(provider.phone));
     if (contactInfoArr.includes(false)) {
       toast.error('-- Invalid phone number or email --');
-      dispatch(addProvidersFailure('-- Invalid phone number or email --'));
+      dispatch(inviteProvidersFailure('-- Invalid phone number or email --'));
       return false;
     }
     console.log('inviteProvidersThunk', { payload, postedLabels });
@@ -218,11 +242,11 @@ export function inviteProvidersThunk(payload) {
           labels: postedLabels[i],
           iid: response.iids[i].iid,
         }));
-        dispatch(addProvidersSuccess(newProviderObjs));
+        dispatch(inviteProvidersSuccess(newProviderObjs));
       })
       .catch((error) => {
-        console.error('addProviders');
-        dispatch(addProvidersFailure(error.message));
+        console.error('inviteProviders');
+        dispatch(inviteProvidersFailure(error.message));
       });
   };
 }
@@ -334,6 +358,48 @@ export function removeProviderThunk({ pid, iid }) {
   };
 }
 
+/**
+ * Creates simulated providers.
+ *
+ * Based on parsed profiles inputted and unique simulation organization ID, creates profile
+ * documents for all providers.
+ *
+ * @param {array}  providers Array of provider profiles to create.
+ * @param {string} org       Simulation org ID.
+ */
+export function createProvidersThunk(providers, org) {
+  return async (dispatch) => {
+    dispatch(createProvidersBegin());
+
+    await Promise.all(providers.map(({ name, properties }) => apiFetch({
+      method: 'POST',
+      endpoint: 'profile/single/provider',
+      body: {
+        uuid: `sim-provider-${new Date().getTime()}-1`,
+        type: 'provider',
+        profile: {
+          name,
+          about: 'Simulated provider',
+          properties,
+          org,
+        },
+        cred: {
+          firstName: name.split(' ')[0],
+          lastName: name.split(' ')[1],
+          state: 'Washington',
+          birthYear: '1990',
+        },
+      },
+    })))
+      .then(() => {
+        dispatch(createProvidersSuccess());
+      })
+      .catch((error) => {
+        dispatch(createProvidersFailure(error));
+      });
+  };
+}
+
 // ACTIONS
 export const getProvidersBegin = () => ({
   type: GET_PROVIDERS_BEGIN,
@@ -347,15 +413,15 @@ export const getProvidersFailure = (error) => ({
   payload: { error },
 });
 
-export const addProvidersBegin = () => ({
-  type: ADD_PROVIDERS_BEGIN,
+export const inviteProvidersBegin = () => ({
+  type: INVITE_PROVIDERS_BEGIN,
 });
-export const addProvidersSuccess = (newProviders) => ({
-  type: ADD_PROVIDERS_SUCCESS,
+export const inviteProvidersSuccess = (newProviders) => ({
+  type: INVITE_PROVIDERS_SUCCESS,
   payload: newProviders,
 });
-export const addProvidersFailure = (error) => ({
-  type: ADD_PROVIDERS_FAILURE,
+export const inviteProvidersFailure = (error) => ({
+  type: INVITE_PROVIDERS_FAILURE,
   payload: { error },
 });
 
@@ -380,5 +446,18 @@ export const editProviderSuccess = (newProviders) => ({
 });
 export const editProviderFailure = (error) => ({
   type: EDIT_PROVIDER_FAILURE,
+  payload: { error },
+});
+
+const createProvidersBegin = () => ({
+  type: CREATE_PROVIDERS_BEGIN,
+});
+
+const createProvidersSuccess = () => ({
+  type: CREATE_PROVIDERS_SUCCESS,
+});
+
+const createProvidersFailure = (error) => ({
+  type: CREATE_PROVIDERS_FAILURE,
   payload: { error },
 });

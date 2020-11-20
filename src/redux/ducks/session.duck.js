@@ -31,6 +31,10 @@ const GET_AVAILABLE_BEGIN = 'GET_AVAILABLE_BEGIN';
 const GET_AVAILABLE_SUCCESS = 'GET_AVAILABLE_SUCCESS';
 const GET_AVAILABLE_FAILURE = 'GET_AVAILABLE_FAILURE';
 
+const ADD_AVAILABILITY_BEGIN = 'ADD_AVAILABILITY_BEGIN';
+const ADD_AVAILABILITY_SUCCESS = 'ADD_AVAILABILITY_SUCCESS';
+const ADD_AVAILABILITY_FAILURE = 'ADD_AVAILABILITY_FAILURE';
+
 // REDUCER
 
 export default function sessionsReducer(
@@ -424,6 +428,47 @@ export function getAvailableSessionsThunk(property) {
   };
 }
 
+export function addAvailabilityThunk(availability, org) {
+  return async (dispatch) => {
+    dispatch(addAvailabilityBegin());
+
+    await Promise.all(availability.map(({
+      pid, name, about, properties, start, end,
+    }) => apiFetch({
+      method: 'POST',
+      body: {
+        providerInfo: {
+          pid,
+          name,
+          about,
+          email: 'info@watutor.com',
+        },
+        sessionInfo: {
+          name: 'placeholder',
+          about: 'placeholder',
+          length: 60,
+          properties,
+          currency: 'cent',
+          price: 3000,
+          org,
+        },
+        payments: {
+          providerStripe: 'acct_1HKtt0DaRCUe7vaA',
+        },
+        start: start.format(TIME_STRING),
+        end: end.format(TIME_STRING),
+        rating: 4.0,
+      },
+    })))
+      .then(() => {
+        dispatch(addAvailabilitySuccess());
+      })
+      .catch((error) => {
+        dispatch(addAvailabilityFailure(error));
+      });
+  };
+}
+
 // ACTIONS
 export const getSessionsBegin = () => ({
   type: GET_SESSIONS_BEGIN,
@@ -484,5 +529,18 @@ const getAvailableSuccess = (availableSessions) => ({
 
 const getAvailableFailure = (error) => ({
   type: GET_AVAILABLE_FAILURE,
+  payload: { error },
+});
+
+const addAvailabilityBegin = () => ({
+  type: ADD_AVAILABILITY_BEGIN,
+});
+
+const addAvailabilitySuccess = () => ({
+  type: ADD_AVAILABILITY_SUCCESS,
+});
+
+const addAvailabilityFailure = (error) => ({
+  type: ADD_AVAILABILITY_FAILURE,
   payload: { error },
 });
