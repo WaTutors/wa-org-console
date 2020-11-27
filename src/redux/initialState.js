@@ -37,4 +37,9 @@ export default {
     loading: false,
     error: false,
   },
+  analytics: {
+    analytics: {},
+    loading: false,
+    error: null,
+  },
 };

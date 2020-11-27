@@ -6,6 +6,7 @@ import providersReducer from './provider.duck';
 import userReducer from './user.duck';
 import groupsReducer from './group.duck';
 import sessionsReducer from './session.duck';
+import analyticsReducer from './analytics.duck';
 
 export default combineReducers({
   studentsReducer,
@@ -13,4 +14,5 @@ export default combineReducers({
   userReducer,
   groupsReducer,
   sessionsReducer,
+  analyticsReducer,
 });

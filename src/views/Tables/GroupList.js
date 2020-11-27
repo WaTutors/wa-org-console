@@ -7,7 +7,7 @@ import {
 } from 'services/parsers/group.parser';
 import { parseNameFromStudent } from 'services/parsers/student.parser';
 import {
-  getGroupsThunk, createGroupsThunk, removeGroupThunk, editMembersGroupThunk,
+  getGroupsThunk, createGroupsThunk, removeGroupThunk,
 } from 'redux/ducks/group.duck';
 import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 import TemplateList from './Template';
@@ -142,7 +142,7 @@ const mapStateToProps = ({ userReducer, groupsReducer, studentsReducer }) => ({
   properties: userReducer.properties,
   studentList: studentsReducer.list,
 });
-const mapDispatchToProps = (dispatch, componentProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   getData: () => dispatch(getGroupsThunk()),
   addData: (data) => dispatch(createGroupsThunk(data)),
   getProperties: () => dispatch(getOrgSummaryThunk()),

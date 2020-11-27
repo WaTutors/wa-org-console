@@ -10,4 +10,7 @@ debug.log
 firebase-debug.log
 
 # Build output
-build/*
+build
+
+# VSCode Debug
+.vscode

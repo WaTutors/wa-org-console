@@ -20,39 +20,56 @@ const CustomSlider = withStyles({
 
 const fields = [
   {
+    title: 'Number of Students',
+    defaultValue: 5,
+    step: 1,
+    min: 1,
+    max: 20,
+  },
+  {
+    title: 'Number of Instructors',
+    defaultValue: 5,
+    step: 1,
+    min: 1,
+    max: 20,
+  },
+  {
     title: 'Available Hours per Instructor',
-    defaultValue: 12,
+    defaultValue: 2,
     step: 1,
     min: 1,
+    max: 10,
+  },
+  {
+    title: '% of Instructors Accepting Recommendations',
+    defaultValue: 50,
+    step: 5,
+    min: 0,
+    max: 100,
+  },
+  {
+    title: 'Time of Searches',
+    defaultValue: [6, 12],
+    step: 1,
+    min: 0,
     max: 24,
-  },
-  {
-    title: '% of Hours Booked',
-    defaultValue: 50,
-    step: 5,
-    min: 0,
-    max: 100,
-  },
-  {
-    title: '% of Invites Accepted per Student',
-    defaultValue: 50,
-    step: 5,
-    min: 0,
-    max: 100,
-  },
-  {
-    title: 'Searches for 1-1 Sessions per Student',
-    defaultValue: 5,
-    step: 1,
-    min: 1,
-    max: 10,
-  },
-  {
-    title: 'Searches for Group Sessions per Student',
-    defaultValue: 5,
-    step: 1,
-    min: 1,
-    max: 10,
+    range: true,
+    marks: [{
+      value: 0,
+      label: '12:00 AM',
+    }, {
+      value: 6,
+      label: '6:00 AM',
+    }, {
+      value: 12,
+      label: '12:00 PM',
+    }, {
+      value: 18,
+      label: '6:00 PM',
+    }, {
+      value: 24,
+      label: '12:00 AM',
+    }],
   },
 ];
 
@@ -65,18 +82,19 @@ export default function SimulationModal({ onSubmit, isOpen, toggleOpen }) {
       <Modal.Body>
         <div>
           {fields.map(({
-            title, defaultValue, step, min, max,
+            title, defaultValue, step, min, max, range, marks,
           }) => (
             <div style={{ marginBottom: 10 }}>
               <p>{title}</p>
               <CustomSlider
                 defaultValue={defaultValue}
                 getAriaValueText={(value) => value}
-                aria-labelledby="discrete-slider"
+                aria-labelledby={range ? 'range-slider' : 'discrete-slider'}
                 valueLabelDisplay="auto"
                 step={step}
                 min={min}
                 max={max}
+                marks={marks}
                 style={{ color: '#3478f6' }}
               />
             </div>

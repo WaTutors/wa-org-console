@@ -37,7 +37,7 @@ export default async function apiFetch({ method, endpoint, body = {} }) {
 
   const baseUrl = process.env.REACT_APP_RUN_MODE === 'dev' && false // if true, will fetch localhost
     ? 'http://localhost:3001'
-    : 'https://v2-0-37-dot-watutors-1.uc.r.appspot.com';
+    : 'https://v2-0-38-dot-watutors-1.uc.r.appspot.com';
 
   return fetch(`${baseUrl}/v2/${endpoint.replace('+', '%2B')}`, config)
     .then((response) => parseResponse(response))
