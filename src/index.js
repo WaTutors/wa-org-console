@@ -43,15 +43,15 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 const history = createBrowserHistory();
 
-Sentry.init({
-  dsn: 'https://5e51804b311644a98ed1beb82ce76216@o389415.ingest.sentry.io/5405269',
-  release: 'wonsole@1.0.0',
-  integrations: [new Integrations.BrowserTracing({
-    routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
-  })],
-  tracesSampleRate: 1.0,
-  normalizeDepth: 10,
-});
+// Sentry.init({
+//   dsn: 'https://5e51804b311644a98ed1beb82ce76216@o389415.ingest.sentry.io/5405269',
+//   release: 'wonsole@1.0.0',
+//   integrations: [new Integrations.BrowserTracing({
+//     routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
+//   })],
+//   tracesSampleRate: 1.0,
+//   normalizeDepth: 10,
+// });
 
 function App() {
   return (

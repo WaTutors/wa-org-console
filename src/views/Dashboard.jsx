@@ -42,6 +42,7 @@ import { getProvidersThunk } from 'redux/ducks/provider.duck';
 import { getStudentsThunk } from 'redux/ducks/student.duck';
 import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 import SimulationModal from 'components/Modals/SimulationModal';
+import CreateModal from 'components/Modals/CreateModal';
 import { getAnalyticsThunk } from 'redux/ducks/analytics.duck';
 import Loader from 'components/Loader';
 
@@ -72,6 +73,7 @@ function Dashboard({
   analytics, loading,
 }) {
   const [isSimModalOpen, showSimModal] = useState(false);
+  const [isCreateModalOpen, showCreateModal] = useState(false);
   const [searches, setSearches] = useState([]);
   const [availableHours, setAvailableHours] = useState([]);
   const [selectedProperty, selectProperty] = useState({});
@@ -492,23 +494,26 @@ function Dashboard({
   return (
     <div className="content">
       <Grid fluid>
-        {orgState === 'watutor_default' && (
-          <Row style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 15 }}>
-            <Button
-              bsSize="medium"
-              bsStyle="info"
-              onClick={() => showSimModal(true)}
-              className="btn-fill"
-              style={{
-                fontWeight: 500,
-                borderRadius: 10,
-                alignSelf: 'flex-end',
-              }}
-            >
-              + Create Simulation
-            </Button>
-          </Row>
-        )}
+        <Row style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 15 }}>
+          <Button
+            bsSize="medium"
+            bsStyle="info"
+            onClick={() => {
+              if (orgState === 'watutor_default')
+                showCreateModal(true);
+              else
+                showSimModal(true);
+            }}
+            className="btn-fill"
+            style={{
+              fontWeight: 500,
+              borderRadius: 10,
+              alignSelf: 'flex-end',
+            }}
+          >
+            {orgState === 'watutor_default' ? '+ Create Org' : 'Run Simulation'}
+          </Button>
+        </Row>
         {statsRow}
         {sessionsPerDay}
         {searchesVsAvailable}
@@ -517,6 +522,7 @@ function Dashboard({
         </Row>
       </Grid>
       <SimulationModal isOpen={isSimModalOpen} toggleOpen={showSimModal} />
+      <CreateModal isOpen={isCreateModalOpen} toggleOpen={showCreateModal} />
     </div>
   );
 }
