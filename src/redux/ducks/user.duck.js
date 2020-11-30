@@ -71,18 +71,20 @@ export default function userReducer(
       return {
         ...state,
         error: null,
+        loading: true,
       };
 
     case CREATE_ORG_SUCCESS:
       return {
         ...state,
-        payload: action.payload.payload,
+        loading: false,
       };
 
     case CREATE_ORG_FAILURE:
       return {
         ...state,
         error: action.payload.error,
+        loading: false,
       };
 
     default:
@@ -222,9 +224,9 @@ export function createOrgThunk(name) {
       method: 'POST',
       endpoint: 'admin/org/create',
       body: {
-        orgName: `simulation-${name}`,
+        orgName: name,
         orgType: 'sim',
-        entityName: name,
+        entityName: `Simulation ${name}`,
         contactEmail: 'info@watutor.com',
       },
     })
@@ -272,12 +274,11 @@ const createOrgBegin = () => ({
   type: CREATE_ORG_BEGIN,
 });
 
-const createOrgSuccess = (payload) => ({
+const createOrgSuccess = () => ({
   type: CREATE_ORG_SUCCESS,
-  payload: { payload },
 });
 
-const createOrgFailure = (error) => ({
+export const createOrgFailure = (error) => ({
   type: CREATE_ORG_FAILURE,
   payload: { error },
 });

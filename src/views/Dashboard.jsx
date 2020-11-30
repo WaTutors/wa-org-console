@@ -86,7 +86,7 @@ function Dashboard({
     getProviders();
     getStudents();
     getOrgSummary();
-    getAnalytics(['Algebra', 'Geometry']);
+    getAnalytics(['Algebra', 'Geometry']); // TODO - change this to just an array of the org properties
   }, [getProviders, getStudents, getOrgSummary, getAnalytics]);
 
   useEffect(() => {
