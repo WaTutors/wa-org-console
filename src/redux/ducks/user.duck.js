@@ -15,6 +15,10 @@ const UPDATE_ORG_SUMMARY_BEGIN = 'UPDATE_ORG_SUMMARY_BEGIN';
 const UPDATE_ORG_SUMMARY_SUCCESS = 'UPDATE_ORG_SUMMARY_SUCCESS';
 const UPDATE_ORG_SUMMARY_FAILURE = 'UPDATE_ORG_SUMMARY_FAILURE';
 
+const CREATE_ORG_BEGIN = 'CREATE_ORG_BEGIN';
+const CREATE_ORG_SUCCESS = 'CREATE_ORG_SUCCESS';
+const CREATE_ORG_FAILURE = 'CREATE_ORG_FAILURE';
+
 // REDUCER
 
 export default function userReducer(
@@ -61,6 +65,26 @@ export default function userReducer(
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case CREATE_ORG_BEGIN:
+      return {
+        ...state,
+        error: null,
+        loading: true,
+      };
+
+    case CREATE_ORG_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case CREATE_ORG_FAILURE:
+      return {
+        ...state,
+        error: action.payload.error,
+        loading: false,
       };
 
     default:
@@ -192,6 +216,29 @@ export function addOrgGroupLabelsThunk(toAdd) {
   };
 }
 
+export function createOrgThunk(name) {
+  return async (dispatch) => {
+    dispatch(createOrgBegin());
+
+    await apiFetch({
+      method: 'POST',
+      endpoint: 'admin/org/create',
+      body: {
+        orgName: name,
+        orgType: 'sim',
+        entityName: `Simulation ${name}`,
+        contactEmail: 'info@watutor.com',
+      },
+    })
+      .then(() => {
+        dispatch(createOrgSuccess());
+      })
+      .catch((error) => {
+        dispatch(createOrgFailure(error));
+      });
+  };
+}
+
 // ACTIONS
 
 export const setOrganization = (orgName) => ({
@@ -220,5 +267,18 @@ export const updateOrgSummarySuccess = (updates) => ({
 });
 export const updateOrgSummaryFailure = (error) => ({
   type: UPDATE_ORG_SUMMARY_FAILURE,
+  payload: { error },
+});
+
+const createOrgBegin = () => ({
+  type: CREATE_ORG_BEGIN,
+});
+
+const createOrgSuccess = () => ({
+  type: CREATE_ORG_SUCCESS,
+});
+
+export const createOrgFailure = (error) => ({
+  type: CREATE_ORG_FAILURE,
   payload: { error },
 });
