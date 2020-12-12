@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-use-before-define */
 import React from 'react';
 import moment from 'moment';
@@ -172,7 +173,9 @@ function isItemValid(item, providerList, properties, org) {
   const inputErrors = [];
   const timestamp = Date.parse(`${item.startDate} ${item.startTime}`);
   const subjectArr = item.subject.map(
-    (subject) => properties.includes(subject) || properties.includes(subject.value),
+    (subject) => properties.includes(subject)
+      || properties.includes(subject.value)
+      || (subject.value.includes('_') && properties.includes(subject.value.split('_')[1])),
   );
 
   console.log('ld item', item, inputTypes.includes(item.type[0].value), subjectArr, properties);
@@ -217,9 +220,10 @@ export function createSessionsThunk(inputData, selectedSession) {
       dispatch(addSessionsBegin());
 
       // input validation
-      const inputErrors = newSessions
-        .map((item) => isItemValid(item, providerList, properties, org))
-        .flat();
+      const inputErrors = [];
+      // const inputErrors = newSessions
+      //   .map((item) => isItemValid(item, providerList, properties, org))
+      //   .flat();
       console.log('inputerrors', inputErrors);
 
       if (inputErrors.length > 0) {
@@ -249,14 +253,19 @@ export function createSessionsThunk(inputData, selectedSession) {
         const isOptional = data.isOptional && (Array.isArray(data.isOptional)
           ? data.isOptional[0].value === 'false'
           : data.isOptional === 'false');
-        const memberType = isOptional ? 'addProfiles' : 'invitees';
+        const memberType = isOptional ? 'invitees' : 'addProfiles';
         body = {
           sid: selectedSession.id,
           sender: uid,
           property: newSessions[0].subject[0].value,
-          transaction_stripe: 'placeholder',
+          chargeObj: {
+            chargeId: 'placeholder',
+          },
           [memberType]: groupObj ? groupObj.activeMembers : undefined,
+          length: 60,
         };
+
+        console.log('BODY FOR BOOKING SESSION', body);
       } else { // for other sessions
         body = newSessions.map((data) => {
           const start = selectedSession
@@ -399,73 +408,83 @@ export function editMembersSessionThunk({
   };
 }
 
-export function getAvailableSessionsThunk(property) {
+export function getAvailableSessionsThunk(property, start, end) {
   return async (dispatch, getState) => {
     const { org } = getState().userReducer;
 
     dispatch(getAvailableBegin());
 
-    const start = moment();
-    const end = moment().set('hours', 23).set('minutes', 0);
+    const startTime = start || moment();
+    const endTime = end || moment().set('hours', 23).set('minutes', 0);
 
-    if (start.minutes() > 30 && start.hours() !== 23)
-      // start.add(1, 'hours').set('minutes', 0); // FIXME - testing 10 minute sessions
-      start.set('minutes', 0);
-    else
-      // start.set('minutes', 30); // FIXME - testing 10 minute sessions
-      start.set('minutes', 0);
+    if (!start)
+      if (startTime.minutes() > 30 && startTime.hours() !== 23)
+        startTime.add(1, 'hours').set('minutes', 0);
+      else
+        startTime.set('minutes', 30);
 
     await apiFetch({
       method: 'GET',
-      endpoint: `session/paid/scheduled/book?startString=${start.format(TIME_STRING)}&endString=${end.format(TIME_STRING)}&property=${property}&org=${org}`,
+      endpoint: `session/paid/scheduled/book?startString=${startTime.format(TIME_STRING)}&endString=${endTime.format(TIME_STRING)}&property=${property}&org=${org}&sessionLength=60&type=paid_available_timed`,
     })
       .then(({ availableSessions }) => {
         dispatch(getAvailableSuccess(
-          availableSessions.filter((session) => session && Object.keys(session).length > 0),
+          availableSessions.length > 0
+            ? availableSessions.filter((session) => session && Object.keys(session).length > 0)
+            : [],
         ));
       })
       .catch((error) => dispatch(getAvailableFailure(error)));
   };
 }
 
-export function addAvailabilityThunk(availability, org) {
-  return async (dispatch) => {
+export function addAvailabilityThunk(availability) {
+  return async (dispatch, getState) => {
+    const { org } = getState().userReducer;
+
     dispatch(addAvailabilityBegin());
 
-    await Promise.all(availability.map(({
-      pid, name, about, properties, start, end,
-    }) => apiFetch({
-      method: 'POST',
-      body: {
-        providerInfo: {
-          pid,
-          name,
-          about,
-          email: 'info@watutor.com',
-        },
-        sessionInfo: {
-          name: 'placeholder',
-          about: 'placeholder',
-          length: 60,
-          properties,
-          currency: 'cent',
-          price: 3000,
-          org,
-        },
-        payments: {
-          providerStripe: 'acct_1HKtt0DaRCUe7vaA',
-        },
-        start: start.format(TIME_STRING),
-        end: end.format(TIME_STRING),
-        rating: 4.0,
-      },
-    })))
-      .then(() => {
-        dispatch(addAvailabilitySuccess());
-      })
-      .catch((error) => {
-        dispatch(addAvailabilityFailure(error));
-      });
+    try {
+      for (let i = 0; i < availability.length; i += 1) {
+        const {
+          pid, name, about, properties, start, end,
+        } = availability[i];
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        await apiFetch({
+          method: 'POST',
+          endpoint: 'session/paid/scheduled/add',
+          body: {
+            providerInfo: {
+              pid,
+              name,
+              about,
+              email: 'info@watutor.com',
+            },
+            sessionInfo: {
+              name: 'placeholder',
+              about: 'placeholder',
+              length: 60,
+              properties,
+              currency: 'cent',
+              price: 3000,
+              org,
+            },
+            payments: {
+              providerStripe: 'acct_1HKtt0DaRCUe7vaA',
+            },
+            start: start.format(TIME_STRING),
+            end: end.format(TIME_STRING),
+            rating: 4.0,
+          },
+        });
+      }
+
+      dispatch(addAvailabilitySuccess());
+    } catch (error) {
+      dispatch(addAvailabilityFailure(error));
+    }
   };
 }
 

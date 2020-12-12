@@ -14,3 +14,6 @@ build
 
 # VSCode Debug
 .vscode
+
+# Python testing
+venv

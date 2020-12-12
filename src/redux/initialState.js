@@ -14,15 +14,17 @@ export default {
   user: {
     org: false, // testorg
     name: 'Loading...',
-    properties: ['Loading...'],
+    properties: [],
   },
   students: {
     list: [],
+    created: [],
     loading: false,
     error: false,
   },
   providers: {
     list: [],
+    created: [],
     loading: false,
     error: false,
   },
@@ -39,6 +41,7 @@ export default {
   },
   analytics: {
     analytics: {},
+    status: 'Creating categories...',
     loading: false,
     error: null,
   },

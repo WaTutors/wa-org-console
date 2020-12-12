@@ -1,16 +1,15 @@
-/* eslint-disable no-use-before-define */
-import React, { useState, useEffect } from 'react';
-import {
-  Button, Label, Input,
-} from 'reactstrap';
+import React, { useState } from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
+import { connect } from 'react-redux';
+
 import Slider from '@material-ui/core/Slider';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 
-import ButtonBar from 'components/Buttons/ButtonBar';
-import FileDropzone from 'components/FormInputs/FileDropzone';
-import FormInputs from 'components/FormInputs/FormInputs';
+import Loader from 'components/Loader';
+import { runSimulationThunk } from 'redux/ducks/analytics.duck';
 
 const CustomSlider = withStyles({
   valueLabel: {
@@ -20,18 +19,36 @@ const CustomSlider = withStyles({
 
 const fields = [
   {
-    title: 'Number of Students',
-    defaultValue: 5,
+    title: 'Days to Simulate',
+    defaultValue: 1,
     step: 1,
     min: 1,
-    max: 20,
+    max: 7,
+    id: 'days',
+  },
+  {
+    title: 'Categories',
+    defaultValue: 1,
+    step: 1,
+    min: 1,
+    max: 1,
+    id: 'categories',
+  },
+  {
+    title: 'Number of Students',
+    defaultValue: 10,
+    step: 1,
+    min: 1,
+    max: 100,
+    id: 'students',
   },
   {
     title: 'Number of Instructors',
-    defaultValue: 5,
+    defaultValue: 10,
     step: 1,
     min: 1,
-    max: 20,
+    max: 100,
+    id: 'instructors',
   },
   {
     title: 'Available Hours per Instructor',
@@ -39,53 +56,83 @@ const fields = [
     step: 1,
     min: 1,
     max: 10,
+    id: 'available',
   },
   {
     title: '% of Instructors Accepting Recommendations',
-    defaultValue: 50,
-    step: 5,
+    defaultValue: 100,
+    step: 10,
     min: 0,
     max: 100,
+    id: 'acceptance',
+  },
+  {
+    title: 'Searches per Student',
+    defaultValue: 1,
+    step: 1,
+    min: 1,
+    max: 1,
+    id: 'searches',
   },
   {
     title: 'Time of Searches',
-    defaultValue: [6, 12],
+    defaultValue: 14,
     step: 1,
     min: 0,
     max: 24,
-    range: true,
     marks: [{
       value: 0,
-      label: '12:00 AM',
+      label: '12 AM',
     }, {
       value: 6,
-      label: '6:00 AM',
+      label: '6 AM',
     }, {
       value: 12,
-      label: '12:00 PM',
+      label: '12 PM',
     }, {
       value: 18,
-      label: '6:00 PM',
+      label: '6 PM',
     }, {
       value: 24,
-      label: '12:00 AM',
+      label: '12 AM',
     }],
+    id: 'time',
   },
 ];
 
-export default function SimulationModal({ onSubmit, isOpen, toggleOpen }) {
+const hiddenFields = ['categories', 'acceptance', 'searches'];
+
+const defaults = Object.fromEntries(
+  fields.map(({ id, defaultValue }) => [id, defaultValue]),
+);
+
+function SimulationModal({
+  isOpen, toggleOpen, status, runSimulation,
+}) {
+  const [formValues, setFormValues] = useState(defaults);
+  const [isLoading, load] = useState(false);
+
   return (
-    <Modal show={isOpen}>
+    <Modal show={isOpen} onHide={() => setFormValues(defaults)}>
       <Modal.Header closeButton style={{ fontWeight: '500' }}>
         Create Simulation
       </Modal.Header>
       <Modal.Body>
         <div>
-          {fields.map(({
-            title, defaultValue, step, min, max, range, marks,
+          {isLoading ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ height: 100 }}>
+                <Loader transitionDelay="0ms" />
+              </div>
+              <p>{status}</p>
+            </div>
+          ) : fields.filter(({ id }) => !hiddenFields.includes(id)).map(({
+            title, defaultValue, step, min, max, range, marks, id,
           }) => (
-            <div style={{ marginBottom: 10 }}>
-              <p>{title}</p>
+            <div key={id} style={{ marginBottom: 10 }}>
+              <p>
+                {`${title} - ${id === 'time' ? moment().set('hours', formValues[id]).format('h A') : formValues[id]}`}
+              </p>
               <CustomSlider
                 defaultValue={defaultValue}
                 getAriaValueText={(value) => value}
@@ -95,6 +142,7 @@ export default function SimulationModal({ onSubmit, isOpen, toggleOpen }) {
                 min={min}
                 max={max}
                 marks={marks}
+                onChange={(_, value) => setFormValues({ ...formValues, [id]: value })}
                 style={{ color: '#3478f6' }}
               />
             </div>
@@ -104,7 +152,20 @@ export default function SimulationModal({ onSubmit, isOpen, toggleOpen }) {
       <Modal.Footer>
         <Button color="secondary" onClick={() => toggleOpen(false)}>Cancel</Button>
         {' '}
-        <Button color="primary">Create</Button>
+        <Button
+          disabled={isLoading}
+          color="primary"
+          onClick={() => {
+            load(true);
+            runSimulation(formValues)
+              .then(() => {
+                load(false);
+                toggleOpen(false);
+              });
+          }}
+        >
+          Run
+        </Button>
       </Modal.Footer>
     </Modal>
   );
@@ -113,9 +174,16 @@ export default function SimulationModal({ onSubmit, isOpen, toggleOpen }) {
 SimulationModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggleOpen: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func,
+  runSimulation: PropTypes.func.isRequired,
+  status: PropTypes.string.isRequired,
 };
 
-SimulationModal.defaultProps = {
-  onSubmit: (e) => console.log('form submitted', e),
-};
+const mapStateToProps = ({ analyticsReducer }) => ({
+  status: analyticsReducer.status,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  runSimulation: (options) => dispatch(runSimulationThunk(options)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SimulationModal);

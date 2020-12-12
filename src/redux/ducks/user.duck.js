@@ -99,18 +99,19 @@ export function getOrgSummaryThunk() {
     console.log('getState', getState());
     const { org } = getState().userReducer;
 
-    try {
-      const { org: summary } = await apiFetch({
-        method: 'GET',
-        endpoint: `admin/org/summary?oid=${org}`,
-      });
+    if (org)
+      try {
+        const { org: summary } = await apiFetch({
+          method: 'GET',
+          endpoint: `admin/org/summary?oid=${org}`,
+        });
 
-      // dispatch bullshit
-      dispatch(getOrgSummarySuccess(summary));
-    } catch (error) {
-      console.error('getSessions thunk threw', error);
-      dispatch(getOrgSummaryFailure(error.message));
-    }
+        // dispatch bullshit
+        dispatch(getOrgSummarySuccess(summary));
+      } catch (error) {
+        console.error('getOrgSummary thunk threw', error);
+        dispatch(getOrgSummaryFailure(error.message));
+      }
   };
 }
 

@@ -1,14 +1,15 @@
 import React from 'react';
+import { PropTypes } from 'prop-types';
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Fade from '@material-ui/core/Fade';
 
-function Loader() {
+export default function Loader({ transitionDelay }) {
   return (
     <Fade
       in
       style={{
-        transitionDelay: '800ms',
+        transitionDelay,
       }}
       unmountOnExit
     >
@@ -27,4 +28,10 @@ function Loader() {
   );
 }
 
-export default Loader;
+Loader.propTypes = {
+  transitionDelay: PropTypes.string,
+};
+
+Loader.defaultProps = {
+  transitionDelay: '800ms',
+};

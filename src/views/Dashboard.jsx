@@ -43,7 +43,7 @@ import { getStudentsThunk } from 'redux/ducks/student.duck';
 import { getOrgSummaryThunk } from 'redux/ducks/user.duck';
 import SimulationModal from 'components/Modals/SimulationModal';
 import CreateModal from 'components/Modals/CreateModal';
-import { getAnalyticsThunk } from 'redux/ducks/analytics.duck';
+import { getAnalyticsThunk, clearOrgDataThunk } from 'redux/ducks/analytics.duck';
 import Loader from 'components/Loader';
 
 const animatedComponents = makeAnimated();
@@ -70,7 +70,7 @@ const LargeFormControlLabel = withStyles({
 
 function Dashboard({
   alias, getProviders, providers, getStudents, students, orgState, getOrgSummary, getAnalytics,
-  analytics, loading,
+  analytics, loading, properties, clearOrgData,
 }) {
   const [isSimModalOpen, showSimModal] = useState(false);
   const [isCreateModalOpen, showCreateModal] = useState(false);
@@ -86,8 +86,12 @@ function Dashboard({
     getProviders();
     getStudents();
     getOrgSummary();
-    getAnalytics(['Algebra', 'Geometry']); // TODO - change this to just an array of the org properties
-  }, [getProviders, getStudents, getOrgSummary, getAnalytics]);
+  }, [getProviders, getStudents, getOrgSummary]);
+
+  useEffect(() => {
+    if (properties.length > 0)
+      getAnalytics(properties.map((property) => `${orgState}_${property}`));
+  }, [properties, getAnalytics]);
 
   useEffect(() => {
     if (selectedProperty.value) {
@@ -357,7 +361,11 @@ function Dashboard({
           legend={(
             <div className="legend">
               {createLegend({
-                names: Object.keys(analytics),
+                names: Object.keys(analytics).map((property) => {
+                  const value = property.includes('_') ? property.split('_')[1] : property;
+
+                  return value;
+                }),
                 colors: ['#1DC7EA', '#FB404B', '#FFA534', '#9368E9', '#87CB16', '#1b8dff'],
               })}
             </div>
@@ -392,7 +400,11 @@ function Dashboard({
                   components={animatedComponents}
                   name="searchPropertySelect"
                   options={Object.keys(analytics)
-                    .map((property) => ({ value: property, label: property }))}
+                    .map((property) => {
+                      const label = property.includes('_') ? property.split('_')[1] : property;
+
+                      return { value: property, label };
+                    })}
                   onChange={(option) => {
                     selectProperty(option);
                   }}
@@ -520,6 +532,28 @@ function Dashboard({
         <Row>
           {orgState !== 'watutor_default' && <OrgGroupLabels />}
         </Row>
+        <Row style={{ textAlign: 'center' }}>
+          {orgState !== 'watutor_default' && (
+            <Button
+              bsSize="medium"
+              bsStyle="info"
+              disabled={loading}
+              onClick={() => {
+                selectProperty({});
+                clearOrgData();
+              }}
+              className="btn-fill"
+              style={{
+                fontWeight: 500,
+                borderRadius: 10,
+                borderColor: '#fa282d',
+                backgroundColor: '#fa282d',
+              }}
+            >
+              Clear Org Data
+            </Button>
+          )}
+        </Row>
       </Grid>
       <SimulationModal isOpen={isSimModalOpen} toggleOpen={showSimModal} />
       <CreateModal isOpen={isCreateModalOpen} toggleOpen={showCreateModal} />
@@ -545,6 +579,8 @@ Dashboard.propTypes = {
   getAnalytics: PropTypes.func.isRequired,
   analytics: PropTypes.shape().isRequired,
   loading: PropTypes.bool.isRequired,
+  properties: PropTypes.arrayOf(PropTypes.string).isRequired,
+  clearOrgData: PropTypes.func.isRequired,
 };
 
 Dashboard.defaultProps = {
@@ -567,6 +603,7 @@ const mapStateToProps = ({
   orgState: userReducer.org,
   analytics: analyticsReducer.analytics,
   loading: analyticsReducer.loading,
+  properties: userReducer.properties,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -574,6 +611,7 @@ const mapDispatchToProps = (dispatch) => ({
   getStudents: () => dispatch(getStudentsThunk()),
   getOrgSummary: () => dispatch(getOrgSummaryThunk()),
   getAnalytics: (properties) => dispatch(getAnalyticsThunk(properties)),
+  clearOrgData: () => dispatch(clearOrgDataThunk()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

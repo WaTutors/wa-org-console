@@ -120,6 +120,7 @@ export default function providersReducer(state = initialState.providers, action 
     case CREATE_PROVIDERS_SUCCESS:
       return {
         ...state,
+        created: action.payload.providers,
         loading: false,
       };
 
@@ -361,38 +362,39 @@ export function removeProviderThunk({ pid, iid }) {
 /**
  * Creates simulated providers.
  *
- * Based on parsed profiles inputted and unique simulation organization ID, creates profile
+ * Based on parsed profiles inputted and current simulation organization ID, creates profile
  * documents for all providers.
  *
  * @param {array}  providers Array of provider profiles to create.
- * @param {string} org       Simulation org ID.
  */
-export function createProvidersThunk(providers, org) {
-  return async (dispatch) => {
+export function createProvidersThunk(providers) {
+  return async (dispatch, getState) => {
+    const { org } = getState().userReducer;
+
     dispatch(createProvidersBegin());
 
-    await Promise.all(providers.map(({ name, properties }) => apiFetch({
+    await Promise.all(providers.map(({ properties }, index) => apiFetch({
       method: 'POST',
       endpoint: 'profile/single/provider',
       body: {
-        uuid: `sim-provider-${new Date().getTime()}-1`,
+        uuid: `sim-provider-${Math.round(new Date().getTime() / 1000)}${index}`,
         type: 'provider',
         profile: {
-          name,
+          name: `Provider ${Math.round(new Date().getTime() / 1000)}${index}`,
           about: 'Simulated provider',
           properties,
-          org,
+          org: ['watutor_default', org],
         },
         cred: {
-          firstName: name.split(' ')[0],
-          lastName: name.split(' ')[1],
+          firstName: 'Provider',
+          lastName: 'Simulated',
           state: 'Washington',
           birthYear: '1990',
         },
       },
     })))
-      .then(() => {
-        dispatch(createProvidersSuccess());
+      .then((profiles) => {
+        dispatch(createProvidersSuccess(profiles.map(({ posted }) => posted)));
       })
       .catch((error) => {
         dispatch(createProvidersFailure(error));
@@ -453,8 +455,9 @@ const createProvidersBegin = () => ({
   type: CREATE_PROVIDERS_BEGIN,
 });
 
-const createProvidersSuccess = () => ({
+export const createProvidersSuccess = (providers) => ({
   type: CREATE_PROVIDERS_SUCCESS,
+  payload: { providers },
 });
 
 const createProvidersFailure = (error) => ({

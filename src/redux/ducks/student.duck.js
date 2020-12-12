@@ -120,6 +120,7 @@ export default function studentsReducer(state = initialState.students, action = 
     case CREATE_STUDENTS_SUCCESS:
       return {
         ...state,
+        created: action.payload.created,
         loading: false,
       };
 
@@ -348,32 +349,33 @@ export function removeStudentThunk({ pid, iid }) {
 /**
  * Creates simulated students.
  *
- * Based on parsed profiles inputted and unique simulation organization ID, creates profile
+ * Based on parsed profiles inputted and current simulation organization ID, creates profile
  * documents for all students.
  *
  * @param {array}  students Array of student profiles to create.
- * @param {string} org      Simulation org ID.
  */
-export function createStudentsThunk(students, org) {
-  return async (dispatch) => {
+export function createStudentsThunk(students) {
+  return async (dispatch, getState) => {
+    const { org } = getState().userReducer;
+
     dispatch(createStudentsBegin());
 
-    await Promise.all(students.map(({ name, properties }) => apiFetch({
+    await Promise.all(students.map(({ properties }, index) => apiFetch({
       method: 'POST',
       endpoint: 'profile/single/consumer',
       body: {
-        uuid: `sim-consumer-${new Date().getTime()}-1`,
+        uuid: `sim-consumer-${Math.round(new Date().getTime() / 1000)}${index}`,
         type: 'consumer',
         profile: {
-          name,
+          name: `Student ${Math.round(new Date().getTime() / 1000)}${index}`,
           about: 'Simulated student',
           properties,
-          org,
+          org: ['watutor_default', org],
         },
       },
     })))
-      .then(() => {
-        dispatch(createStudentsSuccess());
+      .then((profiles) => {
+        dispatch(createStudentsSuccess(profiles.map(({ posted }) => posted)));
       })
       .catch((error) => {
         dispatch(createStudentsFailure(error));
@@ -437,8 +439,9 @@ const createStudentsBegin = () => ({
   type: CREATE_STUDENTS_BEGIN,
 });
 
-const createStudentsSuccess = () => ({
+export const createStudentsSuccess = (created) => ({
   type: CREATE_STUDENTS_SUCCESS,
+  payload: { created },
 });
 
 const createStudentsFailure = (error) => ({
